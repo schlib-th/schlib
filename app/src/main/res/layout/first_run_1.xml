@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.fahimu.schlib.app.FirstRun1Activity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="@string/first_run_1_welcome"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="@string/first_run_1_explanation"
+            android:textAppearance="?android:textAppearanceMedium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|top"
+            android:orientation="horizontal"
+            android:padding="24dp">
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/first_run_1_name1">
+
+                <de.fahimu.android.app.scanner.ScannerAwareEditText
+                    android:id="@+id/first_run_1_name1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|start"
+                    android:inputType="textNoSuggestions|textCapWords"
+                    android:singleLine="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/first_run_1_name2">
+
+                <de.fahimu.android.app.scanner.ScannerAwareEditText
+                    android:id="@+id/first_run_1_name2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|start"
+                    android:inputType="textNoSuggestions|textCapWords"
+                    android:singleLine="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="blocksDescendants"
+                android:focusable="false"
+                android:onClick="onDoneClicked"
+                android:text="@string/app_done" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

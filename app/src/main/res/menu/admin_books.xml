@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="@string/action_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always">
+    </item>
+    <item
+        android:id="@+id/action_create"
+        android:icon="@drawable/ic_add_black_24dp"
+        android:onClick="onCreateClicked"
+        android:title="@string/admin_books_action_create"
+        android:visible="false"
+        app:showAsAction="ifRoom">
+    </item>
+
+</menu>

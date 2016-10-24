@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_primary_light">#d5edea</color>
+    <color name="color_primary">#71ada3</color>
+    <color name="color_primary_dark">#377a6f</color>
+
+    <color name="serials_row_key_background">#f9ff9b</color>
+    <color name="serials_row_info_background">#ccff9b</color>
+</resources>

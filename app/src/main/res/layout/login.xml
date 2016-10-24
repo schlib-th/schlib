@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.fahimu.schlib.app.LoginActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="6dp"
+            android:text="@string/login_explanation"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <RelativeLayout
+                android:id="@+id/login_scan"
+                android:layout_width="375dp"
+                android:layout_height="300dp"
+                android:layout_centerInParent="true">
+
+                <ImageView
+                    android:id="@+id/login_card_0"
+                    android:layout_width="375dp"
+                    android:layout_height="300dp"
+                    android:layout_alignParentBottom="true"
+                    android:contentDescription="@string/app_animation"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bm_card_0" />
+
+                <ImageView
+                    android:id="@+id/login_card_1"
+                    android:layout_width="375dp"
+                    android:layout_height="300dp"
+                    android:layout_alignParentBottom="true"
+                    android:contentDescription="@string/app_animation"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bm_card_1" />
+
+                <ImageView
+                    android:id="@+id/login_scan_0"
+                    android:layout_width="375dp"
+                    android:layout_height="225dp"
+                    android:layout_alignParentBottom="true"
+                    android:contentDescription="@string/app_animation"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bm_scan_0" />
+
+                <ImageView
+                    android:id="@+id/login_scan_1"
+                    android:layout_width="375dp"
+                    android:layout_height="225dp"
+                    android:layout_alignParentBottom="true"
+                    android:contentDescription="@string/app_animation"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bm_scan_1" />
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/login_stop"
+                android:layout_width="375dp"
+                android:layout_height="300dp"
+                android:layout_centerInParent="true"
+                android:contentDescription="@string/app_animation"
+                android:scaleType="centerCrop"
+                android:scaleX="0"
+                android:scaleY="0"
+                android:src="@drawable/bm_stop" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/login_message_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="6dp"
+            android:text="@string/login_message_1_lost"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/holo_red_dark" />
+
+        <TextView
+            android:id="@+id/login_message_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/login_message_2_please_return_idcard"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    </LinearLayout>
+
+</RelativeLayout>

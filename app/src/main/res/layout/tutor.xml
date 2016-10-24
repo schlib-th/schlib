@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.fahimu.schlib.app.TutorActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:id="@+id/tutor_main_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tutor_logged_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/tutor_logged_in"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <RelativeLayout
+                    android:id="@+id/tutor_scan"
+                    android:layout_width="375dp"
+                    android:layout_height="300dp"
+                    android:layout_centerInParent="true">
+
+                    <RelativeLayout
+                        android:id="@+id/tutor_item_0"
+                        android:layout_width="375dp"
+                        android:layout_height="300dp"
+                        android:layout_centerInParent="true">
+
+                        <ImageView
+                            android:id="@+id/tutor_card_0"
+                            android:layout_width="375dp"
+                            android:layout_height="300dp"
+                            android:layout_alignParentBottom="true"
+                            android:contentDescription="@string/app_animation"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/bm_card_0" />
+
+                        <ImageView
+                            android:id="@+id/tutor_book_0"
+                            android:layout_width="375dp"
+                            android:layout_height="300dp"
+                            android:layout_alignParentBottom="true"
+                            android:contentDescription="@string/app_animation"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/bm_book_0" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/tutor_item_1"
+                        android:layout_width="375dp"
+                        android:layout_height="300dp"
+                        android:layout_centerInParent="true">
+
+                        <ImageView
+                            android:id="@+id/tutor_card_1"
+                            android:layout_width="375dp"
+                            android:layout_height="300dp"
+                            android:layout_alignParentBottom="true"
+                            android:contentDescription="@string/app_animation"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/bm_card_1" />
+
+                        <ImageView
+                            android:id="@+id/tutor_book_1"
+                            android:layout_width="375dp"
+                            android:layout_height="300dp"
+                            android:layout_alignParentBottom="true"
+                            android:contentDescription="@string/app_animation"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/bm_book_1" />
+
+                    </RelativeLayout>
+
+                    <ImageView
+                        android:id="@+id/tutor_scan_0"
+                        android:layout_width="375dp"
+                        android:layout_height="225dp"
+                        android:layout_alignParentBottom="true"
+                        android:contentDescription="@string/app_animation"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/bm_scan_0" />
+
+                    <ImageView
+                        android:id="@+id/tutor_scan_1"
+                        android:layout_width="375dp"
+                        android:layout_height="225dp"
+                        android:layout_alignParentBottom="true"
+                        android:contentDescription="@string/app_animation"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/bm_scan_1" />
+
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/tutor_stop"
+                    android:layout_width="375dp"
+                    android:layout_height="300dp"
+                    android:layout_centerInParent="true"
+                    android:contentDescription="@string/app_animation"
+                    android:scaleType="centerCrop"
+                    android:scaleX="0"
+                    android:scaleY="0"
+                    android:src="@drawable/bm_stop" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:layout_weight="1"
+                android:background="@drawable/sh_rect_transparent"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tutor_display_issue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/darker_gray"
+                        android:gravity="center"
+                        android:padding="15dp"
+                        android:text="@string/tutor_display_issue"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <TextView
+                        android:id="@+id/tutor_display_return"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/darker_gray"
+                        android:gravity="center"
+                        android:padding="15dp"
+                        android:text="@string/tutor_display_return"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tutor_display_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/sh_rect_transparent"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="@string/tutor_progress_please_scan_book"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tutor_message_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="6dp"
+            android:text="@string/tutor_message_1_auto_logout"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/holo_red_dark" />
+
+        <TextView
+            android:id="@+id/tutor_message_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/tutor_message_2_auto_logout"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    </LinearLayout>
+
+</RelativeLayout>
