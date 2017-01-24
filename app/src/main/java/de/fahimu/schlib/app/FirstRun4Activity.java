@@ -121,6 +121,9 @@ public final class FirstRun4Activity extends SchlibActivity {
             }
          }
          setSelection(selection);
+         if (selection == null) {
+            showInfoSnackbar(R.string.first_run_4_empty);
+         }
       }
    }
 

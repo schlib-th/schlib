@@ -48,7 +48,7 @@ public enum StringType {
       /* a first name */
       private static final String NAME1 = App.format("(%s(-%s)*)", N1C, N1C);
       /* a last name component */
-      private static final String N2C   = App.format("((Mc|[DO]'|Di)?%s%s{1,}%s?)", UPP, LOW, APO);
+      private static final String N2C   = App.format("((Mac|Mc|[DO]'|Di)?%s%s{1,}%s?)", UPP, LOW, APO);
       /* a last name */
       private static final String NAME2 = App.format("(((v[ao]n( der?)?|de) )?%s(-%s)*)", N2C, N2C);
       /* a name */
@@ -79,7 +79,7 @@ public enum StringType {
 
       private static final String SHELF     = App.format("%s([ \\-]?(%s|%s))*", UPP, UPP, LOW);
       private static final String NUMBER    = "[0-9]{1,3}";
-      private static final String TITLE     = App.format("%s( %s)*", SENTENCE, SENTENCE);
+      private static final String TITLE     = App.format("%s( (%s|\\(%s\\)))*", SENTENCE, SENTENCE, SENTENCE);
       private static final String PUBLISHER = App.format("%s{3}|(%s(( | & | und )%s)*)", LOW, WUP, WUP);
       private static final String AUTHOR    = App.format("%s((, | & | und )%s)*", NAME, NAME);
       private static final String KEYWORDS  = App.format("%s( %s)*", WUP, WUP);
