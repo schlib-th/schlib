@@ -21,7 +21,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import de.fahimu.android.app.ListView.Adapter;
 import de.fahimu.android.app.ListView.Filter;
@@ -46,16 +45,12 @@ public final class AdminBooksActivity extends SchlibActivity {
 
    final class BookItem extends Item<Book> {
       BookItem(@NonNull Book book) {
-         super(book, getRid(book),
+         super(book,
                book.getShelf(), book.getDisplayNumber(),
                book.getTitle(), book.getAuthor(), book.getKeywords(), book.getPublisher(),
-               book.getMultilineISBNLabel());
+               book.getDisplayMultilineISBNLabel());
       }
    }
-
-   private int getRid(Book book) { return (shelfMap.get(book.getShelf()) << 16) + book.getNumber(); }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
 
    final class BookViewHolder extends ViewHolder<BookItem> {
       private final TextView shelf, number, title, author, keywords, publisher, isbnLabel;
@@ -79,11 +74,9 @@ public final class AdminBooksActivity extends SchlibActivity {
          item.searchString.setText(3, author, book.getAuthor());
          item.searchString.setText(4, keywords, book.getKeywords());
          item.searchString.setText(5, publisher, book.getPublisher());
-         item.searchString.setText(6, isbnLabel, book.getMultilineISBNLabel());
+         item.searchString.setText(6, isbnLabel, book.getDisplayMultilineISBNLabel());
       }
    }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
 
    final class BooksAdapter extends Adapter<Book,BookItem,BookViewHolder> {
 
@@ -98,9 +91,6 @@ public final class AdminBooksActivity extends SchlibActivity {
 
       @Override
       protected ArrayList<Book> loadData() { return Book.get(); }
-
-      @Override
-      protected int getRid(Book book) { return AdminBooksActivity.this.getRid(book); }
 
       @Override
       protected BookItem createItem(Book book) { return new BookItem(book); }
@@ -123,7 +113,7 @@ public final class AdminBooksActivity extends SchlibActivity {
    /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
-    * Filters the serial lists depending on the currently displayed queryText.
+    * Filters the book list depending on the currently displayed queryText.
     */
    final class BookItemFilter implements Filter<BookItem> {
       @NonNull
@@ -142,8 +132,6 @@ public final class AdminBooksActivity extends SchlibActivity {
 
    /* ============================================================================================================== */
 
-   private Map<String,Integer> shelfMap;
-
    private BooksAdapter booksAdapter;
 
    private MenuItem create;
@@ -154,29 +142,28 @@ public final class AdminBooksActivity extends SchlibActivity {
    protected int getContentViewId() { return R.layout.admin_books; }
 
    @Override
-   protected final void onCreate(@Nullable Bundle savedInstanceState) {
+   protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setDisplayHomeAsUpEnabled(true);
-      shelfMap = Book.getShelfMap();
       booksAdapter = new BooksAdapter();
    }
 
    @Override
-   protected final void onResume() {
+   protected void onResume() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onResume();
       }
    }
 
    @Override
-   protected final void onPermissionGranted() {
+   protected void onPermissionGranted() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          booksAdapter.updateAsync(Adapter.RELOAD_DATA, new BookItemFilter());
       }
    }
 
    @Override
-   public final boolean onCreateOptionsMenu(final Menu menu) {
+   public boolean onCreateOptionsMenu(final Menu menu) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onCreateOptionsMenu(menu);
          getMenuInflater().inflate(R.menu.admin_books, menu);
@@ -192,7 +179,7 @@ public final class AdminBooksActivity extends SchlibActivity {
    }
 
    @Override
-   protected final void onPause() {
+   protected void onPause() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onPause();
          if (searchView != null) { searchView.collapse(); }
@@ -200,7 +187,7 @@ public final class AdminBooksActivity extends SchlibActivity {
    }
 
    @Override
-   protected final void onBarcode(String barcode) {
+   protected void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          if (searchView != null) {
             if (barcode.length() == ISBN.LENGTH) {
@@ -227,27 +214,30 @@ public final class AdminBooksActivity extends SchlibActivity {
    /* -------------------------------------------------------------------------------------------------------------- */
 
    @Override
-   public final void onFocusChange(View v, boolean hasFocus) {
+   public void onFocusChange(View v, boolean hasFocus) {
       updateMenuItems();
    }
 
    @Override
-   public final void onQueryTextChange(String newText) {
+   public void onQueryTextChange(String newText) {
       booksAdapter.updateAsync(0, new BookItemFilter());
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   public final void onCreateClicked(MenuItem item) {
+   public void onCreateClicked(MenuItem item) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         scope.d("clicked on create");
          // TODO
       }
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   public final void onListItemClicked(@NonNull View view) {
+   public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         Book book = booksAdapter.getItemByView(view).row;
+         scope.d(book.getOid() + ": " + book.getDisplayShelfNumber());
          // TODO
       }
    }

@@ -46,27 +46,17 @@ import de.fahimu.schlib.db.Serial;
  */
 abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
-   /**
-    * A {@link Item} representing a serial.
-    */
    final class SerialItem extends Item<S> {
       final String key, info;
 
       @WorkerThread
       SerialItem(@NonNull S serial) {
-         super(serial, getRid(serial));
+         super(serial);
          key = serial.getDisplayId();
          info = serial.getDisplay();
       }
    }
 
-   private static int getRid(Serial serial) { return serial.getId(); }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   /**
-    * A ViewHolder for Serials. The View consists of a key column, a textual description and an ImageButton.
-    */
    final class SerialItemViewHolder extends ViewHolder<SerialItem> {
       private final TextView key, info;
       private final ImageButton action;
@@ -94,8 +84,6 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
       }
    }
 
-   /* -------------------------------------------------------------------------------------------------------------- */
-
    final class SerialsAdapter extends Adapter<S,SerialItem,SerialItemViewHolder> {
 
       SerialsAdapter() {
@@ -109,9 +97,6 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
       @Override
       protected ArrayList<S> loadData() { return AdminSerialsActivity.this.loadData(); }
-
-      @Override
-      protected int getRid(S serial) { return AdminSerialsActivity.getRid(serial); }
 
       @Override
       protected SerialItem createItem(S row) { return new SerialItem(row); }

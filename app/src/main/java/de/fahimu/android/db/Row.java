@@ -29,7 +29,9 @@ public abstract class Row {
    /**
     * Creates a new empty row.
     */
-   protected Row() { values = new Values(); }
+   protected Row() {
+      values = new Values();
+   }
 
    /**
     * Creates a new row that initially contains the column values from the specified row {@code other}.
@@ -37,7 +39,9 @@ public abstract class Row {
     * @param other
     *       the row from where the column values are copied.
     */
-   protected Row(Row other) { values = new Values(other.values); }
+   protected Row(Row other) {
+      values = new Values(other.values);
+   }
 
    /**
     * Creates a new row that initially contains the column values from the specified cursor {@code c}.
@@ -45,13 +49,15 @@ public abstract class Row {
     * @param cursor
     *       the cursor.
     */
-   protected Row(Cursor cursor) { values = new Values().add(cursor); }
+   protected Row(Cursor cursor) {
+      values = new Values().add(cursor);
+   }
 
    /* ============================================================================================================== */
 
    protected abstract String getTable();
 
-   public final long getOid() {
+   public long getOid() {
       return values.getLong(BaseColumns._ID);
    }
 

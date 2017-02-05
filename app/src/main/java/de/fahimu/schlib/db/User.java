@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.fahimu.android.db.Row;
@@ -20,6 +21,7 @@ import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Trigger;
 import de.fahimu.android.db.Values;
+import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.App;
 import de.fahimu.schlib.app.R;
 
@@ -195,6 +197,19 @@ public final class User extends Row {
       return user;
    }
 
+   /**
+    * Returns a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
+    *
+    * @return a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
+    */
+   @NonNull
+   public static ArrayList<User> get() {
+      // SELECT <TAB_COLUMNS> FROM users ORDER BY role, name2, name1 GROUP BY ;
+      //TODO
+      String order = App.format("%s, %s, %s", ROLE, NAME2, NAME1);
+      return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, null);
+   }
+
    /* ============================================================================================================== */
 
    private User() { super(); }
@@ -288,6 +303,15 @@ public final class User extends Row {
    }
 
    /* ============================================================================================================== */
+
+   @NonNull
+   public String getDisplayRow() {
+      if (getRole() == Role.PUPIL) {
+         return App.getStr(R.string.user_display_class, getName1(), getName2());
+      } else {
+         return App.format("%s (%s)", getDisplay(), new SerialNumber(getIdcard()).getDisplay());
+      }
+   }
 
    @NonNull
    public String getDisplay() {

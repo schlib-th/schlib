@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,29 +43,17 @@ import de.fahimu.schlib.db.Serial;
  */
 abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivity {
 
-   /**
-    * A {@link Item} representing a serial.
-    */
    final class SerialItem extends Item<S> {
       final String key, info;
 
       @WorkerThread
       SerialItem(@NonNull S serial) {
-         super(serial, getRid(serial));
+         super(serial);
          key = serial.getDisplayId();
          info = serial.getDisplay();
       }
    }
 
-   private static int getRid(Serial serial) {
-      return serial.getId();
-   }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   /**
-    * A ViewHolder for Serials. The View consists of a key column, a textual description and an ImageButton.
-    */
    final class SerialItemViewHolder extends ViewHolder<SerialItem> {
       private final TextView key, info;
       private final ImageButton action;
@@ -89,8 +78,6 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       }
    }
 
-   /* -------------------------------------------------------------------------------------------------------------- */
-
    final class SerialsAdapter extends Adapter<S,SerialItem,SerialItemViewHolder> {
 
       SerialsAdapter() {
@@ -108,9 +95,6 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       }
 
       @Override
-      protected int getRid(S serial) { return StocktakingSerialsActivity.getRid(serial); }
-
-      @Override
       protected SerialItem createItem(S row) {
          return new SerialItem(row);
       }
@@ -121,7 +105,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
             // The SerialsFilter shows stocked and lost serials, but we don't want lost serials to be shown
             // that were already lost onResume(), so these serials must be added to the hiddenRows set.
             for (SerialItem item : data) {
-               if (item.row.isLost()) { hiddenRows.add(item.rid); }
+               if (item.row.isLost()) { hiddenSerials.add(item.row.getId()); }
             }
          }
       }
@@ -139,22 +123,22 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
-    * Shows only serials that are stocked or lost and not an element of the {@link #hiddenRows} set.
+    * Shows only serials that are stocked or lost and not an element of the {@link #hiddenSerials} set.
     */
    private final class SerialItemFilter implements Filter<SerialItem> {
-      // Clone the {@code hiddenRows} set to prevent ConcurrentModificationExceptions
-      private final Set<Integer> hr = new HashSet<>(hiddenRows);
+      /** Clone the {@link #hiddenSerials} set to prevent {@link ConcurrentModificationException}s */
+      private final Set<Integer> hidden = new HashSet<>(hiddenSerials);
 
       @Override
       public boolean matches(SerialItem item) {
-         return !item.row.isUsed() && !item.row.isPrinted() && !hr.contains(item.rid);
+         return !item.row.isUsed() && !item.row.isPrinted() && !hidden.contains(item.row.getId());
       }
    }
 
    /**
-    * Contains the rid of all scanned rows and rows that are lost {@link #onResume()}.
+    * Stores the {@link Serial#getId() ID} of serials that are scanned or lost {@link #onResume()}.
     */
-   private final Set<Integer> hiddenRows = new HashSet<>();
+   private final Set<Integer> hiddenSerials = new HashSet<>();
 
    /* ============================================================================================================== */
 
@@ -177,7 +161,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    @Override
    protected final void onPermissionGranted() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         hiddenRows.clear();
+         hiddenSerials.clear();
          // After resuming, we only show the stocked serials (not the lost ones).
          Filter<SerialItem> initializeFilter = new Filter<SerialItem>() {
             @Override
@@ -209,7 +193,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
          dialog.setPositiveButton(R.string.app_ok, NoFocusDialog.IGNORE_BUTTON);
          configInfoDialog(dialog, serial).show();
       } else {
-         hiddenRows.add(getRid(serial));
+         hiddenSerials.add(serial.getId());
          if (serial.isLost()) {
             serial.setLost(false).update();       // Surprise! The serial isn't lost, set this serial to 'Stocked'.
             showInfoSnackbar(getSnackbarIds()[1]);

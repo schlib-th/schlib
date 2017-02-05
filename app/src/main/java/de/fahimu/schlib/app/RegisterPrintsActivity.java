@@ -34,6 +34,7 @@ import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.SmartAnimator;
 import de.fahimu.android.app.TaskRegistry;
+import de.fahimu.android.db.Row;
 import de.fahimu.android.share.ExternalFile;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Idcard;
@@ -55,13 +56,23 @@ import de.fahimu.schlib.share.FileType;
  */
 public final class RegisterPrintsActivity extends SchlibActivity {
 
-   private class Page {
+   final class Page extends Row {
       @StringRes
       final int pdfTitleId;
       final int group, number;
 
       Page(@StringRes int pdfTitleId, int group, int number) {
          this.pdfTitleId = pdfTitleId; this.group = group; this.number = number;
+      }
+
+      @Override
+      protected String getTable() {
+         throw new UnsupportedOperationException("read only");
+      }
+
+      @Override
+      public long getOid() {
+         return (group << 16) + number;
       }
    }
 
@@ -72,18 +83,11 @@ public final class RegisterPrintsActivity extends SchlibActivity {
 
       @WorkerThread
       PageItem(@NonNull Page page) {
-         super(page, getRid(page));
+         super(page);
          text = App.format("%s - %s %d", App.getStr(page.pdfTitleId), App.getStr(R.string.pdf_page), page.number);
       }
    }
 
-   private static int getRid(Page page) { return (page.group << 16) + page.number; }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   /**
-    * A ViewHolder for Pages. The View consists of an unmodifiable icon and a textual description.
-    */
    final class PageViewHolder extends ViewHolder<PageItem> {
       private final TextView text;
 
@@ -94,8 +98,6 @@ public final class RegisterPrintsActivity extends SchlibActivity {
 
       protected void bind(PageItem item) { text.setText(item.text); }
    }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
 
    final class PagesAdapter extends Adapter<Page,PageItem,PageViewHolder> {
 
@@ -117,14 +119,10 @@ public final class RegisterPrintsActivity extends SchlibActivity {
       }
 
       private void addPageNumbers(ArrayList<Page> data, int group, List<Integer> numbers, int pdfTitleId) {
-         data.ensureCapacity(data.size() + numbers.size());
          for (int number : numbers) {
             data.add(new Page(pdfTitleId, group, number));
          }
       }
-
-      @Override
-      protected int getRid(Page page) { return RegisterPrintsActivity.getRid(page); }
 
       @Override
       protected PageItem createItem(Page page) { return new PageItem(page); }

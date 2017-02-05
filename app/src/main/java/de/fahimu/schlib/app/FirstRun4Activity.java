@@ -23,13 +23,9 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import de.fahimu.android.app.ListView.Adapter;
-import de.fahimu.android.app.ListView.Filter;
 import de.fahimu.android.app.ListView.Item;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
@@ -51,14 +47,8 @@ public final class FirstRun4Activity extends SchlibActivity {
 
    final class BookItem extends Item<Book> {
       @WorkerThread
-      BookItem(@NonNull Book book) {
-         super(book, getRid(book));
-      }
+      BookItem(@NonNull Book book) { super(book); }
    }
-
-   private int getRid(Book book) { return (shelfMap.get(book.getShelf()) << 16) + book.getNumber(); }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
 
    final class BookViewHolder extends ViewHolder<BookItem> {
       private final TextView shelf, number, title, isbn, label;
@@ -90,8 +80,6 @@ public final class FirstRun4Activity extends SchlibActivity {
       }
    }
 
-   /* -------------------------------------------------------------------------------------------------------------- */
-
    final class BooksAdapter extends Adapter<Book,BookItem,BookViewHolder> {
 
       BooksAdapter() {
@@ -107,16 +95,13 @@ public final class FirstRun4Activity extends SchlibActivity {
       protected ArrayList<Book> loadData() { return Book.getNoScanId(); }
 
       @Override
-      protected int getRid(Book book) { return FirstRun4Activity.this.getRid(book); }
-
-      @Override
       protected BookItem createItem(Book book) { return new BookItem(book); }
 
       @Override
       protected void onUpdated(int flags, List<BookItem> data) {
          BookItem selection = null;
          for (BookItem item : data) {
-            if (item.row.hasNoScanId() && !deletedRows.contains(item.rid)) {
+            if (item.row.hasNoScanId()) {
                selection = item; break;
             }
          }
@@ -127,27 +112,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       }
    }
 
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   /**
-    * Shows only serials that are not an element of the {@link #deletedRows} set.
-    */
-   private final class BookItemFilter implements Filter<BookItem> {
-      // Clone the {@code deletedRows} set to prevent ConcurrentModificationExceptions
-      private final Set<Integer> dr = new HashSet<>(deletedRows);
-
-      @Override
-      public boolean matches(BookItem item) { return !dr.contains(item.rid); }
-   }
-
-   /**
-    * Contains the rid of all deleted rows.
-    */
-   private final Set<Integer> deletedRows = new HashSet<>();
-
    /* ============================================================================================================== */
-
-   private Map<String,Integer> shelfMap;
 
    private BooksAdapter booksAdapter;
    private Button       deleteLabels, createLabels, registerPrints;
@@ -172,8 +137,7 @@ public final class FirstRun4Activity extends SchlibActivity {
    protected void onResume() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onResume();
-         shelfMap = Book.getShelfMap();
-         booksAdapter.updateAsync(Adapter.RELOAD_DATA, new BookItemFilter());
+         booksAdapter.updateAsync(Adapter.RELOAD_DATA);
          bufferedISBN = null;
          updateButtons();
       }
@@ -202,10 +166,12 @@ public final class FirstRun4Activity extends SchlibActivity {
          if (item.row.hasNoScanId()) {
             showDialogDelete(item);
          } else {
-            if (item.row.hasLabel()) { Label.getNonNull(item.row.getLabel()).setLost(true).update(); }
+            if (item.row.hasLabel()) {
+               Label.getNonNull(item.row.getLabel()).setLost(true).update();
+            }
             item.row.setISBN(null).setLabel((Integer) null).update();
             booksAdapter.setData(item);
-            booksAdapter.updateAsync(0, new BookItemFilter());
+            booksAdapter.updateAsync(0);
          }
       }
    }
@@ -219,8 +185,7 @@ public final class FirstRun4Activity extends SchlibActivity {
          @Override
          public void onClick() {
             item.row.delete();
-            deletedRows.add(item.rid);    // hide this item
-            booksAdapter.updateAsync(0, new BookItemFilter());
+            booksAdapter.updateAsync(Adapter.RELOAD_DATA);
          }
       }).show();
    }
@@ -360,7 +325,7 @@ public final class FirstRun4Activity extends SchlibActivity {
    private void updateISBNLabel(@NonNull BookItem item, @Nullable ISBN isbn, @Nullable Label label) {
       item.row.setISBN(isbn).setLabel(label).update();
       booksAdapter.setData(item);
-      booksAdapter.updateAsync(0, new BookItemFilter());
+      booksAdapter.updateAsync(0);
    }
 
 }

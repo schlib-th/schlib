@@ -6,6 +6,7 @@
 
 package de.fahimu.android.app;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -32,8 +33,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import de.fahimu.android.db.Row;
 
 /**
  * A RecyclerView that swaps the empty list for a text view if {@code getAdapter().getItemCount()} becomes zero.
@@ -118,14 +122,16 @@ public final class ListView extends RecyclerView {
 
    /* ============================================================================================================== */
 
-   public static abstract class Item<Row> implements Comparable<Item<Row>> {
-      public final Row          row;
-      public final int          rid;
+   public static abstract class Item<R extends Row> {
+      public final R            row;
       public final SearchString searchString;
 
+      final long rid;      // cached row.getOid()
+
       @WorkerThread
-      protected Item(Row row, int rid, String... searchFields) {
-         this.row = row; this.rid = rid;
+      protected Item(R row, String... searchFields) {
+         this.row = row;
+         this.rid = row.getOid();
          SearchString searchString = null;
          if (searchFields.length > 0) {
             SearchString.Builder builder = new SearchString.Builder(searchFields.length);
@@ -133,11 +139,6 @@ public final class ListView extends RecyclerView {
             searchString = builder.createSearchString();
          }
          this.searchString = searchString;
-      }
-
-      @Override
-      public final int compareTo(@NonNull Item<Row> another) {
-         return this.rid - another.rid;
       }
    }
 
@@ -161,18 +162,21 @@ public final class ListView extends RecyclerView {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   public static abstract class Adapter<Row, I extends Item<Row>, VH extends ViewHolder<I>>
+   @SuppressLint ("UseSparseArrays")
+   public static abstract class Adapter<R extends Row, I extends Item<R>, VH extends ViewHolder<I>>
          extends RecyclerView.Adapter<VH> {
 
-      private final ArrayList<I>        data;
-      private final ArrayList<I>        list;        // the filtered data
-      private final ListView            listView;
-      private final LayoutInflater      inflater;
-      private final LinearLayoutManager layoutManager;
+      private       ArrayList<I>          data;
+      private       HashMap<Long,Integer> dIdx;       // maps each Item.rid in data to its index therein
+      private final ArrayList<I>          list;       // the filtered data
+      private final ListView              listView;
+      private final LayoutInflater        inflater;
+      private final LinearLayoutManager   layoutManager;
 
       protected Adapter(Activity activity, @IdRes int listViewId, @StringRes int emptyStringId) {
          this.data = new ArrayList<>(0);
-         this.list = new ArrayList<>(16);
+         this.dIdx = new HashMap<>(0);
+         this.list = new ArrayList<>(0);
          this.listView = activity.findView(ListView.class, listViewId);
          this.inflater = LayoutInflater.from(listView.getContext());
          this.layoutManager = new LinearLayoutManager(activity);
@@ -194,25 +198,24 @@ public final class ListView extends RecyclerView {
       @Override
       public final void onBindViewHolder(VH holder, int position) {
          I item = list.get(position);
-         boolean selected = (selectedItem != null && selectedItem.rid == item.rid);
-         holder.itemView.setBackgroundColor(selected ? Color.LTGRAY : Color.TRANSPARENT);
+         holder.itemView.setBackgroundColor(item == selectedItem ? Color.LTGRAY : Color.TRANSPARENT);
          holder.bind(item);
       }
 
       @Nullable
       private I selectedItem = null;
 
-      protected final void setSelection(@Nullable I item) {
-         int prevPosition = (selectedItem == null) ? -1 : Collections.binarySearch(list, selectedItem);
-         selectedItem = item;
-         int currPosition = (selectedItem == null) ? -1 : Collections.binarySearch(list, selectedItem);
+      protected final void setSelection(@Nullable I dataItem) {
+         int oldListPos = list.indexOf(selectedItem);
+         selectedItem = dataItem;
+         int newListPos = list.indexOf(selectedItem);
 
-         if (prevPosition != currPosition) {
-            if (prevPosition >= 0) { notifyItemChanged(prevPosition); }
-            if (currPosition >= 0) { notifyItemChanged(currPosition); }
+         if (oldListPos != newListPos) {
+            if (oldListPos >= 0) { notifyItemChanged(oldListPos); }
+            if (newListPos >= 0) { notifyItemChanged(newListPos); }
          }
-         if (currPosition >= 0) {
-            layoutManager.scrollToPositionWithOffset(currPosition, App.dpToPx(2.5f * 48));
+         if (newListPos >= 0) {
+            layoutManager.scrollToPositionWithOffset(newListPos, App.dpToPx(2.5f * 48));
          }
       }
 
@@ -235,49 +238,56 @@ public final class ListView extends RecyclerView {
       }
 
       public void setData(@NonNull I listItem) {
-         int index = Collections.binarySearch(data, listItem);
-         if (index >= 0) {
-            data.set(index, createItem(data.get(index).row));
-         }
+         data.set(dIdx.get(listItem.rid), createItem(listItem.row));
       }
 
       /* ----------------------------------------------------------------------------------------------------------- */
 
       @WorkerThread
-      protected abstract ArrayList<Row> loadData();
+      protected abstract ArrayList<R> loadData();
 
       @WorkerThread
-      protected abstract int getRid(Row row);
+      protected abstract I createItem(R row);
 
-      @WorkerThread
-      protected abstract I createItem(Row row);
-
+      /**
+       * Calls {@link #loadData()} and builds the list {@link #data} of {@link I items} from the list of {@link R rows}
+       * returned from {@link #loadData()} by calling {@link #createItem(Row)} for each row.
+       * To speed up the search for a row in {@link #data}, the {@link Row#getOid() row-id} of each row together
+       * with its index in {@link #data} is stored in {@link #dIdx}.
+       * Because creating an item can be expensive, {@link #createItem(Row) createItem} will be called only if
+       * necessary, otherwise it will be reused.
+       */
       @WorkerThread
       private void reloadData() {
          try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-            ArrayList<Row> rows = loadData();
-            data.ensureCapacity(rows.size());
-            int d = 0, r = 0, rs = rows.size();
-            while (d < data.size() && r < rs) {
-               I item = data.get(d);
-               Row row = rows.get(r++);
-               int rid = getRid(row);
-               if (item.rid < rid) {
-                  data.remove(d); r--;
-               } else if (item.rid > rid) {
-                  data.add(d++, createItem(row));
-               } else if (item.row.equals(row)) {
-                  d++;
-               } else {
-                  data.set(d++, createItem(row));
+            ArrayList<R> rows = loadData();
+            ArrayList<I> data = new ArrayList<>(rows.size());
+            HashMap<Long,Integer> dIdx = new HashMap<>(rows.size());
+            int newIndex = 0;
+            if (this.data.size() == 0) {
+               // if data is empty, we don't have to search for reusable items
+               for (R row : rows) {
+                  data.add(createItem(row));
+                  dIdx.put(row.getOid(), newIndex++);
+               }
+            } else {
+               for (R row : rows) {
+                  Long rid = row.getOid();
+                  Integer oldIndex = this.dIdx.get(rid);
+                  if (oldIndex == null) {
+                     data.add(createItem(row));
+                  } else {
+                     I item = this.data.get(oldIndex);
+                     if (row.equals(item.row)) {
+                        data.add(item);      // reuse item if possible
+                     } else {
+                        data.add(createItem(row));
+                     }
+                  }
+                  dIdx.put(rid, newIndex++);
                }
             }
-            while (d < data.size()) {       // remove remaining items from data
-               data.remove(d);
-            }
-            while (r < rs) {                // add remaining rows to data
-               data.add(createItem(rows.get(r++)));
-            }
+            this.data = data; this.dIdx = dIdx;
          }
       }
 
@@ -373,24 +383,28 @@ public final class ListView extends RecyclerView {
          mods = new LinkedList<>();
          int l = 0, d = 0, ls = list.size(), ds = data.size();
          while (l < ls && d < ds) {
-            I dataItem = data.get(d++);
-            if (filter.matches(dataItem)) {
-               I listItem = list.get(l);
-               if (listItem == dataItem) {
-                  l++;
-               } else if (listItem.rid < dataItem.rid) {
-                  add(new Remove(l++)); d--;
-               } else if (listItem.rid > dataItem.rid) {
-                  add(new Insert(l, dataItem));
-               } else {            // listItem.rid == dataItem.rid && listItem != dataItem
-                  add(new Change(l++, dataItem));
+            I listItem = list.get(l);
+            Integer index = dIdx.get(listItem.rid);
+            if (index == null || !filter.matches(data.get(index))) {
+               add(new Remove(l++));
+            } else {
+               while (d < index) {
+                  I dataItem = data.get(d++);
+                  if (filter.matches(dataItem)) {
+                     add(new Insert(l, dataItem));
+                  }
                }
+               I dataItem = data.get(d++);
+               if (listItem != dataItem) {
+                  add(new Change(l, dataItem));
+               }
+               l++;
             }
          }
-         while (l < ls) {            // remove remaining items from list
+         while (l < ls) {           // remove remaining items from list
             add(new Remove(l++));
          }
-         while (d < ds) {            // add remaining items in data to list if filter matches
+         while (d < ds) {           // add remaining items in data to list if filter matches
             I dataItem = data.get(d++);
             if (filter.matches(dataItem)) {
                add(new Insert(l, dataItem));

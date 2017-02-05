@@ -10,6 +10,8 @@
     <string name="app_no_plural">Keine</string>
     <string name="app_pdf_icon">Eine PDF-Datei</string>
     <string name="app_book_icon">Ein Buch</string>
+    <string name="app_user_icon">Ein Nutzer</string>
+    <string name="app_users_icon">Mehrere Nutzer</string>
     <string name="app_animation">Eine Animation</string>
 
     <!-- CSVParser -->
@@ -35,6 +37,7 @@
     <string name="user_display_admin">Verwalter \"%1$s %2$s\"</string>
     <string name="user_display_tutor">Mitarbeiter \"%1$s %2$s\"</string>
     <string name="user_display_pupil">Schüler #%1$d der Klasse %2$s</string>
+    <string name="user_display_class">Klasse %1$s, Schuljahr %2$s</string>
 
     <!-- PDF documents -->
 
@@ -102,8 +105,8 @@
     <string name="first_run_1_explanation">
         Bevor Sie loslegen können, sind einige wenige Vorbereitungen erforderlich.\n
         \nAls Erstes wird für Sie ein Verwalterkonto angelegt. Als Verwalter haben Sie die maximalen
-        Rechte und können insbesondere die Benutzerkonten und den Bücherbestand verwalten. Im Unterschied
-        dazu können Nutzer mit der Funktion \"Schüler\" lediglich Bücher ausleihen, und Nutzer mit der
+        Rechte und können insbesondere den Bücherbestand und die Nutzerkonten verwalten. Im Unterschied
+        dazu können Benutzer mit der Funktion \"Schüler\" lediglich Bücher ausleihen, und Nutzer mit der
         Funktion \"Mitarbeiter\" die Buchausleihe durchführen.\n
         \nBitte geben Sie jetzt zum Einrichten Ihres Kontos Ihren Vor- und Nachnamen ein:
     </string>
@@ -253,7 +256,7 @@
     <string name="login_dialog_title">Ausleihe oder Verwaltung?</string>
     <string name="login_dialog_message">
         Wollen Sie Bücher ausleihen und zurücknehmen,
-        \noder wollen Sie den Bücherbestand und die Nutzer verwalten?
+        \noder wollen Sie den Bücherbestand und die Nutzerkonten verwalten?
     </string>
     <string name="login_dialog_tutor">Ausleihe</string>
     <string name="login_dialog_admin">Verwaltung</string>
@@ -295,7 +298,7 @@
     <string name="tutor_message_1_expected_book">Vor dem Ausweis das Buch scannen!</string>
     <string name="tutor_message_1_expected_user">Nach dem Buch den Ausweis scannen!</string>
     <string name="tutor_message_2_book_before_user">
-        Beim Ausleihen bitte zuerst das Buch scannen, danach den Ausweis des Nutzers.
+        Beim Ausleihen bitte zuerst das Buch scannen, danach den Ausweis des Benutzers.
     </string>
 
     <string name="tutor_message_1_auto_logout">Automatische Abmeldung in %1$d Sekunden.</string>
@@ -305,7 +308,7 @@
 
     <!-- AdminActivity -->
 
-    <string name="admin_label">Bücher und Nutzer verwalten</string>
+    <string name="admin_label">Bücherbestand und Nutzerkonten verwalten</string>
     <string name="admin_message_no_pages_to_register">@string/register_prints_empty</string>
     <string name="admin_message_one_page_to_register">1 Seite muss noch registriert werden</string>
     <string name="admin_message_pages_to_register">%1$d Seiten müssen noch registriert werden</string>
@@ -398,7 +401,7 @@
     <string name="admin_idcards_dialog_message_used">
         Dieser Ausweis ist dem %1$s zugewiesen.\n
         \nWenn sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen,
-        bzw. das Benutzerkonto löschen.\n
+        bzw. das Nutzerkonto löschen.\n
         \nBitte wechseln Sie dazu in den Bereich \"%2$s\".
     </string>
 
@@ -428,7 +431,7 @@
     <string name="stocktaking_idcards_explanation">
         Sie können jetzt überprüfen, ob Ihr Bestand an Ausweiskarten
         mit den Angaben in der Bücherei-Verwaltung übereinstimmt.\n
-        \nScannen Sie dazu alle Ausweiskarten, die keinem Benutzer zugewiesen sind,
+        \nScannen Sie dazu alle Ausweiskarten, die keinem Nutzer zugewiesen sind,
         der Reihe nach ein. Jeder erfasste Ausweis wird aus der Liste rechts gelöscht.\n
         \nNachdem alle Ausweiskarten gescannt wurden, sollte die Liste rechts leer sein.\n
         \nAndernfalls können Sie die verbliebenen Ausweise mit dem Papierkorb als ausgesondert markieren.
@@ -444,22 +447,19 @@
 
     <!-- AdminBooksActivity -->
 
-    <string name="admin_books_label">Bücher verwalten</string>
-
+    <string name="admin_books_label">Bücherbestand verwalten</string>
     <string name="admin_books_empty">Kein Buch</string>
-    <string name="admin_books_row_isbn">ISBN</string>
-    <string name="admin_books_row_label">Klebeetikett</string>
-    <string name="admin_books_row_action_delete">Buch löschen</string>
-
-    <string name="admin_books_action_create">Neues Buch erstellen</string>
+    <string name="admin_books_row_action_info">Buchdaten bearbeiten</string>
+    <string name="admin_books_action_create">Neues Buch erfassen</string>
 
     <!-- AdminUsersActivity -->
 
-    <string name="admin_users_label">Nutzer verwalten</string>
+    <string name="admin_users_label">Nutzerkonten verwalten</string>
     <string name="admin_users_explanation">
         How TODO
     </string>
-
-    <string name="admin_users_action_create">Neuen Nutzer erstellen</string>
+    <string name="admin_users_empty">Kein Nutzer</string>
+    <string name="admin_users_row_action_info">Nutzerkonto bearbeiten</string>
+    <string name="admin_users_action_create">Neues Nutzerkonto erstellen</string>
 
 </resources>

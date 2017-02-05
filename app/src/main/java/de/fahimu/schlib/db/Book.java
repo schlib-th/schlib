@@ -393,7 +393,7 @@ public final class Book extends Row {
       return !hasLabel() ? "" : new SerialNumber(getLabel()).getDisplay();
    }
 
-   public String getMultilineISBNLabel() {
+   public String getDisplayMultilineISBNLabel() {
       String isbn = getDisplayISBN(), label = getDisplayLabel();
       return isbn.isEmpty() ? label : label.isEmpty() ? isbn : isbn + '\n' + label;
    }
