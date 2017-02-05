@@ -21,7 +21,6 @@ import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Trigger;
 import de.fahimu.android.db.Values;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.App;
 import de.fahimu.schlib.app.R;
 
@@ -60,6 +59,13 @@ public final class User extends Row {
          SQLite.alias(TAB, OID, OID),
          UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD
    });
+
+   private static final String SORT    = "sort";
+   private static final String IDCARDS = "idcards";
+
+   private static final Values EXT_COLUMNS = TAB_COLUMNS
+         .add(App.format("group_concat(%s) AS %s", IDCARD, IDCARDS))
+         .add(App.format("(CASE %s WHEN '%s' THEN 0 WHEN '%s' THEN 1 ELSE 2 END) AS %s", ROLE, ADMIN, TUTOR, SORT));
 
    /**
     * Creates new tables {@code uids}, {@code users} and {@code prev_users} in the specified database.
@@ -198,16 +204,16 @@ public final class User extends Row {
    }
 
    /**
-    * Returns a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
+    * Returns a list of all users, grouped and ordered by {@code sort}, {@code name2} and {@code name1}.
+    * The columns returned are defined by {@link #EXT_COLUMNS}, including {@code sort} and {@code idcards}.
     *
-    * @return a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
+    * @return a list of all users, grouped and ordered by {@code sort}, {@code name2} and {@code name1}.
     */
    @NonNull
-   public static ArrayList<User> get() {
-      // SELECT <TAB_COLUMNS> FROM users ORDER BY role, name2, name1 GROUP BY ;
-      //TODO
-      String order = App.format("%s, %s, %s", ROLE, NAME2, NAME1);
-      return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, null);
+   public static ArrayList<User> getGrouped() {
+      // SELECT <EXT_COLUMNS> FROM users GROUP BY sort, name2, name1 ORDER BY sort, name2, name1 ;
+      String order = App.format("%s, %s, %s", SORT, NAME2, NAME1);
+      return SQLite.get(User.class, TAB, EXT_COLUMNS, order, order, null);
    }
 
    /* ============================================================================================================== */
@@ -302,14 +308,32 @@ public final class User extends Row {
       return (User) setNullable(IDCARD, idcard);
    }
 
+   /**
+    * Returns the value of column {@link #IDCARDS} as a list of integers.
+    *
+    * @return the value of column {@link #IDCARDS} as a list of integers.
+    *
+    * @throws RuntimeException
+    *       if there is no column {@link #IDCARDS}.
+    */
+   @NonNull
+   public List<Integer> getIdcards() {
+      String[] idcards = values.getNonNull(IDCARDS).split(",");
+      List<Integer> list = new ArrayList<>(idcards.length);
+      for (String idcard : idcards) {
+         list.add(Integer.parseInt(idcard));
+      }
+      return list;
+   }
+
    /* ============================================================================================================== */
 
    @NonNull
-   public String getDisplayRow() {
+   public String getDisplayRoleName() {
       if (getRole() == Role.PUPIL) {
          return App.getStr(R.string.user_display_class, getName1(), getName2());
       } else {
-         return App.format("%s (%s)", getDisplay(), new SerialNumber(getIdcard()).getDisplay());
+         return getDisplay();
       }
    }
 

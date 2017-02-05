@@ -46,18 +46,19 @@ public final class AdminUsersActivity extends SchlibActivity {
 
    final class UserItem extends Item<User> {
       UserItem(@NonNull User user) {
-         super(user, user.getDisplayRow());
+         super(user, user.getDisplayRoleName(), SerialNumber.getDisplay(user.getIdcards()));
       }
    }
 
    final class UserViewHolder extends ViewHolder<UserItem> {
       private final ImageView icon;
-      private final TextView  display;
+      private final TextView  roleName, idcards;
 
       UserViewHolder(LayoutInflater inflater, ViewGroup parent) {
          super(inflater, parent, R.layout.admin_users_row);
          icon = App.findView(itemView, ImageView.class, R.id.admin_users_row_icon);
-         display = App.findView(itemView, TextView.class, R.id.admin_users_row_display);
+         roleName = App.findView(itemView, TextView.class, R.id.admin_users_row_role_name);
+         idcards = App.findView(itemView, TextView.class, R.id.admin_users_row_idcards);
       }
 
       protected void bind(UserItem item) {
@@ -69,7 +70,8 @@ public final class AdminUsersActivity extends SchlibActivity {
             icon.setImageResource(R.drawable.ic_account_multiple);
             icon.setContentDescription(App.getStr(R.string.app_users_icon));
          }
-         item.searchString.setText(0, display, user.getDisplayRow());
+         item.searchString.setText(0, roleName, user.getDisplayRoleName());
+         item.searchString.setText(1, idcards, SerialNumber.getDisplay(user.getIdcards()));
       }
    }
 
@@ -85,7 +87,7 @@ public final class AdminUsersActivity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<User> loadData() { return User.get(); }
+      protected ArrayList<User> loadData() { return User.getGrouped(); }
 
       @Override
       protected UserItem createItem(User user) { return new UserItem(user); }
