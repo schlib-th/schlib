@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -33,7 +32,6 @@ import de.fahimu.android.app.scanner.ScannerAwareSearchView;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.User;
-import de.fahimu.schlib.db.User.Role;
 
 /**
  * An activity for administrating users.
@@ -46,32 +44,23 @@ public final class AdminUsersActivity extends SchlibActivity {
 
    final class UserItem extends Item<User> {
       UserItem(@NonNull User user) {
-         super(user, user.getDisplayRoleName(), SerialNumber.getDisplay(user.getIdcards()));
+         super(user, user.getDisplay(), new SerialNumber(user.getIdcard()).getDisplay());
       }
    }
 
    final class UserViewHolder extends ViewHolder<UserItem> {
-      private final ImageView icon;
-      private final TextView  roleName, idcards;
+      private final TextView roleName, idcards;
 
       UserViewHolder(LayoutInflater inflater, ViewGroup parent) {
          super(inflater, parent, R.layout.admin_users_row);
-         icon = App.findView(itemView, ImageView.class, R.id.admin_users_row_icon);
          roleName = App.findView(itemView, TextView.class, R.id.admin_users_row_role_name);
          idcards = App.findView(itemView, TextView.class, R.id.admin_users_row_idcards);
       }
 
       protected void bind(UserItem item) {
          User user = item.row;
-         if (user.getRole() != Role.PUPIL) {
-            icon.setImageResource(R.drawable.ic_account);
-            icon.setContentDescription(App.getStr(R.string.app_user_icon));
-         } else {
-            icon.setImageResource(R.drawable.ic_account_multiple);
-            icon.setContentDescription(App.getStr(R.string.app_users_icon));
-         }
-         item.searchString.setText(0, roleName, user.getDisplayRoleName());
-         item.searchString.setText(1, idcards, SerialNumber.getDisplay(user.getIdcards()));
+         item.searchString.setText(0, roleName, user.getDisplay());
+         item.searchString.setText(1, idcards, new SerialNumber(user.getIdcard()).getDisplay());
       }
    }
 
@@ -87,7 +76,7 @@ public final class AdminUsersActivity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<User> loadData() { return User.getGrouped(); }
+      protected ArrayList<User> loadData() { return User.get(); }
 
       @Override
       protected UserItem createItem(User user) { return new UserItem(user); }

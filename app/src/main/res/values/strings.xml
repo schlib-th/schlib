@@ -11,7 +11,6 @@
     <string name="app_pdf_icon">Eine PDF-Datei</string>
     <string name="app_book_icon">Ein Buch</string>
     <string name="app_user_icon">Ein Nutzer</string>
-    <string name="app_users_icon">Mehrere Nutzer</string>
     <string name="app_animation">Eine Animation</string>
 
     <!-- CSVParser -->
@@ -36,8 +35,7 @@
 
     <string name="user_display_admin">Verwalter \"%1$s %2$s\"</string>
     <string name="user_display_tutor">Mitarbeiter \"%1$s %2$s\"</string>
-    <string name="user_display_pupil">Schüler #%1$d der Klasse %2$s</string>
-    <string name="user_display_class">Klasse %1$s, Schuljahr %2$s</string>
+    <string name="user_display_pupil">Schüler #%1$02d der Klasse %2$s (%3$s)</string>
 
     <!-- PDF documents -->
 
@@ -400,9 +398,9 @@
     </string>
     <string name="admin_idcards_dialog_message_used">
         Dieser Ausweis ist dem %1$s zugewiesen.\n
-        \nWenn sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen,
-        bzw. das Nutzerkonto löschen.\n
-        \nBitte wechseln Sie dazu in den Bereich \"%2$s\".
+        \nWenn sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen
+        oder das Nutzerkonto löschen.\n
+        \nBitte wechseln Sie dazu in den Bereich \"%2$s\" oder \"%3$s\".
     </string>
 
     <!-- StocktakingLabelsActivity -->
@@ -452,6 +450,10 @@
     <string name="admin_books_row_action_info">Buchdaten bearbeiten</string>
     <string name="admin_books_action_create">Neues Buch erfassen</string>
 
+    <!-- StocktakingBooksActivity -->
+
+    <string name="stocktaking_books_label">Bücherbestand-Inventur</string>
+
     <!-- AdminUsersActivity -->
 
     <string name="admin_users_label">Nutzerkonten verwalten</string>
@@ -461,5 +463,9 @@
     <string name="admin_users_empty">Kein Nutzer</string>
     <string name="admin_users_row_action_info">Nutzerkonto bearbeiten</string>
     <string name="admin_users_action_create">Neues Nutzerkonto erstellen</string>
+
+    <!-- DeletingUsersActivity -->
+
+    <string name="deleting_users_label">Nutzerkonten löschen</string>
 
 </resources>

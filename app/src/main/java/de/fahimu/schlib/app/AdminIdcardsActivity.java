@@ -89,7 +89,8 @@ public final class AdminIdcardsActivity extends AdminSerialsActivity<Idcard> {
          return dialog.setMessage(R.string.admin_idcards_dialog_message_printed);
       } else {      // isUsed() - see precondition
          return dialog.setMessage(R.string.admin_idcards_dialog_message_used,
-               User.getNonNull(idcard.getUid()).getDisplay(), App.getStr(R.string.admin_users_label));
+               User.getNonNull(idcard.getUid()).getDisplay(),
+               App.getStr(R.string.admin_users_label), App.getStr(R.string.deleting_users_label));
       }
    }
 

@@ -60,13 +60,6 @@ public final class User extends Row {
          UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD
    });
 
-   private static final String SORT    = "sort";
-   private static final String IDCARDS = "idcards";
-
-   private static final Values EXT_COLUMNS = TAB_COLUMNS
-         .add(App.format("group_concat(%s) AS %s", IDCARD, IDCARDS))
-         .add(App.format("(CASE %s WHEN '%s' THEN 0 WHEN '%s' THEN 1 ELSE 2 END) AS %s", ROLE, ADMIN, TUTOR, SORT));
-
    /**
     * Creates new tables {@code uids}, {@code users} and {@code prev_users} in the specified database.
     * Also three triggers are created that will copy any changed row from {@code users} to the history table
@@ -153,9 +146,12 @@ public final class User extends Row {
 
    public static synchronized User insertPupil(String name1, String name2, Integer idcard) {
       // Must be static synchronized to ensure that the calculation of MAX(serial) works properly.
+      // If we would search for MAX(serial) in table 'users', and the last inserted pupil would have
+      // been deleted, then its serial number would be reused, but that's erroneous! So we'll have
+      // to search for MAX(serial) in our history table 'prev_users' where deleted pupils still exist.
       String column = App.format("MAX(%s)", SERIAL);
       String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
-      String maxSerial = SQLite.getFromQuery(TAB, column, "0", where, name1, name2, PUPIL);
+      String maxSerial = SQLite.getFromQuery(PREV, column, "0", where, name1, name2, PUPIL);
       return insert(name1, name2, 1 + Integer.parseInt(maxSerial), Role.PUPIL, 1, idcard);
    }
 
@@ -204,16 +200,15 @@ public final class User extends Row {
    }
 
    /**
-    * Returns a list of all users, grouped and ordered by {@code sort}, {@code name2} and {@code name1}.
-    * The columns returned are defined by {@link #EXT_COLUMNS}, including {@code sort} and {@code idcards}.
+    * Returns a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
+    * The ordering of the roles is 'admin', 'tutor' and 'pupil' (not alphabetically).
     *
-    * @return a list of all users, grouped and ordered by {@code sort}, {@code name2} and {@code name1}.
+    * @return a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
     */
-   @NonNull
-   public static ArrayList<User> getGrouped() {
-      // SELECT <EXT_COLUMNS> FROM users GROUP BY sort, name2, name1 ORDER BY sort, name2, name1 ;
-      String order = App.format("%s, %s, %s", SORT, NAME2, NAME1);
-      return SQLite.get(User.class, TAB, EXT_COLUMNS, order, order, null);
+   public static ArrayList<User> get() {
+      String order = App.format("(CASE %s WHEN '%s' THEN 0 WHEN '%s' THEN 1 ELSE 2 END), %s, %s, %s",
+            ROLE, ADMIN, TUTOR, NAME2, NAME1, SERIAL);
+      return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, null);
    }
 
    /* ============================================================================================================== */
@@ -308,39 +303,12 @@ public final class User extends Row {
       return (User) setNullable(IDCARD, idcard);
    }
 
-   /**
-    * Returns the value of column {@link #IDCARDS} as a list of integers.
-    *
-    * @return the value of column {@link #IDCARDS} as a list of integers.
-    *
-    * @throws RuntimeException
-    *       if there is no column {@link #IDCARDS}.
-    */
-   @NonNull
-   public List<Integer> getIdcards() {
-      String[] idcards = values.getNonNull(IDCARDS).split(",");
-      List<Integer> list = new ArrayList<>(idcards.length);
-      for (String idcard : idcards) {
-         list.add(Integer.parseInt(idcard));
-      }
-      return list;
-   }
-
    /* ============================================================================================================== */
-
-   @NonNull
-   public String getDisplayRoleName() {
-      if (getRole() == Role.PUPIL) {
-         return App.getStr(R.string.user_display_class, getName1(), getName2());
-      } else {
-         return getDisplay();
-      }
-   }
 
    @NonNull
    public String getDisplay() {
       if (getRole() == Role.PUPIL) {
-         return App.getStr(R.string.user_display_pupil, getSerial(), getName1());
+         return App.getStr(R.string.user_display_pupil, getSerial(), getName1(), getName2());
       } else if (getRole() == Role.TUTOR) {
          return App.getStr(R.string.user_display_tutor, getName1(), getName2());
       } else {

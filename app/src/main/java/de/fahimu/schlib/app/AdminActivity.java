@@ -80,6 +80,15 @@ public final class AdminActivity extends SchlibActivity {
       }
    }
 
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   public void onAdminIdcardsClicked(View view) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         scope.d("clicked");
+         startActivity(new Intent(this, AdminIdcardsActivity.class));
+      }
+   }
+
    public void onAdminLabelsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          scope.d("clicked");
@@ -87,10 +96,10 @@ public final class AdminActivity extends SchlibActivity {
       }
    }
 
-   public void onStocktakingLabelsClicked(View view) {
+   public void onAdminUsersClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          scope.d("clicked");
-         startActivity(new Intent(this, StocktakingLabelsActivity.class));
+         startActivity(new Intent(this, AdminUsersActivity.class));
       }
    }
 
@@ -101,12 +110,7 @@ public final class AdminActivity extends SchlibActivity {
       }
    }
 
-   public void onAdminIdcardsClicked(View view) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
-         startActivity(new Intent(this, AdminIdcardsActivity.class));
-      }
-   }
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    public void onStocktakingIdcardsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
@@ -115,10 +119,24 @@ public final class AdminActivity extends SchlibActivity {
       }
    }
 
-   public void onAdminUsersClicked(View view) {
+   public void onStocktakingLabelsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          scope.d("clicked");
-         startActivity(new Intent(this, AdminUsersActivity.class));
+         startActivity(new Intent(this, StocktakingLabelsActivity.class));
+      }
+   }
+
+   public void onDeletingUsersClicked(View view) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         scope.d("clicked");
+         // TODO startActivity(new Intent(this, DeletingUsersActivity.class));
+      }
+   }
+
+   public void onStocktakingBooksClicked(View view) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         scope.d("clicked");
+         // TODO startActivity(new Intent(this, StocktakingBooksActivity.class));
       }
    }
 

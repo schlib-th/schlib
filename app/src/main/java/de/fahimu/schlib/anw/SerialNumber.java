@@ -6,8 +6,6 @@
 
 package de.fahimu.schlib.anw;
 
-import java.util.List;
-
 /**
  * A {@code SerialNumber} uniquely identifies an {@link de.fahimu.schlib.db.Idcard Idcard} or a
  * {@link de.fahimu.schlib.db.Label Label}. It has two external string representations. The first one is
@@ -131,20 +129,6 @@ public final class SerialNumber {
 
    public String getDisplay() {
       return "# " + getDecimal() + " #";
-   }
-
-   public static String getDisplay(List<Integer> values) {
-      if (values.size() == 1) {
-         return new SerialNumber(values.get(0)).getDisplay();
-      } else {
-         StringBuilder b = new StringBuilder(4 + values.size() * 8);
-         b.append("# ");
-         b.append(new SerialNumber(values.get(0)).getDecimal());
-         for (int i = 1; i < values.size(); i++) {
-            b.append(" - ").append(new SerialNumber(values.get(i)).getDecimal());
-         }
-         return b.append(" #").toString();
-      }
    }
 
 }
