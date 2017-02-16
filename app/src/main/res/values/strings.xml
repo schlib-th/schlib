@@ -5,8 +5,9 @@
     <string name="app_yes">Ja</string>
     <string name="app_no">Nein</string>
     <string name="app_ok">OK</string>
+    <string name="app_back">Zurück</string>
+    <string name="app_cont">Weiter</string>
     <string name="app_done">Fertig</string>
-    <string name="app_continue">Weiter</string>
     <string name="app_no_plural">Keine</string>
     <string name="app_pdf_icon">Eine PDF-Datei</string>
     <string name="app_book_icon">Ein Buch</string>
@@ -33,6 +34,9 @@
 
     <!-- User -->
 
+    <string name="role_display_admin">Verwalter</string>
+    <string name="role_display_tutor">Mitarbeiter</string>
+    <string name="role_display_pupil">Schüler</string>
     <string name="user_display_admin">Verwalter \"%1$s %2$s\"</string>
     <string name="user_display_tutor">Mitarbeiter \"%1$s %2$s\"</string>
     <string name="user_display_pupil">Schüler #%1$02d der Klasse %2$s (%3$s)</string>
@@ -311,54 +315,13 @@
     <string name="admin_message_one_page_to_register">1 Seite muss noch registriert werden</string>
     <string name="admin_message_pages_to_register">%1$d Seiten müssen noch registriert werden</string>
 
+    <!-- ======================================================================================================== -->
+
     <!-- admin_serials_row -->
 
     <string name="admin_serials_row_action_info">Informationen</string>
     <string name="admin_serials_row_action_delete">Aussondern</string>
     <string name="admin_serials_row_action_restore">Aussondern widerrufen</string>
-
-    <!-- AdminLabelsActivity -->
-
-    <string name="admin_labels_label">Klebeetiketten verwalten</string>
-    <string name="admin_labels_explanation">
-        In diesem Bereich können Sie:\n
-        \n• Nach Klebeetiketten suchen
-        \n(Lupe in der Werkzeugleiste)\n
-        \n• Den Listeninhalt einschränken
-        \n(Filtersymbol in der Werkzeugleiste)\n
-        \n• Neue Klebeetiketten erstellen
-        \n(Pluszeichen in der Werkzeugleiste)\n
-        \n• Zu viel erstellte Etiketten wieder verwerfen\n
-        (Papierkorb in der Werkzeugleiste)\n
-        \n• Ein Etikett aus ihrem Vorrat als ausgesondert markieren,
-        falls dieses unbrauchbar geworden oder verloren gegangen ist\n
-        (Papierkorb neben dem Etikett)\n
-        \n• Ein ausgesondertes Etikett wieder als im Vorrat befindlich markieren,
-        falls es versehentlich ausgesondert oder wieder gefunden wurde
-        \n(Wiederherstellen-Symbol neben dem Etikett)
-    </string>
-
-    <string name="admin_labels_action_filter_printed">Erstellte Etiketten anzeigen</string>
-    <string name="admin_labels_action_filter_stocked">Registrierte Etiketten anzeigen</string>
-    <string name="admin_labels_action_filter_used">Aufgeklebte Etiketten anzeigen</string>
-    <string name="admin_labels_action_filter_lost">Ausgesonderte Etiketten anzeigen</string>
-    <string name="admin_labels_action_delete">Erstellte Etiketten verwerfen</string>
-    <string name="admin_labels_action_create">Neue Etiketten erstellen</string>
-
-    <string name="admin_labels_empty">Kein Klebeetikett</string>
-
-    <string name="admin_labels_dialog_title">Klebeetikett %1$s</string>
-    <string name="admin_labels_dialog_message_printed">
-        Dieses Etikett wurde erstellt, der Ausdruck aber noch nicht registriert.\n
-        \nWenn Sie zu viele Klebeetiketten erstellt haben, können
-        Sie diese mit dem Papierkorb in der Werkzeugleiste wieder verwerfen.
-    </string>
-    <string name="admin_labels_dialog_message_used">
-        Dieses Etikett identifiziert das Buch %1$s.\n
-        \nWenn sie das Etikett aussondern wollen, müssen Sie dem Buch zuerst ein neues Klebeetikett zuweisen,
-        bzw. das Buch aus dem Bestand nehmen.\n
-        \nBitte wechseln Sie dazu in den Bereich \"%2$s\".
-    </string>
 
     <!-- AdminIdcardsActivity -->
 
@@ -403,25 +366,113 @@
         \nBitte wechseln Sie dazu in den Bereich \"%2$s\" oder \"%3$s\".
     </string>
 
-    <!-- StocktakingLabelsActivity -->
+    <!-- AdminLabelsActivity -->
 
-    <string name="stocktaking_labels_label">Klebeetiketten-Inventur</string>
-    <string name="stocktaking_labels_explanation">
-        Sie können jetzt überprüfen, ob Ihr Bestand an Klebeetiketten
-        mit den Angaben in der Bücherei-Verwaltung übereinstimmt.\n
-        \nScannen Sie dazu alle Klebeetiketten, die nicht auf einem Buch aufgeklebt sind,
-        der Reihe nach ein. Jedes erfasste Etikett wird aus der Liste rechts gelöscht.\n
-        \nNachdem alle Klebeetiketten gescannt wurden, sollte die Liste rechts leer sein.\n
-        \nAndernfalls können Sie die verbliebenen Etiketten mit dem Papierkorb als ausgesondert markieren.
+    <string name="admin_labels_label">Klebeetiketten verwalten</string>
+    <string name="admin_labels_explanation">
+        In diesem Bereich können Sie:\n
+        \n• Nach Klebeetiketten suchen
+        \n(Lupe in der Werkzeugleiste)\n
+        \n• Den Listeninhalt einschränken
+        \n(Filtersymbol in der Werkzeugleiste)\n
+        \n• Neue Klebeetiketten erstellen
+        \n(Pluszeichen in der Werkzeugleiste)\n
+        \n• Zu viel erstellte Etiketten wieder verwerfen\n
+        (Papierkorb in der Werkzeugleiste)\n
+        \n• Ein Etikett aus ihrem Vorrat als ausgesondert markieren,
+        falls dieses unbrauchbar geworden oder verloren gegangen ist\n
+        (Papierkorb neben dem Etikett)\n
+        \n• Ein ausgesondertes Etikett wieder als im Vorrat befindlich markieren,
+        falls es versehentlich ausgesondert oder wieder gefunden wurde
+        \n(Wiederherstellen-Symbol neben dem Etikett)
     </string>
 
-    <string name="stocktaking_labels_empty">Alle Klebeetiketten erfasst</string>
+    <string name="admin_labels_action_filter_printed">Erstellte Etiketten anzeigen</string>
+    <string name="admin_labels_action_filter_stocked">Registrierte Etiketten anzeigen</string>
+    <string name="admin_labels_action_filter_used">Aufgeklebte Etiketten anzeigen</string>
+    <string name="admin_labels_action_filter_lost">Ausgesonderte Etiketten anzeigen</string>
+    <string name="admin_labels_action_delete">Erstellte Etiketten verwerfen</string>
+    <string name="admin_labels_action_create">Neue Etiketten erstellen</string>
 
-    <string name="stocktaking_labels_error_dialog_title">Fehler!</string>
-    <string name="stocktaking_labels_error_dialog_label_used">
+    <string name="admin_labels_empty">Kein Klebeetikett</string>
+
+    <string name="admin_labels_dialog_title">Klebeetikett %1$s</string>
+    <string name="admin_labels_dialog_message_printed">
+        Dieses Etikett wurde erstellt, der Ausdruck aber noch nicht registriert.\n
+        \nWenn Sie zu viele Klebeetiketten erstellt haben, können
+        Sie diese mit dem Papierkorb in der Werkzeugleiste wieder verwerfen.
+    </string>
+    <string name="admin_labels_dialog_message_used">
         Dieses Etikett identifiziert das Buch %1$s.\n
-        \nBitte nur Klebeetiketten scannen, die sich im Bestand befinden und auf keinem Buch aufgeklebt sind.
+        \nWenn sie das Etikett aussondern wollen, müssen Sie dem Buch zuerst ein neues Klebeetikett zuweisen,
+        bzw. das Buch aus dem Bestand nehmen.\n
+        \nBitte wechseln Sie dazu in den Bereich \"%2$s\".
     </string>
+
+    <!-- AdminUsersActivity -->
+
+    <string name="admin_users_label">Nutzerkonten verwalten</string>
+    <string name="admin_users_explanation">
+        In diesem Bereich können Sie:\n
+        \n• Nach Klebeetiketten suchen
+        \n(Lupe in der Werkzeugleiste)\n
+        \n• Den Listeninhalt einschränken
+        \n(Filtersymbol in der Werkzeugleiste)\n
+        \n• Ein ausgesondertes Etikett wieder als im Vorrat befindlich markieren,
+        falls es versehentlich ausgesondert oder wieder gefunden wurde
+        \n(Wiederherstellen-Symbol neben dem Etikett)
+    </string>
+    <string name="admin_users_empty">Kein Nutzer</string>
+
+    <!-- AdminUsersAddActivity -->
+
+    <string name="admin_users_add_label">Neue Nutzerkonten einrichten</string>
+
+    <string name="admin_users_add_step_0_label">Funktion des Nutzers wählen</string>
+    <string name="admin_users_add_step_0_explanation">
+        Bitte wählen Sie als Erstes die Funktion des Nutzers:\n
+        \n• Ein \"Verwalter\" hat die maximalen Rechte und darf
+        den Bücherbestand und die Nutzerkonten verwalten.
+        \n• Ein \"Mitarbeiter\" kann nur die Buchausleihe und -rückgabe durchführen.
+        \n• Ein \"Schüler\" kann Bücher ausleihen,
+        hat aber keinen Zugriff auf die Bücherei-Verwaltung.
+    </string>
+    <string name="admin_users_add_step_0_admin">@string/role_display_admin</string>
+    <string name="admin_users_add_step_0_tutor">@string/role_display_tutor</string>
+    <string name="admin_users_add_step_0_pupil">@string/role_display_pupil</string>
+
+    <string name="admin_users_add_step_1a_label">Vor- und Nachnamen eingeben</string>
+    <string name="admin_users_add_step_1a_explanation">
+        Bitte geben Sie jetzt den Vor- und Nachnamen des %1$ss ein:
+    </string>
+    <string name="admin_users_add_step_1a_name1">@string/first_run_1_name1</string>
+    <string name="admin_users_add_step_1a_name2">@string/first_run_1_name2</string>
+    <string name="admin_users_add_step_1a_help_1">@string/first_run_1_help_1</string>
+    <string name="admin_users_add_step_1a_help_2">@string/first_run_1_help_2</string>
+    <string name="admin_users_add_step_1a_help_3">@string/first_run_1_help_3</string>
+
+    <string name="admin_users_add_step_1b_label">Klasse und Schuljahr festlegen</string>
+
+    <string name="admin_users_add_step_2_label">Ausweiskarten zuweisen</string>
+
+    <!-- AdminUsersEditActivity -->
+
+    <string name="admin_users_edit_label">Nutzerkonto bearbeiten</string>
+
+    <!-- AdminBooksActivity -->
+
+    <string name="admin_books_label">Bücherbestand verwalten</string>
+    <string name="admin_books_empty">Kein Buch</string>
+
+    <!-- AdminBooksAddActivity -->
+
+    <string name="admin_books_add_label">Neues Buch erfassen</string>
+
+    <!-- AdminBooksEditActivity -->
+
+    <string name="admin_books_edit_label">Buchdaten bearbeiten</string>
+
+    <!-- ======================================================================================================== -->
 
     <!-- StocktakingIdcardsActivity -->
 
@@ -443,29 +494,32 @@
         \nBitte nur Ausweiskarten scannen, die sich im Bestand befinden und keinem Nutzer zugewiesen sind.
     </string>
 
-    <!-- AdminBooksActivity -->
+    <!-- StocktakingLabelsActivity -->
 
-    <string name="admin_books_label">Bücherbestand verwalten</string>
-    <string name="admin_books_empty">Kein Buch</string>
-    <string name="admin_books_row_action_info">Buchdaten bearbeiten</string>
-    <string name="admin_books_action_create">Neues Buch erfassen</string>
+    <string name="stocktaking_labels_label">Klebeetiketten-Inventur</string>
+    <string name="stocktaking_labels_explanation">
+        Sie können jetzt überprüfen, ob Ihr Bestand an Klebeetiketten
+        mit den Angaben in der Bücherei-Verwaltung übereinstimmt.\n
+        \nScannen Sie dazu alle Klebeetiketten, die nicht auf einem Buch aufgeklebt sind,
+        der Reihe nach ein. Jedes erfasste Etikett wird aus der Liste rechts gelöscht.\n
+        \nNachdem alle Klebeetiketten gescannt wurden, sollte die Liste rechts leer sein.\n
+        \nAndernfalls können Sie die verbliebenen Etiketten mit dem Papierkorb als ausgesondert markieren.
+    </string>
+
+    <string name="stocktaking_labels_empty">Alle Klebeetiketten erfasst</string>
+
+    <string name="stocktaking_labels_error_dialog_title">Fehler!</string>
+    <string name="stocktaking_labels_error_dialog_label_used">
+        Dieses Etikett identifiziert das Buch %1$s.\n
+        \nBitte nur Klebeetiketten scannen, die sich im Bestand befinden und auf keinem Buch aufgeklebt sind.
+    </string>
+
+    <!-- StocktakingUsersActivity -->
+
+    <string name="stocktaking_users_label">Nutzerkonten löschen</string>
 
     <!-- StocktakingBooksActivity -->
 
     <string name="stocktaking_books_label">Bücherbestand-Inventur</string>
-
-    <!-- AdminUsersActivity -->
-
-    <string name="admin_users_label">Nutzerkonten verwalten</string>
-    <string name="admin_users_explanation">
-        How TODO
-    </string>
-    <string name="admin_users_empty">Kein Nutzer</string>
-    <string name="admin_users_row_action_info">Nutzerkonto bearbeiten</string>
-    <string name="admin_users_action_create">Neues Nutzerkonto erstellen</string>
-
-    <!-- DeletingUsersActivity -->
-
-    <string name="deleting_users_label">Nutzerkonten löschen</string>
 
 </resources>

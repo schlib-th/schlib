@@ -4,6 +4,7 @@
     <color name="color_primary">#71ada3</color>
     <color name="color_primary_dark">#377a6f</color>
 
-    <color name="serials_row_key_background">#f9ff9b</color>
-    <color name="serials_row_info_background">#ccff9b</color>
+    <color name="color_38_percent_black">#61000000</color>
+    <color name="color_87_percent_black">#DE000000</color>
+    <color name="color_google_material_grey_400">#BDBDBD</color>
 </resources>

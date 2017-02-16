@@ -8,9 +8,12 @@ package de.fahimu.schlib.app;
 
 import android.animation.Animator;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
@@ -131,10 +134,30 @@ public final class LoginActivity extends SchlibActivity {
    @Override
    protected int getContentViewId() { return R.layout.login; }
 
+   private static BroadcastReceiver screenOffReceiver;
+
+   /**
+    * When the device goes to sleep and becomes non-interactive, start this activity again.
+    * Please note that this activity is always launched in mode "singleTask" (see AndroidManifest.xml)
+    */
+   private static synchronized void registerScreenOffReceiver() {
+      if (screenOffReceiver == null) {
+         screenOffReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+               context.startActivity(new Intent(context, LoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            }
+         };
+         App.getInstance().registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+      }
+   }
+
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setDisplayHomeAsUpEnabled(false);
+
+      registerScreenOffReceiver();
 
       scan = findView(View.class, R.id.login_scan);
       card0 = findView(ImageView.class, R.id.login_card_0);
@@ -154,7 +177,7 @@ public final class LoginActivity extends SchlibActivity {
             if (event.getEventTime() > lastTime + 3000) {     // ignore multi clicks
                lastTime = event.getEventTime();
                Use.login(User.getNonNull(1));
-               playSoundAndStartActivity(AdminActivity.class);
+               playSoundAndStartActivity(AdminUsersAddActivity.class);
             }
             return true;
          }
@@ -200,7 +223,9 @@ public final class LoginActivity extends SchlibActivity {
    }
 
    @Override
-   public void onBackPressed() { /* ignore back button */ }
+   protected boolean isBackButtonEnabled() {
+      return false;     // ignore back button
+   }
 
    /* ============================================================================================================== */
 

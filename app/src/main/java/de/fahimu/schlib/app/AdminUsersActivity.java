@@ -1,11 +1,12 @@
 /*
- * AdminSerialsActivity.java
+ * AdminUsersActivity.java
  *
  * Copyright 2017 by Thomas Hirsch, schlib@fahimu.de
  */
 
 package de.fahimu.schlib.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -204,8 +205,7 @@ public final class AdminUsersActivity extends SchlibActivity {
 
    public void onCreateClicked(MenuItem item) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked on create");
-         // TODO
+         startActivity(new Intent(this, AdminUsersAddActivity.class));
       }
    }
 
@@ -213,9 +213,8 @@ public final class AdminUsersActivity extends SchlibActivity {
 
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         User user = usersAdapter.getItemByView(view).row;
-         scope.d(user.getOid() + ": " + user.getDisplay());
-         // TODO
+         long uid = usersAdapter.getItemByView(view).row.getUid();
+         startActivity(new Intent(this, AdminUsersEditActivity.class).putExtra("uid", uid));
       }
    }
 

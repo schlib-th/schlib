@@ -46,10 +46,8 @@ public final class FirstRun1Activity extends SchlibActivity {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onCreate(savedInstanceState);
          setDisplayHomeAsUpEnabled(false);
-         name1 = findView(ScannerAwareEditText.class, R.id.first_run_1_name1);
-         name1.setScannerActivity(this);
-         name2 = findView(ScannerAwareEditText.class, R.id.first_run_1_name2);
-         name2.setScannerActivity(this);
+         name1 = findView(ScannerAwareEditText.class, R.id.first_run_1_name1).setScannerActivity(this);
+         name2 = findView(ScannerAwareEditText.class, R.id.first_run_1_name2).setScannerActivity(this);
       }
    }
 
@@ -64,16 +62,18 @@ public final class FirstRun1Activity extends SchlibActivity {
    }
 
    @Override
-   public void onBackPressed() { /* ignore back button */ }
+   protected boolean isBackButtonEnabled() {
+      return false;     // ignore back button
+   }
 
    private boolean noInput = true;
 
-   private String checkName(StringType stringType, String name) {
+   private static String checkName(StringType stringType, String name) {
       int failPosition = stringType.matches(name);
       if (failPosition >= name.length()) {
-         return getString(R.string.first_run_1_help_2);
+         return App.getStr(R.string.first_run_1_help_2);
       } else {
-         return (failPosition < 0) ? null : getString(R.string.first_run_1_help_3, name.charAt(failPosition));
+         return (failPosition < 0) ? null : App.getStr(R.string.first_run_1_help_3, name.charAt(failPosition));
       }
    }
 
@@ -98,7 +98,7 @@ public final class FirstRun1Activity extends SchlibActivity {
             NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
             dialog.setTitle(R.string.first_run_1_dialog_title);
             dialog.setMessage(R.string.first_run_1_dialog_message);
-            dialog.setPositiveButton(R.string.app_continue, new ButtonListener() {
+            dialog.setPositiveButton(R.string.app_cont, new ButtonListener() {
                @Override
                public void onClick() { prepareDatabaseAndContinue(name1, name2); }
             }).show();

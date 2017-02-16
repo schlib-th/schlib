@@ -14,7 +14,7 @@
         android:id="@+id/action_create"
         android:icon="@drawable/ic_add_black_24dp"
         android:onClick="onCreateClicked"
-        android:title="@string/admin_users_action_create"
+        android:title="@string/admin_users_add_label"
         android:visible="false"
         app:showAsAction="ifRoom">
     </item>

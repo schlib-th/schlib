@@ -6,6 +6,7 @@
 
 package de.fahimu.schlib.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -227,8 +228,7 @@ public final class AdminBooksActivity extends SchlibActivity {
 
    public void onCreateClicked(MenuItem item) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked on create");
-         // TODO
+         startActivity(new Intent(this, AdminBooksAddActivity.class));
       }
    }
 
@@ -236,9 +236,9 @@ public final class AdminBooksActivity extends SchlibActivity {
 
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         Book book = booksAdapter.getItemByView(view).row;
-         scope.d(book.getOid() + ": " + book.getDisplayShelfNumber());
-         // TODO
+         long bid = booksAdapter.getItemByView(view).row.getBid();
+         startActivity(new Intent(this, AdminBooksEditActivity.class).putExtra("bid", bid));
       }
    }
+
 }

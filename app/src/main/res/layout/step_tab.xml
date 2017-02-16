@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/step_tab_oval"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/sh_oval_stepper_active_24dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:text="1" />
+
+    <TextView
+        android:id="@+id/step_tab_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/step_tab_oval"
+        android:layout_toEndOf="@id/step_tab_oval"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/color_87_percent_black"
+        android:textSize="14sp"
+        tools:text="name" />
+
+</RelativeLayout>

@@ -70,6 +70,7 @@
             android:parentActivityName=".FirstRun3Activity"
             android:screenOrientation="userLandscape">
         </activity>
+
         <activity
             android:name=".LoginActivity"
             android:label="@string/login_label"
@@ -88,6 +89,14 @@
             android:parentActivityName=".LoginActivity"
             android:screenOrientation="userLandscape">
         </activity>
+
+        <activity
+            android:name=".AdminIdcardsActivity"
+            android:label="@string/admin_idcards_label"
+            android:parentActivityName=".AdminActivity"
+            android:screenOrientation="userLandscape"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+        </activity>
         <activity
             android:name=".AdminLabelsActivity"
             android:label="@string/admin_labels_label"
@@ -96,10 +105,25 @@
             android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
-            android:name=".StocktakingLabelsActivity"
-            android:label="@string/stocktaking_labels_label"
+            android:name=".AdminUsersActivity"
+            android:label="@string/admin_users_label"
             android:parentActivityName=".AdminActivity"
-            android:screenOrientation="userLandscape">
+            android:screenOrientation="userLandscape"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+        </activity>
+        <activity
+            android:name=".AdminUsersAddActivity"
+            android:label="@string/admin_users_add_label"
+            android:parentActivityName=".AdminUsersActivity"
+            android:screenOrientation="userLandscape"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+        </activity>
+        <activity
+            android:name=".AdminUsersEditActivity"
+            android:label="@string/admin_users_edit_label"
+            android:parentActivityName=".AdminUsersActivity"
+            android:screenOrientation="userLandscape"
+            android:windowSoftInputMode="stateHidden|adjustPan">
         </activity>
         <activity
             android:name=".AdminBooksActivity"
@@ -109,12 +133,20 @@
             android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
-            android:name=".AdminIdcardsActivity"
-            android:label="@string/admin_idcards_label"
-            android:parentActivityName=".AdminActivity"
+            android:name=".AdminBooksAddActivity"
+            android:label="@string/admin_books_add_label"
+            android:parentActivityName=".AdminBooksActivity"
             android:screenOrientation="userLandscape"
-            android:windowSoftInputMode="stateHidden|adjustResize">
+            android:windowSoftInputMode="stateHidden|adjustPan">
         </activity>
+        <activity
+            android:name=".AdminBooksEditActivity"
+            android:label="@string/admin_books_edit_label"
+            android:parentActivityName=".AdminBooksActivity"
+            android:screenOrientation="userLandscape"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+        </activity>
+
         <activity
             android:name=".StocktakingIdcardsActivity"
             android:label="@string/stocktaking_idcards_label"
@@ -122,11 +154,10 @@
             android:screenOrientation="userLandscape">
         </activity>
         <activity
-            android:name=".AdminUsersActivity"
-            android:label="@string/admin_users_label"
+            android:name=".StocktakingLabelsActivity"
+            android:label="@string/stocktaking_labels_label"
             android:parentActivityName=".AdminActivity"
-            android:screenOrientation="userLandscape"
-            android:windowSoftInputMode="stateHidden|adjustResize">
+            android:screenOrientation="userLandscape">
         </activity>
     </application>
 

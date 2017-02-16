@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 
 
 import java.util.ArrayList;
@@ -118,12 +119,16 @@ public final class User extends Row {
    /* ============================================================================================================== */
 
    public enum Role {
-      ADMIN(User.ADMIN), TUTOR(User.TUTOR), PUPIL(User.PUPIL);
+      ADMIN(User.ADMIN, R.string.role_display_admin),
+      TUTOR(User.TUTOR, R.string.role_display_tutor),
+      PUPIL(User.PUPIL, R.string.role_display_pupil);
 
       @NonNull
-      private final String value;
+      private final String value, display;
 
-      Role(@NonNull String value) { this.value = value; }
+      Role(@NonNull String value, @StringRes int displayId) {
+         this.value = value; this.display = App.getStr(displayId);
+      }
 
       @NonNull
       static Role getEnum(@NonNull String value) {
@@ -132,30 +137,41 @@ public final class User extends Row {
          if (ADMIN.value.equals(value)) { return ADMIN; }
          throw new IllegalArgumentException("value=" + value);
       }
+
+      @NonNull
+      public String getDisplay() {
+         return display;
+      }
    }
 
    /* ============================================================================================================== */
 
-   public static User insertAdmin(String name1, String name2, Integer idcard) {
+   public static User insertAdmin(String name1, String name2, int idcard) {
       return insert(name1, name2, 0, Role.ADMIN, 5, idcard);
    }
 
-   public static User insertTutor(String name1, String name2, Integer idcard) {
+   public static User insertTutor(String name1, String name2, int idcard) {
       return insert(name1, name2, 0, Role.TUTOR, 5, idcard);
    }
 
-   public static synchronized User insertPupil(String name1, String name2, Integer idcard) {
+   public static synchronized ArrayList<User> insertClass(String name1, String name2, List<Integer> idcards) {
       // Must be static synchronized to ensure that the calculation of MAX(serial) works properly.
       // If we would search for MAX(serial) in table 'users', and the last inserted pupil would have
       // been deleted, then its serial number would be reused, but that's erroneous! So we'll have
-      // to search for MAX(serial) in our history table 'prev_users' where deleted pupils still exist.
+      // to search for MAX(serial) in the history table 'prev_users' where deleted pupils still exist.
       String column = App.format("MAX(%s)", SERIAL);
       String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
       String maxSerial = SQLite.getFromQuery(PREV, column, "0", where, name1, name2, PUPIL);
-      return insert(name1, name2, 1 + Integer.parseInt(maxSerial), Role.PUPIL, 1, idcard);
+
+      int serial = 1 + Integer.parseInt(maxSerial);
+      ArrayList<User> users = new ArrayList<>(idcards.size());
+      for (int idcard : idcards) {
+         users.add(insert(name1, name2, serial++, Role.PUPIL, 1, idcard));
+      }
+      return users;
    }
 
-   private static User insert(String name1, String name2, int serial, Role role, int nbooks, Integer idcard) {
+   private static User insert(String name1, String name2, int serial, Role role, int nbooks, int idcard) {
       User user = new User().setName1(name1).setName2(name2).setSerial(serial);
       return user.setRole(role).setNbooks(nbooks).setIdcard(idcard).insert();
    }
@@ -299,8 +315,8 @@ public final class User extends Row {
       return values.getInt(IDCARD);
    }
 
-   public User setIdcard(@Nullable Integer idcard) {
-      return (User) setNullable(IDCARD, idcard);
+   public User setIdcard(int idcard) {
+      return (User) setNonNull(IDCARD, idcard);
    }
 
    /* ============================================================================================================== */

@@ -57,105 +57,103 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-
-        <GridLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="8dp"
-            android:background="@android:color/white"
-            android:columnCount="2"
-            android:elevation="4dp"
-            android:padding="8dp">
-
-            <Button
-                android:id="@+id/admin_admin_idcards"
+            <GridLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onAdminIdcardsClicked"
-                android:text="@string/admin_idcards_label" />
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="8dp"
+                android:background="@android:color/white"
+                android:columnCount="2"
+                android:elevation="4dp"
+                android:padding="8dp">
 
-            <Button
-                android:id="@+id/admin_admin_labels"
+                <Button
+                    android:id="@+id/admin_admin_idcards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onAdminIdcardsClicked"
+                    android:text="@string/admin_idcards_label" />
+
+                <Button
+                    android:id="@+id/admin_admin_labels"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onAdminLabelsClicked"
+                    android:text="@string/admin_labels_label" />
+
+                <Button
+                    android:id="@+id/admin_admin_users"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onAdminUsersClicked"
+                    android:text="@string/admin_users_label" />
+
+                <Button
+                    android:id="@+id/admin_admin_books"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onAdminBooksClicked"
+                    android:text="@string/admin_books_label" />
+
+            </GridLayout>
+
+            <GridLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onAdminLabelsClicked"
-                android:text="@string/admin_labels_label" />
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="8dp"
+                android:background="@android:color/white"
+                android:columnCount="2"
+                android:elevation="4dp"
+                android:padding="8dp">
 
-            <Button
-                android:id="@+id/admin_admin_users"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onAdminUsersClicked"
-                android:text="@string/admin_users_label"
-                android:layout_width="wrap_content" />
+                <Button
+                    android:id="@+id/admin_stocktaking_idcards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onStocktakingIdcardsClicked"
+                    android:text="@string/stocktaking_idcards_label" />
 
-            <Button
-                android:id="@+id/admin_admin_books"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onAdminBooksClicked"
-                android:text="@string/admin_books_label" />
+                <Button
+                    android:id="@+id/admin_stocktaking_labels"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onStocktakingLabelsClicked"
+                    android:text="@string/stocktaking_labels_label" />
 
-        </GridLayout>
+                <Button
+                    android:id="@+id/admin_stocktaking_users"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onStocktakingUsersClicked"
+                    android:text="@string/stocktaking_users_label" />
 
-        <GridLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="8dp"
-            android:background="@android:color/white"
-            android:columnCount="2"
-            android:elevation="4dp"
-            android:padding="8dp">
-
-            <Button
-                android:id="@+id/admin_stocktaking_idcards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onStocktakingIdcardsClicked"
-                android:text="@string/stocktaking_idcards_label" />
-
-            <Button
-                android:id="@+id/admin_stocktaking_labels"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onStocktakingLabelsClicked"
-                android:text="@string/stocktaking_labels_label" />
-
-            <Button
-                android:id="@+id/admin_deleting_users"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onDeletingUsersClicked"
-                android:text="@string/deleting_users_label" />
-
-            <Button
-                android:id="@+id/admin_stocktaking_books"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="4dp"
-                android:onClick="onStocktakingBooksClicked"
-                android:text="@string/stocktaking_books_label" />
-        </GridLayout>
+                <Button
+                    android:id="@+id/admin_stocktaking_books"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:onClick="onStocktakingBooksClicked"
+                    android:text="@string/stocktaking_books_label" />
+            </GridLayout>
 
         </RelativeLayout>
-
 
     </LinearLayout>
 

@@ -90,6 +90,8 @@ public final class MainActivity extends SchlibActivity {
    }
 
    @Override
-   public void onBackPressed() { /* IGNORE */ }
+   protected boolean isBackButtonEnabled() {
+      return false;     // ignore back button
+   }
 
 }

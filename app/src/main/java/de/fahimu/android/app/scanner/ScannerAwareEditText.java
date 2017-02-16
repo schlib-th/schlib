@@ -35,8 +35,9 @@ public class ScannerAwareEditText extends TextInputEditText {
       super(context, attrs, defStyleAttr);
    }
 
-   public void setScannerActivity(ScannerActivity scannerActivity) {
+   public ScannerAwareEditText setScannerActivity(ScannerActivity scannerActivity) {
       this.scannerActivity = scannerActivity;
+      return this;
    }
 
    @Override

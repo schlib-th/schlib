@@ -56,7 +56,6 @@ abstract class SchlibActivity extends ScannerActivity {
          return true;
       case R.id.action_logout:
          startActivity(new Intent(this, LoginActivity.class));
-         finish();
          return true;
       default:
          return super.onOptionsItemSelected(item);
@@ -106,7 +105,7 @@ abstract class SchlibActivity extends ScannerActivity {
       NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
       dialog.setTitle(R.string.schlib_rationale_dialog_title);
       dialog.setMessage(R.string.schlib_rationale_dialog_message);
-      dialog.setPositiveButton(R.string.app_continue, new ButtonListener() {
+      dialog.setPositiveButton(R.string.app_cont, new ButtonListener() {
          @Override
          public void onClick() {
             Log.d("requestPermissions");

@@ -7,6 +7,7 @@
 package de.fahimu.schlib.app;
 
 import android.animation.Animator;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -279,7 +280,6 @@ public final class TutorActivity extends SchlibActivity {
          beepAnimator.cancel();
          showAnimator.cancel();
          stopAnimator.cancel();
-         finish();
       }
    }
 
@@ -337,7 +337,7 @@ public final class TutorActivity extends SchlibActivity {
 
       @Override
       protected void onPostExecute(Void aVoid) {
-         TutorActivity.this.finish();
+         startActivity(new Intent(TutorActivity.this, LoginActivity.class));
       }
 
    }
