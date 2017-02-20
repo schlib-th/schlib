@@ -8,6 +8,7 @@ package de.fahimu.android.app;
 
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.text.InputFilter;
 import android.text.SpannableString;
@@ -17,8 +18,11 @@ import android.text.style.ForegroundColorSpan;
 import android.widget.TextView;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.fahimu.android.app.scanner.ScannerAwareSearchView;
 
 /**
  * A normalized string for case- and diacritic-insensitive searching in a list.
@@ -29,7 +33,7 @@ import java.util.Map;
  */
 public final class SearchString {
 
-   private static final Map<Character,Character> normalized = new HashMap<>(128);
+   private static final Map<Character,Character> normalized = new HashMap<>();
 
    private static final String DIACRITIC = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ";
    private static final String NORMALIZE = "aaaaäaaceeeeiiiidnooooöouuuüytßaaaaäaaceeeeiiiidnooooöouuuüyty";
@@ -69,28 +73,28 @@ public final class SearchString {
       this.offset = offset;
    }
 
-   static class Builder {
+   public static final class Builder {
       private final StringBuilder tokens;
       private final int[]         offset;
 
       private int field = 0;
 
-      Builder(int fields) {
-         this.tokens = new StringBuilder(64);
-         this.offset = new int[fields + 1];
+      public Builder(int fields) {
+         tokens = new StringBuilder(64);
+         offset = new int[fields + 1];
       }
 
-      Builder add(String string) {
+      public Builder add(String string) {
          offset[field++] = tokens.length();
          for (int i = 0; i < string.length(); i++) {
-            Character c = normalized.get(string.charAt(i));
+            final Character c = normalized.get(string.charAt(i));
             tokens.append(c == null ? ' ' : c);
          }
          tokens.append(' ');
          return this;
       }
 
-      SearchString createSearchString() {
+      public SearchString buildSearchString() {
          offset[field] = tokens.length();       // add additional element with tokens.length()
          return new SearchString(tokens.toString(), offset);
       }
@@ -137,9 +141,9 @@ public final class SearchString {
          textView.setText(string);
       } else {
          SpannableString text = new SpannableString(string);
-         int tokensStart = offset[field], tokensEnd = offset[field + 1];
+         final int tokensStart = offset[field], tokensEnd = offset[field + 1];
          for (int i = 0; i < tokensIndex.length; ) {
-            int index = tokensIndex[i++], length = tokensIndex[i++];
+            final int index = tokensIndex[i++], length = tokensIndex[i++];
             if (index >= tokensEnd) { break; }
             if (index >= tokensStart) {
                text.setSpan(createColorSpan(), index - tokensStart, index - tokensStart + length, 0);
@@ -153,10 +157,10 @@ public final class SearchString {
 
    public static final class QueryTextFilter implements InputFilter {
       public CharSequence filter(CharSequence src, int start, int end, Spanned dst, int dstStart, int dstEnd) {
-         String queryText = getNormalized(src, start, end, dst, dstStart, dstEnd);
+         final String queryText = getNormalized(src, start, end, dst, dstStart, dstEnd);
          Log.d("queryText={" + new StringBuilder(dst).replace(dstStart, dstEnd, queryText) + "}");
          if (src instanceof Spanned) {
-            SpannableString spannableString = new SpannableString(queryText);
+            final SpannableString spannableString = new SpannableString(queryText);
             TextUtils.copySpansFrom((Spanned) src, start, end, null, spannableString, 0);
             return spannableString;
          } else {
@@ -164,10 +168,20 @@ public final class SearchString {
          }
       }
 
+      /**
+       * Returns the normalized text from the range {@code start &hellip; end} of {@code src}.
+       * First two or more {@code SPACE} characters will be replaced by one {@code SPACE}, latin upper case letters
+       * will be replaced by their lower case version and diacritic characters by their non-diacritic version.
+       * Latin lower case letters and arabic digits will be left unchanged, all other characters will be deleted.
+       * Second the first or last character of the temporary string will be deleted if it is a {@code SPACE}
+       * character and after replacement in {@code dst} between {@code dstStart} and {@code dstEnd}
+       * the result string would contain leading or trailing {@code SPACE}s or sequences of {@code SPACE}s.
+       */
+      @NonNull
       private String getNormalized(CharSequence src, int start, int end, Spanned dst, int dstStart, int dstEnd) {
-         StringBuilder b = new StringBuilder(end - start);
+         final StringBuilder b = new StringBuilder(end - start);
          for (int i = start; i < end; i++) {
-            char c = src.charAt(i);
+            final char c = src.charAt(i);
             if (c == ' ') {
                if (!isBlank(b, b.length() - 1)) { b.append(c); }
             } else {
@@ -175,14 +189,55 @@ public final class SearchString {
                if (norm != null) { b.append(norm); }
             }
          }
-         if (isBlank(b, 0) && (dstStart == 0 || isBlank(dst, dstStart - 1))) { b.deleteCharAt(0); }
-         if (isBlank(b, b.length() - 1) && isBlank(dst, dstEnd)) { b.deleteCharAt(b.length() - 1); }
+         if (isBlank(b, 0) && (dstStart == 0 || isBlank(dst, dstStart - 1))) {
+            b.deleteCharAt(0);
+         }
+         if (isBlank(b, b.length() - 1) && isBlank(dst, dstEnd)) {
+            b.deleteCharAt(b.length() - 1);
+         }
          return b.toString();
       }
 
-      private boolean isBlank(CharSequence cs, int index) {
+      /**
+       * Returns true if the character at the specified {@code index} in {@code cs} is Unicode SPACE.
+       * If {@code index} is {@link IndexOutOfBoundsException out of bounds}, false will be returned.
+       */
+      private static boolean isBlank(CharSequence cs, int index) {
          return index >= 0 && index < cs.length() && cs.charAt(index) == ' ';
       }
+   }
+
+   /**
+    * Returns an array of non-empty normalized strings build from the specified {@link CharSequence} {@code cs}.
+    * Latin lower case letters and arabic digits will be left unchanged, latin upper case letters will be
+    * replaced by their lower case version and diacritic characters by their lower case non-diacritic version.
+    * All other characters are interpreted as limiters between the normalized strings. Non-empty normalized
+    * strings will be added to the resulting array and returned.
+    *
+    * @return an array of non-empty normalized strings build from the specified {@link CharSequence} {@code cs}.
+    */
+   @NonNull
+   public static String[] getNormalizedQueries(CharSequence cs) {
+      final ArrayList<String> list = new ArrayList<>();
+      final StringBuilder b = new StringBuilder();
+      for (int i = 0; i < cs.length(); i++) {
+         final Character norm = normalized.get(cs.charAt(i));
+         if (norm != null) {
+            b.append(norm);
+         } else if (b.length() > 0) {
+            list.add(b.toString());
+            b.setLength(0);
+         }
+      }
+      if (b.length() > 0) {
+         list.add(b.toString());
+      }
+      Log.d("normalizedQuery=" + list);
+      return list.toArray(new String[0]);
+   }
+
+   public static String[] getNormalizedQueries(@Nullable ScannerAwareSearchView searchView) {
+      return getNormalizedQueries(searchView == null ? "" : searchView.getQuery());
    }
 
 }

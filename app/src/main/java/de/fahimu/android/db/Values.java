@@ -113,7 +113,7 @@ public final class Values {
     * @return this {@code Values} object.
     */
    @NonNull
-   public Values add(@NonNull String[] keys) {
+   public Values add(@NonNull String... keys) {
       for (String key : keys) {
          if (key != null) {
             cv.putNull(key);     // assure that no {@code null} keys are stored

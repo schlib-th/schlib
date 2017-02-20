@@ -71,9 +71,9 @@ public final class FirstRun1Activity extends SchlibActivity {
    private static String checkName(StringType stringType, String name) {
       int failPosition = stringType.matches(name);
       if (failPosition >= name.length()) {
-         return App.getStr(R.string.first_run_1_help_2);
+         return App.getStr(R.string.first_run_1_error_2);
       } else {
-         return (failPosition < 0) ? null : App.getStr(R.string.first_run_1_help_3, name.charAt(failPosition));
+         return (failPosition < 0) ? null : App.getStr(R.string.first_run_1_error_3, name.charAt(failPosition));
       }
    }
 
@@ -85,7 +85,7 @@ public final class FirstRun1Activity extends SchlibActivity {
 
          if (name1.isEmpty() && name2.isEmpty() && noInput) {
             this.name1.requestFocus();
-            this.name1.setError(getString(R.string.first_run_1_help_1));
+            this.name1.setError(getString(R.string.first_run_1_error_1));
          } else if ((message = checkName(StringType.NAME1, name1)) != null) {
             noInput = false;
             this.name1.requestFocus();

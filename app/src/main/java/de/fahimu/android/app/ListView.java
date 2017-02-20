@@ -136,7 +136,7 @@ public final class ListView extends RecyclerView {
          if (searchFields.length > 0) {
             SearchString.Builder builder = new SearchString.Builder(searchFields.length);
             for (String searchField : searchFields) { builder.add(searchField); }
-            searchString = builder.createSearchString();
+            searchString = builder.buildSearchString();
          }
          this.searchString = searchString;
       }

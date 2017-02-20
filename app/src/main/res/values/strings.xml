@@ -34,9 +34,11 @@
 
     <!-- User -->
 
-    <string name="role_display_admin">Verwalter</string>
-    <string name="role_display_tutor">Mitarbeiter</string>
-    <string name="role_display_pupil">Schüler</string>
+    <string name="user_admin">Verwalter</string>
+    <string name="user_tutor">Mitarbeiter</string>
+    <string name="user_pupil">Schüler</string>
+    <string name="user_name1">Vorname</string>
+    <string name="user_name2">Nachname</string>
     <string name="user_display_admin">Verwalter \"%1$s %2$s\"</string>
     <string name="user_display_tutor">Mitarbeiter \"%1$s %2$s\"</string>
     <string name="user_display_pupil">Schüler #%1$02d der Klasse %2$s (%3$s)</string>
@@ -113,13 +115,13 @@
         \nBitte geben Sie jetzt zum Einrichten Ihres Kontos Ihren Vor- und Nachnamen ein:
     </string>
 
-    <string name="first_run_1_name1">Vorname</string>
-    <string name="first_run_1_name2">Nachname</string>
-    <string name="first_run_1_help_1">
+    <string name="first_run_1_name1">@string/user_name1</string>
+    <string name="first_run_1_name2">@string/user_name2</string>
+    <string name="first_run_1_error_1">
         Berühren Sie das Feld für den Vornamen und geben Sie ihn dann mit Hilfe der eingeblendeten Tastatur ein.
     </string>
-    <string name="first_run_1_help_2">Der Name ist zu kurz.</string>
-    <string name="first_run_1_help_3">Zeichen \'%1$c\' nicht zulässig.</string>
+    <string name="first_run_1_error_2">Der Name ist zu kurz.</string>
+    <string name="first_run_1_error_3">Zeichen \'%1$c\' nicht zulässig.</string>
 
     <string name="first_run_1_dialog_title">Klebeetiketten und Ausweiskarten erstellen</string>
     <string name="first_run_1_dialog_message">
@@ -437,19 +439,19 @@
         \n• Ein \"Schüler\" kann Bücher ausleihen,
         hat aber keinen Zugriff auf die Bücherei-Verwaltung.
     </string>
-    <string name="admin_users_add_step_0_admin">@string/role_display_admin</string>
-    <string name="admin_users_add_step_0_tutor">@string/role_display_tutor</string>
-    <string name="admin_users_add_step_0_pupil">@string/role_display_pupil</string>
+    <string name="admin_users_add_step_0_admin">@string/user_admin</string>
+    <string name="admin_users_add_step_0_tutor">@string/user_tutor</string>
+    <string name="admin_users_add_step_0_pupil">@string/user_pupil</string>
 
     <string name="admin_users_add_step_1a_label">Vor- und Nachnamen eingeben</string>
     <string name="admin_users_add_step_1a_explanation">
         Bitte geben Sie jetzt den Vor- und Nachnamen des %1$ss ein:
     </string>
-    <string name="admin_users_add_step_1a_name1">@string/first_run_1_name1</string>
-    <string name="admin_users_add_step_1a_name2">@string/first_run_1_name2</string>
-    <string name="admin_users_add_step_1a_help_1">@string/first_run_1_help_1</string>
-    <string name="admin_users_add_step_1a_help_2">@string/first_run_1_help_2</string>
-    <string name="admin_users_add_step_1a_help_3">@string/first_run_1_help_3</string>
+    <string name="admin_users_add_step_1a_name1">@string/user_name1</string>
+    <string name="admin_users_add_step_1a_name2">@string/user_name2</string>
+    <string name="admin_users_add_step_1a_error_1">@string/first_run_1_error_2</string>
+    <string name="admin_users_add_step_1a_error_2">@string/first_run_1_error_3</string>
+    <string name="admin_users_add_step_1a_error_snackbar">Es gibt bereits einen %1$s mit diesem Namen!</string>
 
     <string name="admin_users_add_step_1b_label">Klasse und Schuljahr festlegen</string>
 

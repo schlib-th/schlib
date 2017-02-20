@@ -147,6 +147,11 @@ abstract class StepperActivity extends SchlibActivity {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
+   @Override
+   protected final void onBarcode(String barcode) {
+      currentFragment.onBarcode(barcode);       // forward to fragment
+   }
+
    public final void onBackClicked(View view) {
       onBackPressed();
    }

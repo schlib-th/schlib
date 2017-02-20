@@ -11,12 +11,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.widget.AutoCompleteTextView;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
@@ -36,28 +37,27 @@ import de.fahimu.schlib.app.App;
  */
 public final class Book extends Row {
 
-   private static final String IDS  = "bids";
+   static final private String IDS  = "bids";
    static final         String TAB  = "books";
-   private static final String PREV = "prev_books";
+   static final private String PREV = "prev_books";
 
-   private static final String OID       = BaseColumns._ID;
+   static final private String OID       = BaseColumns._ID;
    static final         String BID       = "bid";
-   private static final String TITLE     = "title";
-   private static final String PUBLISHER = "publisher";
-   private static final String AUTHOR    = "author";
-   private static final String KEYWORDS  = "keywords";
-   private static final String STOCKED   = "stocked";
-   private static final String SHELF     = "shelf";
-   private static final String NUMBER    = "number";
-   private static final String PERIOD    = "period";
-   private static final String ISBN      = "isbn";
+   static final public  String TITLE     = "title";
+   static final public  String PUBLISHER = "publisher";
+   static final public  String AUTHOR    = "author";
+   static final public  String KEYWORDS  = "keywords";
+   static final private String STOCKED   = "stocked";
+   static final public  String SHELF     = "shelf";
+   static final private String NUMBER    = "number";
+   static final private String PERIOD    = "period";
+   static final private String ISBN      = "isbn";
    static final         String LABEL     = "label";
-   private static final String TSTAMP    = "tstamp";
+   static final private String TSTAMP    = "tstamp";
 
-   private static final Values TAB_COLUMNS = new Values().add(new String[] {
-         SQLite.alias(TAB, OID, OID),
-         BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL
-   });
+   // SELECT books._id AS _id, bid, title, publisher, author, keywords, stocked, shelf, number, period, isbn, label
+   static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID),
+         BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL);
 
    /**
     * Creates new tables {@code bids}, {@code books} and {@code prev_books} in the specified database.
@@ -180,22 +180,6 @@ public final class Book extends Row {
       return Book.get(App.format("%s=? AND %s ISNULL", ISBN, LABEL), isbn);
    }
 
-   /**
-    * Returns a {@link Map} that associates each shelf name from table {@code prev_books} with a unique id.
-    * When ordered by id, the shelf names are ordered alphabetically ascending.
-    *
-    * @return a {@link Map} that associates each shelf name from table {@code prev_books} with a unique id.
-    */
-   @NonNull
-   public static Map<String,Integer> getShelfMap() {
-      // SELECT shelf FROM prev_books GROUP BY shelf ORDER BY shelf ;
-      List<Book> shelfList = SQLite.get(Book.class, PREV, new Values().add(SHELF), SHELF, SHELF, null);
-      int group = 0;
-      Map<String,Integer> shelfMap = new HashMap<>(shelfList.size());
-      for (Book book : shelfList) { shelfMap.put(book.getShelf(), group++); }
-      return shelfMap;
-   }
-
    public static int countNoScanId() {
       // SELECT COUNT(*) FROM books WHERE isbn ISNULL AND label ISNULL ;
       String where = App.format("%s ISNULL AND %s ISNULL", ISBN, LABEL);
@@ -223,6 +207,32 @@ public final class Book extends Row {
       String where = App.format("%s=? AND %s ISNULL", Lending.UID, Lending.RETURN);
       return SQLite.get(Book.class, table, TAB_COLUMNS, null, null, where, user.getUid());
    }
+
+   /**
+    * Returns a list of books where values are only assigned for column {@code _id}
+    * and the specified {@code column}, grouped and ordered by the specified {@code column}.
+    * This method will be called e. g. to populate lists in {@link AutoCompleteTextView}s.
+    *
+    * @param column
+    *       the requested column.
+    * @param history
+    *       if false search the main table {@code books}, otherwise the history table {@code prev_books}.
+    * @return a list of books grouped and ordered by the specified {@code column}.
+    *
+    * @throws IllegalArgumentException
+    *       if the specified {@code column} is not one of
+    *       {@link #TITLE}, {@link #PUBLISHER}, {@link #AUTHOR}, {@link #KEYWORDS} or {@link #SHELF}.
+    */
+   public static ArrayList<Book> getColumnValues(String column, boolean history) {
+      if (!acceptedColumns.contains(column)) {
+         throw new IllegalArgumentException(column + " not allowed");
+      }
+      Values columns = new Values().add(OID).add(column);
+      return SQLite.get(Book.class, history ? PREV : TAB, columns, column, column, null);
+   }
+
+   private static HashSet<String> acceptedColumns =
+         new HashSet<>(Arrays.asList(TITLE, PUBLISHER, AUTHOR, KEYWORDS, SHELF));
 
    /**
     * Returns a list of all books, ordered by {@code shelf} and {@code number}.
@@ -381,10 +391,6 @@ public final class Book extends Row {
       return App.format("%03d", getNumber());
    }
 
-   public String getDisplayShelfNumber() {
-      return App.format("%s %03d", getShelf(), getNumber());
-   }
-
    public String getDisplayISBN() {
       return !hasISBN() ? "" : getISBN().getDisplay();
    }
@@ -399,7 +405,7 @@ public final class Book extends Row {
    }
 
    public String getDisplay() {
-      return App.format("\"%s\" (%s)", getTitle(), getDisplayShelfNumber());
+      return App.format("\"%s\" (%s %03d)", getTitle(), getShelf(), getNumber());
    }
 
 }

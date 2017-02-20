@@ -29,18 +29,15 @@ import de.fahimu.android.db.Values;
  */
 public final class Preference extends Row {
 
-   public static final String FIRST_RUN  = "first_run";
-   public static final String CIPHER_KEY = "cipher_key";
+   static final public  String FIRST_RUN  = "first_run";
+   static final public  String CIPHER_KEY = "cipher_key";
+   static final private String TAB        = "preferences";
+   static final private String OID        = BaseColumns._ID;
+   static final private String KEY        = "key";
+   static final private String VALUE      = "value";
 
-   private static final String TAB = "preferences";
-
-   private static final String OID   = BaseColumns._ID;
-   private static final String KEY   = "key";
-   private static final String VALUE = "value";
-
-   private static final Values TAB_COLUMNS = new Values().add(new String[] {
-         SQLite.alias(TAB, OID, OID), KEY, VALUE
-   });
+   // SELECT preferences._id AS _id, key, value
+   static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID), KEY, VALUE);
 
    static void create(SQLiteDatabase db) {
       Table tab = new Table(TAB, 5, OID, false);

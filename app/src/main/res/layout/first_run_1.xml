@@ -54,8 +54,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|start"
+                    android:imeOptions="actionNext"
                     android:inputType="textNoSuggestions|textCapWords"
                     android:maxLines="1"
+                    android:nextFocusRight="@+id/first_run_1_name2"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
             </android.support.design.widget.TextInputLayout>
@@ -71,8 +73,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|start"
+                    android:imeOptions="actionDone"
                     android:inputType="textNoSuggestions|textCapWords"
                     android:maxLines="1"
+                    android:nextFocusLeft="@+id/first_run_1_name1"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
             </android.support.design.widget.TextInputLayout>

@@ -28,14 +28,9 @@ import de.fahimu.android.app.Log;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-abstract class StepFragment<SA extends StepperActivity> extends Fragment {
+abstract class StepFragment extends Fragment {
 
    StepperActivity stepperActivity;
-
-   @NonNull
-   final SA getActivity(Class<SA> type) {
-      return type.cast(stepperActivity);
-   }
 
    @Override
    public final void onAttach(Context context) {
@@ -44,8 +39,6 @@ abstract class StepFragment<SA extends StepperActivity> extends Fragment {
          stepperActivity = (StepperActivity) getActivity();
       }
    }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
 
    @LayoutRes
    abstract int getContentViewId();
@@ -82,6 +75,10 @@ abstract class StepFragment<SA extends StepperActivity> extends Fragment {
       View view = getActivity().findViewById(resId);
       if (view == null) { throw new ClassCastException("Missing resource " + resId); }
       return type.cast(view);
+   }
+
+   void onBarcode(@SuppressWarnings ("unused") String barcode) {
+      // default implementation ignores scanned barcodes
    }
 
    abstract boolean isDoneEnabled();

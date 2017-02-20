@@ -30,18 +30,16 @@ import de.fahimu.schlib.app.R;
  */
 public final class Idcard extends Serial {
 
-   private static final String TAB = "idcards";
-
-   private static final int MIN      = 1000;
-   private static final int MAX      = 9999;
-   private static final int PER_PAGE = 10;
+   static final private String TAB      = "idcards";
+   static final private int    MIN      = 1000;
+   static final private int    MAX      = 9999;
+   static final private int    PER_PAGE = 10;
 
    static void create(@NonNull SQLiteDatabase db) { create(db, TAB, MIN, MAX); }
 
-   // SELECT idcards._id, page, lost, uid
-   private static final Values COLUMNS_FOR_JOIN_QUERY = new Values().add(new String[] {
-         SQLite.alias(TAB, OID, OID), PAGE, LOST, User.UID
-   });
+   // SELECT idcards._id AS _id, page, lost, uid
+   private static final Values COLUMNS_FOR_JOIN_QUERY =
+         new Values().add(SQLite.alias(TAB, OID, OID), PAGE, LOST, User.UID);
 
    // FROM idcards LEFT JOIN users ON idcards._id=users.idcard
    private static final String TABLE_NAME_FOR_JOIN_QUERY =

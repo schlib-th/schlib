@@ -29,16 +29,14 @@ import de.fahimu.android.db.Values;
  */
 public final class Use extends Row {
 
-   private static final String TAB = "uses";
+   static final private String TAB    = "uses";
+   static final private String OID    = BaseColumns._ID;
+   static final private String UID    = "uid";
+   static final private String LOGIN  = "login";
+   static final private String LOGOUT = "logout";
 
-   private static final String OID    = BaseColumns._ID;
-   private static final String UID    = "uid";
-   private static final String LOGIN  = "login";
-   private static final String LOGOUT = "logout";
-
-   private static final Values TAB_COLUMNS = new Values().add(new String[] {
-         SQLite.alias(TAB, OID, OID), UID, LOGIN, LOGOUT
-   });
+   // SELECT uses._id AS _id, uid, login, logout
+   static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID), UID, LOGIN, LOGOUT);
 
    static void create(SQLiteDatabase db) {
       Table tab = new Table(TAB, 6, OID, true);

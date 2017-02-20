@@ -31,17 +31,15 @@ import de.fahimu.schlib.app.App;
  */
 public final class Lending extends Row {
 
-   static final String TAB = "lendings";
-
-   private static final String OID    = BaseColumns._ID;
-   private static final String BID    = "bid";
+   static final         String TAB    = "lendings";
+   static final private String OID    = BaseColumns._ID;
+   static final private String BID    = "bid";
    static final         String UID    = "uid";
-   private static final String ISSUE  = "issue";
+   static final private String ISSUE  = "issue";
    static final         String RETURN = "return";
 
-   private static final Values TAB_COLUMNS = new Values().add(new String[] {
-         SQLite.alias(TAB, OID, OID), BID, UID, ISSUE, RETURN
-   });
+   // SELECT lendings._id AS _id, bid, uid, issue, return
+   static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID), BID, UID, ISSUE, RETURN);
 
    static void create(SQLiteDatabase db) {
       Table tab = new Table(TAB, 6, OID, true);

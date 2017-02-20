@@ -118,12 +118,7 @@ public final class AdminBooksActivity extends SchlibActivity {
     */
    final class BookItemFilter implements Filter<BookItem> {
       @NonNull
-      private final String[] normalizedQueries =
-            (searchView == null) ? new String[0] : splitQueryString(searchView.getQuery());
-
-      private String[] splitQueryString(String queryString) {
-         return queryString.isEmpty() ? new String[0] : queryString.split(" ");
-      }
+      private final String[] normalizedQueries = SearchString.getNormalizedQueries(searchView);
 
       @Override
       public boolean matches(BookItem item) {

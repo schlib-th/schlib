@@ -21,7 +21,7 @@ import de.fahimu.schlib.db.User.Role;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminUsersAddStep0 extends StepFragment<AdminUsersAddActivity> {
+public final class AdminUsersAddStep0 extends StepFragment {
 
    @Override
    int getContentViewId() {
@@ -36,13 +36,8 @@ public final class AdminUsersAddStep0 extends StepFragment<AdminUsersAddActivity
    @Nullable
    @Override
    StepFragment getNext() {
-      if (stepperActivity == null) {
-         return nextFragmentA;
-      } else if (getActivity(AdminUsersAddActivity.class).role != Role.PUPIL) {
-         return nextFragmentA;
-      } else {
-         return nextFragmentB;
-      }
+      AdminUsersAddActivity activity = (AdminUsersAddActivity) stepperActivity;
+      return (activity == null || activity.role != Role.PUPIL) ? nextFragmentA : nextFragmentB;
    }
 
    final AdminUsersAddStep1a nextFragmentA = new AdminUsersAddStep1a();
@@ -55,8 +50,11 @@ public final class AdminUsersAddStep0 extends StepFragment<AdminUsersAddActivity
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onActivityCreated(savedInstanceState);
          group = findView(RadioGroup.class, R.id.admin_users_add_step_0_group);
+         activity = (AdminUsersAddActivity) stepperActivity;
       }
    }
+
+   private AdminUsersAddActivity activity;
 
    @Override
    public void onResume() {
@@ -77,25 +75,24 @@ public final class AdminUsersAddStep0 extends StepFragment<AdminUsersAddActivity
 
    @Override
    boolean isDoneEnabled() {
-      return getActivity(AdminUsersAddActivity.class).role != null;
+      return activity.role != null;
    }
 
    @Override
    boolean onDoneClicked() {
-      return getActivity(AdminUsersAddActivity.class).role != null;
+      return activity.role != null;
    }
 
    @Override
    void updateModel() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         AdminUsersAddActivity activity = getActivity(AdminUsersAddActivity.class);
          activity.role = null;
          switch (group.getCheckedRadioButtonId()) {
          case R.id.admin_users_add_step_0_admin: activity.role = Role.ADMIN; break;
          case R.id.admin_users_add_step_0_tutor: activity.role = Role.TUTOR; break;
          case R.id.admin_users_add_step_0_pupil: activity.role = Role.PUPIL; break;
          }
-         stepperActivity.refreshGUI();
+         activity.refreshGUI();
       }
    }
 

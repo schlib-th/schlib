@@ -12,6 +12,7 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.widget.AutoCompleteTextView;
 
 
 import java.util.ArrayList;
@@ -38,28 +39,27 @@ import de.fahimu.schlib.app.R;
  */
 public final class User extends Row {
 
-   private static final String IDS  = "uids";
+   static final private String IDS  = "uids";
    static final         String TAB  = "users";
-   private static final String PREV = "prev_users";
+   static final private String PREV = "prev_users";
 
-   private static final String OID    = BaseColumns._ID;
+   static final private String OID    = BaseColumns._ID;
    static final         String UID    = "uid";
-   private static final String NAME1  = "name1";
-   private static final String NAME2  = "name2";
-   private static final String SERIAL = "serial";
-   private static final String ROLE   = "role";
-   private static final String NBOOKS = "nbooks";
+   static final private String NAME1  = "name1";
+   static final private String NAME2  = "name2";
+   static final private String SERIAL = "serial";
+   static final private String ROLE   = "role";
+   static final private String NBOOKS = "nbooks";
    static final         String IDCARD = "idcard";
-   private static final String TSTAMP = "tstamp";
+   static final private String TSTAMP = "tstamp";
 
-   private static final String ADMIN = "admin";
-   private static final String TUTOR = "tutor";
-   private static final String PUPIL = "pupil";
+   static final private String ADMIN = "admin";
+   static final private String TUTOR = "tutor";
+   static final private String PUPIL = "pupil";
 
-   private static final Values TAB_COLUMNS = new Values().add(new String[] {
-         SQLite.alias(TAB, OID, OID),
-         UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD
-   });
+   // SELECT users._id AS _id, uid, name1, name2, serial, role, nbooks, idcard
+   static final private Values TAB_COLUMNS =
+         new Values().add(SQLite.alias(TAB, OID, OID), UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD);
 
    /**
     * Creates new tables {@code uids}, {@code users} and {@code prev_users} in the specified database.
@@ -119,9 +119,9 @@ public final class User extends Row {
    /* ============================================================================================================== */
 
    public enum Role {
-      ADMIN(User.ADMIN, R.string.role_display_admin),
-      TUTOR(User.TUTOR, R.string.role_display_tutor),
-      PUPIL(User.PUPIL, R.string.role_display_pupil);
+      ADMIN(User.ADMIN, R.string.user_admin),
+      TUTOR(User.TUTOR, R.string.user_tutor),
+      PUPIL(User.PUPIL, R.string.user_pupil);
 
       @NonNull
       private final String value, display;
@@ -213,6 +213,24 @@ public final class User extends Row {
       User user = User.getNullable(uid);
       if (user == null) { throw new RuntimeException("no user with uid " + uid); }
       return user;
+   }
+
+   @Nullable
+   public static User get(String name1, String name2, int serial) {
+      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, SERIAL);
+      return User.get(where, name1, name2, serial);
+   }
+
+   /**
+    * Returns a list of pupils from the history table {@link #PREV} where values are only assigned
+    * for column {@code _id} and {@code name1}, grouped and ordered by column {@code name1}.
+    * This method will be called e. g. to populate lists in {@link AutoCompleteTextView}s.
+    *
+    * @return a list of pupils grouped and ordered by column {@code name1}.
+    */
+   public static ArrayList<User> getPupilsName1() {
+      Values columns = new Values().add(OID).add(NAME1);
+      return SQLite.get(User.class, PREV, columns, NAME1, NAME1, App.format("%s=?", ROLE), PUPIL);
    }
 
    /**

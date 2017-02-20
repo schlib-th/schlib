@@ -46,7 +46,7 @@ public enum StringType {
       /* a first name component */
       private static final String N1C   = App.format("(%s|%s%s{1,})", ABB, UPP, LOW);
       /* a first name */
-      private static final String NAME1 = App.format("(%s(-%s)*)", N1C, N1C);
+      private static final String NAME1 = App.format("(%s([ -]%s)*)", N1C, N1C);
       /* a last name component */
       private static final String N2C   = App.format("((Mac|Mc|[DO]'|Di)?%s%s{1,}%s?)", UPP, LOW, APO);
       /* a last name */
@@ -108,8 +108,7 @@ public enum StringType {
          } else {
             for (failPosition = s.length(); failPosition >= 0; failPosition--) {
                m = pattern.matcher(s.substring(0, failPosition));
-               m.matches();
-               if (m.hitEnd()) { break; }
+               if (m.matches() || m.hitEnd()) { break; }
             }
          }
       }

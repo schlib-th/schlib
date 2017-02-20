@@ -30,18 +30,16 @@ import de.fahimu.schlib.app.R;
  */
 public final class Label extends Serial {
 
-   private static final String TAB = "labels";
-
-   private static final int MIN      = 100000;
-   private static final int MAX      = 999999;
-   private static final int PER_PAGE = 21;
+   static final private String TAB      = "labels";
+   static final private int    MIN      = 100000;
+   static final private int    MAX      = 999999;
+   static final private int    PER_PAGE = 21;
 
    static void create(@NonNull SQLiteDatabase db) { create(db, TAB, MIN, MAX); }
 
-   // SELECT labels._id, page, lost, bid
-   private static final Values COLUMNS_FOR_JOIN_QUERY = new Values().add(new String[] {
-         SQLite.alias(TAB, OID, OID), PAGE, LOST, Book.BID
-   });
+   // SELECT labels._id AS _id, page, lost, bid
+   private static final Values COLUMNS_FOR_JOIN_QUERY =
+         new Values().add(SQLite.alias(TAB, OID, OID), PAGE, LOST, Book.BID);
 
    // FROM labels LEFT JOIN books ON labels._id=books.label
    private static final String TABLE_NAME_FOR_JOIN_QUERY =

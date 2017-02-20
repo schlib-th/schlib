@@ -11,8 +11,6 @@ import android.view.View;
 
 
 import de.fahimu.android.app.Log;
-import de.fahimu.schlib.anw.SerialNumber;
-import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.User.Role;
 
 /**
@@ -60,21 +58,6 @@ public final class AdminUsersAddActivity extends StepperActivity {
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
-
-   @Override
-   protected void onBarcode(String barcode) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         //TODO if (getStep() == 2) {
-         //TODO ((AdminUsersAddStep2a) getFragment()).onBarcode(barcode);
-         int number = SerialNumber.parseCode128(barcode);
-         if (Idcard.getNullable(number) != null) {       // it's a serial from the expected type
-            scope.d("idcard=" + new SerialNumber(number).getDecimal());
-         } else {
-            showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
-         }
-         //}
-      }
-   }
 
    public void onRadioButtonClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {

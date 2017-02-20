@@ -104,12 +104,7 @@ public final class AdminUsersActivity extends SchlibActivity {
     */
    final class UserItemFilter implements Filter<UserItem> {
       @NonNull
-      private final String[] normalizedQueries =
-            (searchView == null) ? new String[0] : splitQueryString(searchView.getQuery());
-
-      private String[] splitQueryString(String queryString) {
-         return queryString.isEmpty() ? new String[0] : queryString.split(" ");
-      }
+      private final String[] normalizedQueries = SearchString.getNormalizedQueries(searchView);
 
       @Override
       public boolean matches(UserItem item) {

@@ -11,6 +11,8 @@ import android.support.annotation.Nullable;
 
 
 import de.fahimu.android.app.Log;
+import de.fahimu.schlib.anw.SerialNumber;
+import de.fahimu.schlib.db.Idcard;
 
 /**
  * Step 2a of adding users to the database.
@@ -19,7 +21,7 @@ import de.fahimu.android.app.Log;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminUsersAddStep2a extends StepFragment<AdminUsersAddActivity> {
+public final class AdminUsersAddStep2a extends StepFragment {
 
    @Override
    protected int getContentViewId() {
@@ -41,8 +43,11 @@ public final class AdminUsersAddStep2a extends StepFragment<AdminUsersAddActivit
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onActivityCreated(savedInstanceState);
+         activity = (AdminUsersAddActivity) stepperActivity;
       }
    }
+
+   private AdminUsersAddActivity activity;
 
    @Override
    public void onResume() {
@@ -62,6 +67,20 @@ public final class AdminUsersAddStep2a extends StepFragment<AdminUsersAddActivit
    /* -------------------------------------------------------------------------------------------------------------- */
 
    @Override
+   void onBarcode(String barcode) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         int number = SerialNumber.parseCode128(barcode);
+         if (Idcard.getNullable(number) != null) {       // it's a serial from the expected type
+            scope.d("idcard=" + new SerialNumber(number).getDecimal());
+         } else {
+            stepperActivity.showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
+         }
+      }
+   }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   @Override
    boolean isDoneEnabled() { return true; }
 
    @Override
@@ -69,7 +88,7 @@ public final class AdminUsersAddStep2a extends StepFragment<AdminUsersAddActivit
 
    @Override
    void updateModel() {
-      stepperActivity.refreshGUI();
+      activity.refreshGUI();
    }
 
 }
