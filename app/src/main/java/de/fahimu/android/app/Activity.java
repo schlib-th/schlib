@@ -23,7 +23,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 /**
@@ -91,9 +90,7 @@ public abstract class Activity extends AppCompatActivity {
 
    @Override
    public final void onBackPressed() {
-      View focus = getCurrentFocus();
-      InputMethodManager imm = getSystemService(InputMethodManager.class);
-      if ((focus == null || !imm.hideSoftInputFromWindow(focus.getWindowToken(), 0)) && isBackButtonEnabled()) {
+      if (isBackButtonEnabled()) {
          super.onBackPressed();
       }
    }

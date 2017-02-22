@@ -141,8 +141,8 @@ public abstract class ScannerActivity extends Activity {
    /*  Methods called from {@link ScannerAwareSearchView}                                                            */
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   public void onFocusChange(View v, boolean hasFocus) {}
+   protected void onFocusChange(View v, boolean hasFocus) {}
 
-   public void onQueryTextChange(String newText) {}
+   protected void onQueryTextChange(String newText) {}
 
 }
