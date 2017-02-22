@@ -88,15 +88,6 @@ public abstract class Activity extends AppCompatActivity {
    @DrawableRes
    protected abstract int getIconId();
 
-   @Override
-   public final void onBackPressed() {
-      if (isBackButtonEnabled()) {
-         super.onBackPressed();
-      }
-   }
-
-   protected boolean isBackButtonEnabled() { return true; }
-
    /* ============================================================================================================== */
 
    private Snackbar snackbar;
