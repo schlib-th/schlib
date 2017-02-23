@@ -66,8 +66,17 @@ abstract class StepFragment extends Fragment {
 
    @Override
    public void onResume() {
+      stepperActivity.doTraverse();
       super.onResume();
       updateModel();
+      stepperActivity.doTraverse();
+   }
+
+   @Override
+   public void onPause() {
+      stepperActivity.doTraverse();
+      super.onPause();
+      stepperActivity.doTraverse();
    }
 
    @NonNull

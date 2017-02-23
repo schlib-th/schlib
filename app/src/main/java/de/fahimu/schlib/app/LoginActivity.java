@@ -223,9 +223,7 @@ public final class LoginActivity extends SchlibActivity {
    }
 
    @Override
-   protected boolean isBackButtonEnabled() {
-      return false;     // ignore back button
-   }
+   public void onBackPressed() { /* IGNORE back button*/ }
 
    /* ============================================================================================================== */
 

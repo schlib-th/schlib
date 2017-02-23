@@ -113,14 +113,13 @@ public abstract class ScannerActivity extends Activity {
     *       the KeyEvent.
     * @return true if the {@code event} was consumed, otherwise false.
     */
-   @Override
-   public final boolean dispatchKeyEvent(KeyEvent event) {
-      int keyCode = event.getKeyCode();
+   boolean processKeyEvent(KeyEvent event) {
       InputDevice inputDevice = InputDevice.getDevice(event.getDeviceId());
       if (inputDevice.isVirtual() || noScannerDevices.contains(inputDevice.getDescriptor())) {
-         return super.dispatchKeyEvent(event);
+         return false;
       } else {
          if (event.getAction() == KeyEvent.ACTION_UP && event.getMetaState() == 0) {
+            int keyCode = event.getKeyCode();
             if (keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9) {
                barcodeAssembler.append((char) ('0' + keyCode - KeyEvent.KEYCODE_0));
             } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -128,14 +127,19 @@ public abstract class ScannerActivity extends Activity {
                Log.d("barcode=" + barcode);
                onUserInteraction();
                onBarcode(barcode);
-               barcodeAssembler.setLength(0);    // reset
+               barcodeAssembler.setLength(0);      // reset barcode assembler
             }
          }
-         return true;     // event has been consumed
+         return true;
       }
    }
 
    protected void onBarcode(String barcode) { /* if not overridden, ignore the barcode */ }
+
+   @Override
+   public final boolean dispatchKeyEvent(KeyEvent event) {
+      return processKeyEvent(event) || super.dispatchKeyEvent(event);
+   }
 
    /* -------------------------------------------------------------------------------------------------------------- */
    /*  Methods called from {@link ScannerAwareSearchView}                                                            */

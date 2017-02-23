@@ -254,8 +254,10 @@ public final class RegisterPrintsActivity extends SchlibActivity {
    }
 
    @Override
-   protected boolean isBackButtonEnabled() {
-      return firstRun != 2;      // ignore back button on first run
+   public void onBackPressed() {
+      if (firstRun != 2) {
+         super.onBackPressed();     // ignore back button on first run
+      }
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */

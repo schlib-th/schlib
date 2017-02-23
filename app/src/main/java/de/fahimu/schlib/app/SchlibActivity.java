@@ -133,15 +133,6 @@ abstract class SchlibActivity extends ScannerActivity {
       dialog.setMessage(R.string.schlib_fatal_dialog_message).show();
    }
 
-   @Override
-   public final void onBackPressed() {
-      if (isBackButtonEnabled()) {
-         super.onBackPressed();
-      }
-   }
-
-   protected boolean isBackButtonEnabled() { return true; }
-
    /* ============================================================================================================== */
 
    protected final void showErrorSnackbar(@StringRes int resId, Object... formatArgs) {

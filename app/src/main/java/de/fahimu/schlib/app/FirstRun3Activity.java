@@ -109,9 +109,7 @@ public final class FirstRun3Activity extends SchlibActivity {
    }
 
    @Override
-   protected boolean isBackButtonEnabled() {
-      return false;     // ignore back button
-   }
+   public void onBackPressed() { /* IGNORE back button*/ }
 
    public void onImportCSVClicked(View view) {
       gotoLogin.setEnabled(false);

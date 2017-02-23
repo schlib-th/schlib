@@ -84,8 +84,7 @@ public final class ScannerAwareEditText extends AppCompatAutoCompleteTextView {
 
    @Override
    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-      // let the scannerActivity filter the key events for scanner key events
-      return scannerActivity.dispatchKeyEvent(event);
+      return scannerActivity.processKeyEvent(event) || super.onKeyPreIme(keyCode, event);
    }
 
    /* ============================================================================================================== */

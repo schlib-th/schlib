@@ -62,9 +62,7 @@ public final class FirstRun1Activity extends SchlibActivity {
    }
 
    @Override
-   protected boolean isBackButtonEnabled() {
-      return false;     // ignore back button
-   }
+   public void onBackPressed() { /* IGNORE back button*/ }
 
    private boolean noInput = true;
 
