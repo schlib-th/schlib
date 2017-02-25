@@ -1,14 +1,5 @@
 .DS_Store
 
-# Built application files
-*.apk
-
-# Files for the ART/Dalvik VM
-*.dex
-
-# Java class files
-*.class
-
 # Generated files
 bin/
 gen/

@@ -58,8 +58,8 @@ public final class AdminUsersAddStep1a extends StepFragment {
 
          activity = (AdminUsersAddActivity) stepperActivity;
 
-         name1.setScannerActivity(activity).addTextChangedListener(new TextChangedListener());
-         name2.setScannerActivity(activity).addTextChangedListener(new TextChangedListener());
+         name1.addTextChangedListener(new TextChangedListener());
+         name2.addTextChangedListener(new TextChangedListener());
       }
    }
 

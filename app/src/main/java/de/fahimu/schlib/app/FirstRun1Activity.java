@@ -46,8 +46,8 @@ public final class FirstRun1Activity extends SchlibActivity {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onCreate(savedInstanceState);
          setDisplayHomeAsUpEnabled(false);
-         name1 = findView(ScannerAwareEditText.class, R.id.first_run_1_name1).setScannerActivity(this);
-         name2 = findView(ScannerAwareEditText.class, R.id.first_run_1_name2).setScannerActivity(this);
+         name1 = findView(ScannerAwareEditText.class, R.id.first_run_1_name1);
+         name2 = findView(ScannerAwareEditText.class, R.id.first_run_1_name2);
       }
    }
 

@@ -39,6 +39,8 @@
     <string name="user_pupil">Schüler</string>
     <string name="user_name1">Vorname</string>
     <string name="user_name2">Nachname</string>
+    <string name="user_pupil_name1">Klasse</string>
+    <string name="user_pupil_name2">Schuljahr</string>
     <string name="user_display_admin">Verwalter \"%1$s %2$s\"</string>
     <string name="user_display_tutor">Mitarbeiter \"%1$s %2$s\"</string>
     <string name="user_display_pupil">Schüler #%1$02d der Klasse %2$s (%3$s)</string>
@@ -336,11 +338,11 @@
         \n(Filtersymbol in der Werkzeugleiste)\n
         \n• Neue Ausweiskarten erstellen
         \n(Pluszeichen in der Werkzeugleiste)\n
-        \n• Zu viel erstellte Ausweise wieder verwerfen\n
-        (Papierkorb in der Werkzeugleiste)\n
+        \n• Zu viel erstellte Ausweise wieder verwerfen
+        \n(Papierkorb in der Werkzeugleiste)\n
         \n• Einen Ausweis aus ihrem Vorrat als ausgesondert markieren,
-        falls dieser unbrauchbar geworden oder verloren gegangen ist\n
-        (Papierkorb neben dem Ausweis)\n
+        falls dieser unbrauchbar geworden oder verloren gegangen ist
+        \n(Papierkorb neben dem Ausweis)\n
         \n• Einen ausgesonderten Ausweis wieder als im Vorrat befindlich markieren,
         falls er versehentlich ausgesondert oder wieder gefunden wurde
         \n(Wiederherstellen-Symbol neben dem Ausweis)
@@ -379,11 +381,11 @@
         \n(Filtersymbol in der Werkzeugleiste)\n
         \n• Neue Klebeetiketten erstellen
         \n(Pluszeichen in der Werkzeugleiste)\n
-        \n• Zu viel erstellte Etiketten wieder verwerfen\n
-        (Papierkorb in der Werkzeugleiste)\n
+        \n• Zu viel erstellte Etiketten wieder verwerfen
+        \n(Papierkorb in der Werkzeugleiste)\n
         \n• Ein Etikett aus ihrem Vorrat als ausgesondert markieren,
-        falls dieses unbrauchbar geworden oder verloren gegangen ist\n
-        (Papierkorb neben dem Etikett)\n
+        falls dieses unbrauchbar geworden oder verloren gegangen ist
+        \n(Papierkorb neben dem Etikett)\n
         \n• Ein ausgesondertes Etikett wieder als im Vorrat befindlich markieren,
         falls es versehentlich ausgesondert oder wieder gefunden wurde
         \n(Wiederherstellen-Symbol neben dem Etikett)
@@ -416,13 +418,14 @@
     <string name="admin_users_label">Nutzerkonten verwalten</string>
     <string name="admin_users_explanation">
         In diesem Bereich können Sie:\n
-        \n• Nach Klebeetiketten suchen
+        \n• Nach Nutzerkonten suchen
         \n(Lupe in der Werkzeugleiste)\n
-        \n• Den Listeninhalt einschränken
-        \n(Filtersymbol in der Werkzeugleiste)\n
-        \n• Ein ausgesondertes Etikett wieder als im Vorrat befindlich markieren,
-        falls es versehentlich ausgesondert oder wieder gefunden wurde
-        \n(Wiederherstellen-Symbol neben dem Etikett)
+        \n• Neue Nutzerkonten einrichten
+        \n(Pluszeichen in der Werkzeugleiste)\n
+        \n• Ein Nutzerkonto bearbeiten
+        \n(Info-Symbol)\n
+        \nWenn sie ein Nutzerkonto löschen möchten, gehen Sie bitte zurück
+        und wechseln Sie in den Bereich \"Nutzerkonten löschen\".
     </string>
     <string name="admin_users_empty">Kein Nutzer</string>
 
@@ -433,11 +436,9 @@
     <string name="admin_users_add_step_0_label">Funktion des Nutzers wählen</string>
     <string name="admin_users_add_step_0_explanation">
         Bitte wählen Sie als Erstes die Funktion des Nutzers:\n
-        \n• Ein \"Verwalter\" hat die maximalen Rechte und darf
-        den Bücherbestand und die Nutzerkonten verwalten.
-        \n• Ein \"Mitarbeiter\" kann nur die Buchausleihe und -rückgabe durchführen.
-        \n• Ein \"Schüler\" kann Bücher ausleihen,
-        hat aber keinen Zugriff auf die Bücherei-Verwaltung.
+        \n• Ein \"Schüler\" kann Bücher ausleihen, hat aber keinen Zugriff auf die Bücherei-Verwaltung.
+        \n• Ein \"Mitarbeiter\" kann zusätzlich die Buchausleihe und -rückgabe durchführen.
+        \n• Ein \"Verwalter\" hat die maximalen Rechte und darf den Bücherbestand und die Nutzerkonten verwalten.
     </string>
     <string name="admin_users_add_step_0_admin">@string/user_admin</string>
     <string name="admin_users_add_step_0_tutor">@string/user_tutor</string>
@@ -454,6 +455,16 @@
     <string name="admin_users_add_step_1a_error_snackbar">Es gibt bereits einen %1$s mit diesem Namen!</string>
 
     <string name="admin_users_add_step_1b_label">Klasse und Schuljahr festlegen</string>
+    <string name="admin_users_add_step_1b_explanation">
+        Nutzerkonten für Schüler werden klassenweise erstellt.\n
+        \n• Bitte geben Sie den Namen der Klasse ein,
+        \n• wählen Sie das Schuljahr und
+        \n• legen Sie fest, wie viele NEUE Konten für diese Klasse erstellt werden sollen.
+    </string>
+    <string name="admin_users_add_step_1b_name1">@string/user_pupil_name1</string>
+    <string name="admin_users_add_step_1b_name2">@string/user_pupil_name2</string>
+    <string name="admin_users_add_step_1b_error_1">@string/first_run_1_error_2</string>
+    <string name="admin_users_add_step_1b_error_2">@string/first_run_1_error_3</string>
 
     <string name="admin_users_add_step_2_label">Ausweiskarten zuweisen</string>
 

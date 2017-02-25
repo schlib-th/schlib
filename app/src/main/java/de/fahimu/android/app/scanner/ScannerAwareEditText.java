@@ -7,7 +7,9 @@
 package de.fahimu.android.app.scanner;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
@@ -56,17 +58,23 @@ public final class ScannerAwareEditText extends AppCompatAutoCompleteTextView {
    }
 
    /**
-    * Sets the {@link ScannerActivity} where this View is part of.
-    * This method must be called immediately after creating the view,
-    * especially before {@link #setColumnAdapter(ColumnAdapter) setting} the {@link ColumnAdapter}.
-    *
-    * @param scannerActivity
-    *       the {@code ScannerActivity}.
-    * @return this {@code ScannerAwareEditText}.
+    * Copied from the private method {@code getActivity()} in
+    * <a href="https://developer.android.com/reference/android/support/v7/app/MediaRouteButton.html">
+    * MediaRouteButton</a>.
     */
-   public ScannerAwareEditText setScannerActivity(ScannerActivity scannerActivity) {
-      this.scannerActivity = scannerActivity;
-      return this;
+   @NonNull
+   private ScannerActivity getScannerActivity() {
+      if (scannerActivity == null) {
+         Context context = getContext();
+         while (context instanceof ContextWrapper) {
+            if (context instanceof ScannerActivity) {
+               return scannerActivity = (ScannerActivity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+         }
+         throw new IllegalStateException(getClass().getCanonicalName() + " not part of a ScannerActivity");
+      }
+      return scannerActivity;
    }
 
    /**
@@ -78,13 +86,13 @@ public final class ScannerAwareEditText extends AppCompatAutoCompleteTextView {
     */
    public ScannerAwareEditText setColumnAdapter(ColumnAdapter adapter) {
       setThreshold(1);
-      setAdapter(adapter.initialize(scannerActivity));
+      setAdapter(adapter.initialize(getScannerActivity()));
       return this;
    }
 
    @Override
    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-      return scannerActivity.processKeyEvent(event) || super.onKeyPreIme(keyCode, event);
+      return getScannerActivity().processKeyEvent(event) || super.onKeyPreIme(keyCode, event);
    }
 
    /* ============================================================================================================== */

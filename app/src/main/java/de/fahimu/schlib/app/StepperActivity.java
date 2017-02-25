@@ -151,25 +151,6 @@ abstract class StepperActivity extends SchlibActivity {
       onBackPressed();
    }
 
-   void doTraverse() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         traverse(contentView.getRootView());
-      }
-   }
-
-   private void traverse(View view) {
-      boolean focus = view.isFocusable(), touch = view.isFocusableInTouchMode();
-      if (focus || touch) {
-         Log.d(App.format("****** %c %c: %s", focus ? 'Y' : 'N', touch ? 'Y' : 'N', view.toString()));
-      }
-      if (view instanceof ViewGroup) {
-         ViewGroup group = (ViewGroup) view;
-         for (int i = 0, count = group.getChildCount(); i < count; i++) {
-            traverse(group.getChildAt(i));
-         }
-      }
-   }
-
    public final void onDoneClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          if (currentFragment.onDoneClicked() && currentFragment.getNext() != null) {

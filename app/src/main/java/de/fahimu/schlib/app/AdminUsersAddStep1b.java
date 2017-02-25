@@ -54,11 +54,11 @@ public final class AdminUsersAddStep1b extends StepFragment {
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onActivityCreated(savedInstanceState);
-         name1 = findView(ScannerAwareEditText.class, R.id.admin_users_add_step_1a_name1);   // TODO 1b
+         name1 = findView(ScannerAwareEditText.class, R.id.admin_users_add_step_1b_name1);
 
          activity = (AdminUsersAddActivity) stepperActivity;
 
-         name1.setScannerActivity(activity).addTextChangedListener(new TextChangedListener());
+         name1.addTextChangedListener(new TextChangedListener());
          name1.setColumnAdapter(new PupilName1Adapter());
       }
    }

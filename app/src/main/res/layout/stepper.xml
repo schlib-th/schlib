@@ -50,6 +50,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
+        <!-- this view won't be visible and acts just as a "catching" focus to prevent warnings like
+             "W/IInputConnectionWrapper: beginBatchEdit on inactive InputConnection" on step switching -->
+        <de.fahimu.android.app.scanner.ScannerAwareEditText
+            android:id="@+id/stepper_focus_catcher"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
         <Button
             android:id="@+id/stepper_done"
             style="?android:attr/buttonBarButtonStyle"
