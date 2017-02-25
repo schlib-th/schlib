@@ -24,20 +24,15 @@ import de.fahimu.schlib.db.Idcard;
 public final class AdminUsersAddStep2a extends StepFragment {
 
    @Override
-   protected int getContentViewId() {
-      return R.layout.admin_users_add_step_2a;
-   }
+   StepFragment getNext() { return null; }
 
    @Override
-   int getTabNameId() {
-      return R.string.admin_users_add_step_2_label;
-   }
+   int getTabNameId() { return R.string.admin_users_add_step_2_label; }
 
-   @Nullable
+   /* ============================================================================================================== */
+
    @Override
-   StepFragment getNext() {
-      return null;
-   }
+   protected int getContentViewId() { return R.layout.admin_users_add_step_2a; }
 
    @Override
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -48,6 +43,8 @@ public final class AdminUsersAddStep2a extends StepFragment {
    }
 
    private AdminUsersAddActivity activity;
+
+   /* ============================================================================================================== */
 
    @Override
    public void onResume() {
@@ -85,10 +82,5 @@ public final class AdminUsersAddStep2a extends StepFragment {
 
    @Override
    boolean onDoneClicked() { return true; }
-
-   @Override
-   void updateModel() {
-      activity.refreshGUI();
-   }
 
 }

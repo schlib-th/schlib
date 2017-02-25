@@ -24,12 +24,11 @@
         android:orientation="horizontal">
 
         <RadioButton
-            android:id="@+id/admin_users_add_step_0_admin"
+            android:id="@+id/admin_users_add_step_0_pupil"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="48dp"
-            android:onClick="onRadioButtonClicked"
-            android:text="@string/admin_users_add_step_0_admin"
+            android:text="@string/admin_users_add_step_0_pupil"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <RadioButton
@@ -37,16 +36,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="48dp"
-            android:onClick="onRadioButtonClicked"
             android:text="@string/admin_users_add_step_0_tutor"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <RadioButton
-            android:id="@+id/admin_users_add_step_0_pupil"
+            android:id="@+id/admin_users_add_step_0_admin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onRadioButtonClicked"
-            android:text="@string/admin_users_add_step_0_pupil"
+            android:text="@string/admin_users_add_step_0_admin"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RadioGroup>

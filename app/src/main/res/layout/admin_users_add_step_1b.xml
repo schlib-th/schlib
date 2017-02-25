@@ -10,7 +10,6 @@
     android:padding="24dp">
 
     <TextView
-        android:id="@+id/admin_users_add_step_1b_explanation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -19,33 +18,90 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
         android:layout_marginStart="24dp"
         android:baselineAligned="false"
-        android:gravity="center"
         android:orientation="horizontal">
 
         <android.support.design.widget.TextInputLayout
-            android:layout_width="0dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
-            android:layout_weight="1"
-            android:hint="@string/admin_users_add_step_1b_name1"
-            tools:ignore="NestedWeights">
+            android:hint="@string/admin_users_add_step_1b_name1">
 
             <de.fahimu.android.app.scanner.ScannerAwareEditText
                 android:id="@+id/admin_users_add_step_1b_name1"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical|start"
                 android:imeOptions="actionDone"
                 android:inputType="textNoSuggestions|textVisiblePassword"
                 android:maxLines="1"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                tools:text="2b" />
 
         </android.support.design.widget.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:text="@string/admin_users_add_step_1b_name2"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <RadioGroup
+                android:id="@+id/admin_users_add_step_1b_name2_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/admin_users_add_step_1b_name2_year_0"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    tools:text="2016/17" />
+
+                <RadioButton
+                    android:id="@+id/admin_users_add_step_1b_name2_year_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    tools:text="2017/18" />
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/admin_users_add_step_1b_count_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="@string/admin_users_add_step_1b_count_new_1" />
+
+            <SeekBar
+                android:id="@+id/admin_users_add_step_1b_count_seek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

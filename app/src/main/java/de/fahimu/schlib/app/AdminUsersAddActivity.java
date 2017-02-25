@@ -7,7 +7,6 @@
 package de.fahimu.schlib.app;
 
 import android.support.annotation.NonNull;
-import android.view.View;
 
 
 import de.fahimu.android.app.Log;
@@ -22,9 +21,9 @@ import de.fahimu.schlib.db.User.Role;
  */
 public final class AdminUsersAddActivity extends StepperActivity {
 
-   Role role;
-
-   String name1, name2;
+   Role   role  = null;
+   int    count = 0;
+   String name1 = "", name2 = "";
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -54,14 +53,6 @@ public final class AdminUsersAddActivity extends StepperActivity {
    protected void onPause() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onPause();
-      }
-   }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   public void onRadioButtonClicked(View view) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         firstFragment.updateModel();
       }
    }
 

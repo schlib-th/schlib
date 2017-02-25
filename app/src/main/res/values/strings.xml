@@ -425,7 +425,7 @@
         \n• Ein Nutzerkonto bearbeiten
         \n(Info-Symbol)\n
         \nWenn sie ein Nutzerkonto löschen möchten, gehen Sie bitte zurück
-        und wechseln Sie in den Bereich \"Nutzerkonten löschen\".
+        und wechseln in den Bereich \"Nutzerkonten löschen\".
     </string>
     <string name="admin_users_empty">Kein Nutzer</string>
 
@@ -456,15 +456,21 @@
 
     <string name="admin_users_add_step_1b_label">Klasse und Schuljahr festlegen</string>
     <string name="admin_users_add_step_1b_explanation">
-        Nutzerkonten für Schüler werden klassenweise erstellt.\n
-        \n• Bitte geben Sie den Namen der Klasse ein,
-        \n• wählen Sie das Schuljahr und
-        \n• legen Sie fest, wie viele NEUE Konten für diese Klasse erstellt werden sollen.
+        Nutzerkonten für Schüler werden klassenweise eingerichtet.\n
+        \n• Geben Sie zuerst den Namen der Klasse ein.
+        \n• Wählen Sie dann das Schuljahr.
+        \n• Legen Sie zuletzt mit dem Schieberegler die Anzahl der neuen Konten fest.
     </string>
     <string name="admin_users_add_step_1b_name1">@string/user_pupil_name1</string>
+    <string name="admin_users_add_step_1b_name1_error">@string/first_run_1_error_3</string>
     <string name="admin_users_add_step_1b_name2">@string/user_pupil_name2</string>
-    <string name="admin_users_add_step_1b_error_1">@string/first_run_1_error_2</string>
-    <string name="admin_users_add_step_1b_error_2">@string/first_run_1_error_3</string>
+    <string name="admin_users_add_step_1b_count_new_1">1 neues Konto einrichten</string>
+    <string name="admin_users_add_step_1b_count_new_2">%1$d neue Konten einrichten</string>
+    <string name="admin_users_add_step_1b_count_add_1">1 Konto hinzufügen (insgesamt %1$s)</string>
+    <string name="admin_users_add_step_1b_count_add_2">%1$d Konten hinzufügen (insgesamt %2$s)</string>
+    <string name="admin_users_add_step_1b_count_error">
+        Für diese Klasse können keine weiteren Konten eingerichtet werden!
+    </string>
 
     <string name="admin_users_add_step_2_label">Ausweiskarten zuweisen</string>
 

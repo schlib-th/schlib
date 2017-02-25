@@ -28,22 +28,17 @@ import de.fahimu.schlib.db.User;
 public final class AdminUsersAddStep1a extends StepFragment {
 
    @Override
-   int getContentViewId() {
-      return R.layout.admin_users_add_step_1a;
-   }
+   StepFragment getNext() { return nextFragment; }
+
+   private final AdminUsersAddStep2a nextFragment = new AdminUsersAddStep2a();
 
    @Override
-   int getTabNameId() {
-      return R.string.admin_users_add_step_1a_label;
-   }
+   int getTabNameId() { return R.string.admin_users_add_step_1a_label; }
 
-   @Nullable
+   /* ============================================================================================================== */
+
    @Override
-   StepFragment getNext() {
-      return nextFragment;
-   }
-
-   final AdminUsersAddStep2a nextFragment = new AdminUsersAddStep2a();
+   int getContentViewId() { return R.layout.admin_users_add_step_1a; }
 
    private TextView             explanation;
    private ScannerAwareEditText name1, name2;
@@ -73,7 +68,9 @@ public final class AdminUsersAddStep1a extends StepFragment {
          String text = editable.toString();
          // prevent entering of leading blanks (just because it doesn't make sense)
          if (!text.isEmpty() && text.trim().isEmpty()) { editable.clear(); }
-         AdminUsersAddStep1a.this.updateModel();
+         activity.name1 = name1.getText().toString().trim();
+         activity.name2 = name2.getText().toString().trim();
+         activity.refreshGUI();
       }
    }
 
@@ -82,11 +79,11 @@ public final class AdminUsersAddStep1a extends StepFragment {
    @Override
    public void onResume() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         super.onResume();
          String role = activity.role.getDisplay();
          explanation.setText(App.getStr(R.string.admin_users_add_step_1a_explanation, role));
          name1.setText(""); name1.setError(null);
          name2.setText(""); name2.setError(null);
-         super.onResume();
       }
    }
 
@@ -104,6 +101,17 @@ public final class AdminUsersAddStep1a extends StepFragment {
       return !activity.name1.isEmpty() && !activity.name2.isEmpty();
    }
 
+   @Override
+   boolean onDoneClicked() {
+      if (!matches(StringType.NAME1, activity.name1, name1)) { return false; }
+      if (!matches(StringType.NAME2, activity.name2, name2)) { return false; }
+      User user = User.get(activity.name1, activity.name2, 0);
+      if (user != null) {
+         activity.showErrorSnackbar(R.string.admin_users_add_step_1a_error_snackbar, user.getRole().getDisplay());
+      }
+      return user == null;
+   }
+
    private boolean matches(StringType stringType, String text, TextView name) {
       int failPosition = stringType.matches(text);
       if (failPosition >= 0) {
@@ -113,26 +121,6 @@ public final class AdminUsersAddStep1a extends StepFragment {
          name.requestFocus(); name.setError(message);
       }
       return failPosition < 0;
-   }
-
-   @Override
-   boolean onDoneClicked() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         if (!matches(StringType.NAME1, activity.name1, name1)) { return false; }
-         if (!matches(StringType.NAME2, activity.name2, name2)) { return false; }
-         User user = User.get(activity.name1, activity.name2, 0);
-         if (user != null) {
-            activity.showErrorSnackbar(R.string.admin_users_add_step_1a_error_snackbar, user.getRole().getDisplay());
-         }
-         return user == null;
-      }
-   }
-
-   @Override
-   void updateModel() {
-      activity.name1 = name1.getText().toString().trim();
-      activity.name2 = name2.getText().toString().trim();
-      activity.refreshGUI();
    }
 
 }

@@ -22,6 +22,7 @@ public enum StringType {
 
    NAME1("name1", false, Regex.NAME1),
    NAME2("name2", false, Regex.NAME2),
+   CLASS("class", false, Regex.CLASS),
 
    SHELF("shelf", false, Regex.SHELF),
    NUMBER("number", false, Regex.NUMBER),
@@ -47,6 +48,8 @@ public enum StringType {
       private static final String N1C   = App.format("(%s|%s%s{1,})", ABB, UPP, LOW);
       /* a first name */
       private static final String NAME1 = App.format("(%s([ -]%s)*)", N1C, N1C);
+      /* a class name */
+      private static final String CLASS = App.format("(%s|%s|[0-9]){1,}", UPP, LOW);
       /* a last name component */
       private static final String N2C   = App.format("((Mac|Mc|[DO]'|Di)?%s%s{1,}%s?)", UPP, LOW, APO);
       /* a last name */

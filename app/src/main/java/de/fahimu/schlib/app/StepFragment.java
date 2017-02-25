@@ -64,17 +64,6 @@ abstract class StepFragment extends Fragment {
       }
    }
 
-   @Override
-   public void onResume() {
-      super.onResume();
-      updateModel();
-   }
-
-   @Override
-   public void onPause() {
-      super.onPause();
-   }
-
    @NonNull
    final <V extends View> V findView(@NonNull Class<V> type, @IdRes int resId) {
       View view = getActivity().findViewById(resId);
@@ -89,7 +78,5 @@ abstract class StepFragment extends Fragment {
    abstract boolean isDoneEnabled();
 
    abstract boolean onDoneClicked();
-
-   abstract void updateModel();
 
 }

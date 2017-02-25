@@ -154,16 +154,8 @@ public final class User extends Row {
       return insert(name1, name2, 0, Role.TUTOR, 5, idcard);
    }
 
-   public static synchronized ArrayList<User> insertClass(String name1, String name2, List<Integer> idcards) {
-      // Must be static synchronized to ensure that the calculation of MAX(serial) works properly.
-      // If we would search for MAX(serial) in table 'users', and the last inserted pupil would have
-      // been deleted, then its serial number would be reused, but that's erroneous! So we'll have
-      // to search for MAX(serial) in the history table 'prev_users' where deleted pupils still exist.
-      String column = App.format("MAX(%s)", SERIAL);
-      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
-      String maxSerial = SQLite.getFromQuery(PREV, column, "0", where, name1, name2, PUPIL);
-
-      int serial = 1 + Integer.parseInt(maxSerial);
+   public static ArrayList<User> insertPupils(String name1, String name2, List<Integer> idcards) {
+      int serial = getNextAvailableSerial(name1, name2);
       ArrayList<User> users = new ArrayList<>(idcards.size());
       for (int idcard : idcards) {
          users.add(insert(name1, name2, serial++, Role.PUPIL, 1, idcard));
@@ -231,6 +223,28 @@ public final class User extends Row {
    public static ArrayList<User> getPupilsName1() {
       Values columns = new Values().add(OID).add(NAME1);
       return SQLite.get(User.class, PREV, columns, NAME1, NAME1, App.format("%s=?", ROLE), PUPIL);
+   }
+
+   /**
+    * Returns the next available serial for the specified school class.
+    */
+   public static int getNextAvailableSerial(String name1, String name2) {
+      // If we would search for MAX(serial) in table 'users', and the last inserted pupil would have
+      // been deleted, then its serial number would be reused, but that's erroneous! So we'll have
+      // to search for MAX(serial) in the history table 'prev_users' where deleted pupils still exist.
+      // SELECT MAX(serial) FROM users WHERE name1='$name1' AND name2='$name2' AND role='pupil' ;
+      String column = App.format("MAX(%s)", SERIAL);
+      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
+      return 1 + Integer.parseInt(SQLite.getFromQuery(PREV, column, "0", where, name1, name2, PUPIL));
+   }
+
+   /**
+    * Returns the number of pupils in the specified school class.
+    */
+   public static int countPupils(String name1, String name2) {
+      // SELECT COUNT(*) FROM users WHERE name1='$name1' AND name2='$name2' AND role='pupil' ;
+      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
+      return Integer.parseInt(SQLite.getFromQuery(TAB, "COUNT(*)", "0", where, name1, name2, PUPIL));
    }
 
    /**
