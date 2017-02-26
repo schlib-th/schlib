@@ -32,7 +32,13 @@ abstract class SchlibActivity extends ScannerActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      setDisplayHomeAsUpEnabled(isHomeShownAsUp());
    }
+
+   /**
+    * The default implementation returns {@code true}. May be overridden by subclasses.
+    */
+   boolean isHomeShownAsUp() { return true; }
 
    @Override
    protected final int getToolbarId() { return R.id.toolbar; }

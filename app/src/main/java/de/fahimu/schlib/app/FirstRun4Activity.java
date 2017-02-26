@@ -125,7 +125,6 @@ public final class FirstRun4Activity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
 
       booksAdapter = new BooksAdapter();
       deleteLabels = findView(Button.class, R.id.first_run_4_delete_labels);

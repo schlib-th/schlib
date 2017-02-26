@@ -140,7 +140,6 @@ public final class AdminBooksActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
       booksAdapter = new BooksAdapter();
    }
 

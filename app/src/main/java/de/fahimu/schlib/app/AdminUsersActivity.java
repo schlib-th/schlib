@@ -126,7 +126,6 @@ public final class AdminUsersActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
       usersAdapter = new UsersAdapter();
    }
 

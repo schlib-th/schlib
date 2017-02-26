@@ -146,23 +146,28 @@ public final class User extends Row {
 
    /* ============================================================================================================== */
 
-   public static User insertAdmin(String name1, String name2, int idcard) {
-      return insert(name1, name2, 0, Role.ADMIN, 5, idcard);
-   }
-
-   public static User insertTutor(String name1, String name2, int idcard) {
-      return insert(name1, name2, 0, Role.TUTOR, 5, idcard);
-   }
-
-   public static ArrayList<User> insertPupils(String name1, String name2, List<Integer> idcards) {
-      int serial = getNextAvailableSerial(name1, name2);
-      ArrayList<User> users = new ArrayList<>(idcards.size());
-      for (int idcard : idcards) {
-         users.add(insert(name1, name2, serial++, Role.PUPIL, 1, idcard));
+   @NonNull
+   public static User insert(Role role, String name1, String name2, int idcard) {
+      if (role == Role.PUPIL) {
+         throw new IllegalArgumentException("role PUPIL not allowed");
       }
-      return users;
+      return insert(name1, name2, 0, role, 5, idcard);
    }
 
+   @NonNull
+   public static ArrayList<User> insertPupils(String name1, String name2, @NonNull List<Integer> idcards) {
+      try (SQLite.Transaction transaction = new SQLite.Transaction()) {
+         int serial = getNextAvailableSerial(name1, name2);
+         ArrayList<User> users = new ArrayList<>(idcards.size());
+         for (int idcard : idcards) {
+            users.add(insert(name1, name2, serial++, Role.PUPIL, 1, idcard));
+         }
+         transaction.setSuccessful();
+         return users;
+      }
+   }
+
+   @NonNull
    private static User insert(String name1, String name2, int serial, Role role, int nbooks, int idcard) {
       User user = new User().setName1(name1).setName2(name2).setSerial(serial);
       return user.setRole(role).setNbooks(nbooks).setIdcard(idcard).insert();

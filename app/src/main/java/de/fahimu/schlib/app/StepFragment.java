@@ -75,8 +75,20 @@ abstract class StepFragment extends Fragment {
       // default implementation ignores scanned barcodes
    }
 
+   /**
+    * Returns {@code true} if the 'done' button should be enabled.
+    *
+    * @return {@code true} if the 'done' button should be enabled.
+    */
    abstract boolean isDoneEnabled();
 
-   abstract boolean onDoneClicked();
+   /**
+    * Returns {@code true} if the data entered at this step is valid.
+    * Called by {@link StepperActivity#onDoneClicked(View)} to ensure that we can proceed to the next step.
+    * This method will only be called if {@link #isDoneEnabled()} previously returned {@code true}.
+    *
+    * @return {@code true} if the data entered at this step is valid.
+    */
+   abstract boolean isDone();
 
 }

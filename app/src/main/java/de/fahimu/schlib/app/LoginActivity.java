@@ -155,7 +155,6 @@ public final class LoginActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(false);
 
       registerScreenOffReceiver();
 
@@ -182,11 +181,13 @@ public final class LoginActivity extends SchlibActivity {
             return true;
          }
       });                                                     // TODO remove after development
-
       createScanAnimator();
       createStopAnimator();
       createAdminOrTutorDialog();
    }
+
+   @Override
+   boolean isHomeShownAsUp() { return false; }
 
    @Override
    protected void onResume() {

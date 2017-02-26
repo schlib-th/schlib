@@ -32,7 +32,6 @@ public final class AdminBooksEditActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
       book = Book.getNonNull(getIntent().getLongExtra("bid", -1L));
    }
 

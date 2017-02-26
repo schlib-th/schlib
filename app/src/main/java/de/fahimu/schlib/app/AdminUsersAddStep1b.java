@@ -41,7 +41,7 @@ public final class AdminUsersAddStep1b extends StepFragment {
    @Override
    StepFragment getNext() { return nextFragment; }
 
-   private final AdminUsersAddStep2b nextFragment = new AdminUsersAddStep2b();
+   private final AdminUsersAddStep2 nextFragment = new AdminUsersAddStep2();
 
    @Override
    int getTabNameId() { return R.string.admin_users_add_step_1b_label; }
@@ -141,6 +141,7 @@ public final class AdminUsersAddStep1b extends StepFragment {
       Log.d("oldCount=" + oldCount + ", newCount=" + newCount);
       if (newCount == 0) {
          text = App.getStr(R.string.admin_users_add_step_1b_count_error);
+         activity.showErrorSnackbar(R.string.admin_users_add_step_1b_count_error);
       } else if (oldCount == 0) {
          if (newCount <= 1) {
             text = App.getStr(R.string.admin_users_add_step_1b_count_new_1);
@@ -204,19 +205,16 @@ public final class AdminUsersAddStep1b extends StepFragment {
 
    @Override
    boolean isDoneEnabled() {
-      return !activity.name1.isEmpty() && activity.count > 0;
+      return !activity.name1.isEmpty() && !activity.name2.isEmpty() && activity.count > 0;
    }
 
    @Override
-   boolean onDoneClicked() {
-      return !activity.name1.isEmpty() && activity.count > 0 && name1Matches(activity.name1);
-   }
-
-   private boolean name1Matches(String text) {
-      int failPosition = StringType.CLASS.matches(text);
+   boolean isDone() {
+      int failPosition = StringType.CLASS.matches(activity.name1);
       if (failPosition >= 0) {
          name1.requestFocus();
-         name1.setError(App.getStr(R.string.admin_users_add_step_1b_name1_error, text.charAt(failPosition)));
+         char illegalChar = activity.name1.charAt(failPosition);
+         name1.setError(App.getStr(R.string.admin_users_add_step_1b_name1_error, illegalChar));
       }
       return failPosition < 0;
    }

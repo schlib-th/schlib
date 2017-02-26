@@ -26,6 +26,7 @@ import de.fahimu.schlib.db.Label;
 import de.fahimu.schlib.db.Preference;
 import de.fahimu.schlib.db.Use;
 import de.fahimu.schlib.db.User;
+import de.fahimu.schlib.db.User.Role;
 
 /**
  * Ask for first and last name, create admin user and login user.
@@ -45,11 +46,13 @@ public final class FirstRun1Activity extends SchlibActivity {
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onCreate(savedInstanceState);
-         setDisplayHomeAsUpEnabled(false);
          name1 = findView(ScannerAwareEditText.class, R.id.first_run_1_name1);
          name2 = findView(ScannerAwareEditText.class, R.id.first_run_1_name2);
       }
    }
+
+   @Override
+   boolean isHomeShownAsUp() { return false; }
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) { return false; }
@@ -112,7 +115,7 @@ public final class FirstRun1Activity extends SchlibActivity {
             for (int i = 0; i < 3; i++) {
                Label.createOnePage();
             }
-            User user = User.insertAdmin(name1, name2, Idcard.FIRST_FREE_IDCARD);
+            User user = User.insert(Role.ADMIN, name1, name2, Idcard.FIRST_FREE_IDCARD);
             Use.login(user);
             Preference.insert(Preference.CIPHER_KEY, IntCipher.createKey());
             Preference.getNonNull(Preference.FIRST_RUN).setValue("2").update();

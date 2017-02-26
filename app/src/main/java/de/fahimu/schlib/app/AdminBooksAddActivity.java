@@ -6,13 +6,10 @@
 
 package de.fahimu.schlib.app;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 
 import de.fahimu.android.app.Log;
-import de.fahimu.schlib.anw.SerialNumber;
-import de.fahimu.schlib.db.Idcard;
 
 /**
  * An activity for adding books to the database.
@@ -21,16 +18,24 @@ import de.fahimu.schlib.db.Idcard;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminBooksAddActivity extends SchlibActivity {
+public final class AdminBooksAddActivity extends StepperActivity {
+
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    @Override
-   protected int getContentViewId() { return R.layout.admin_books_add; }
-
-   @Override
-   protected void onCreate(@Nullable Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
+   protected int getContentViewId() {
+      return R.layout.admin_books_add;
    }
+
+   @NonNull
+   @Override
+   StepFragment getFirstFragment() {
+      return firstFragment;
+   }
+
+   private final AdminUsersAddStep0 firstFragment = new AdminUsersAddStep0();
+
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    @Override
    protected void onResume() {
@@ -46,18 +51,9 @@ public final class AdminBooksAddActivity extends SchlibActivity {
       }
    }
 
-   @Override
-   protected void onBarcode(String barcode) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         int number = SerialNumber.parseCode128(barcode);
-         if (Idcard.getNullable(number) != null) {       // it's a serial from the expected type
-            scope.d("idcard=" + new SerialNumber(number).getDecimal());
-         } else {
-            showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
-         }
-      }
-   }
-
    /* -------------------------------------------------------------------------------------------------------------- */
+
+   @Override
+   void finishActivity() { }
 
 }

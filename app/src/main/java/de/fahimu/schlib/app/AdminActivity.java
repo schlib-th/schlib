@@ -38,8 +38,6 @@ public final class AdminActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
-
       registerPrints = findView(Button.class, R.id.admin_register_prints);
       registerPrintsMessage = findView(TextView.class, R.id.admin_register_prints_message);
    }

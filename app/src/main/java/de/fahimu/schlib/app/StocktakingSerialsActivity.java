@@ -147,7 +147,6 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    @Override
    protected final void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
       serialsAdapter = new SerialsAdapter();
    }
 

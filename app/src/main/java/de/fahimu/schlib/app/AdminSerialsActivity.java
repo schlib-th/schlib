@@ -205,7 +205,6 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
    @Override
    protected final void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
       serialsAdapter = new SerialsAdapter();
    }
 

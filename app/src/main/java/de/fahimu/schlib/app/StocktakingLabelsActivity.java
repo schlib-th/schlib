@@ -63,9 +63,8 @@ public final class StocktakingLabelsActivity extends StocktakingSerialsActivity<
    @NonNull
    @Override
    NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Label label) {
-      dialog.setTitle(R.string.stocktaking_labels_error_dialog_title);
-      dialog.setMessage(R.string.stocktaking_labels_error_dialog_label_used,
-            Book.getNonNull(label.getBid()).getDisplay());
+      dialog.setTitle(R.string.dialog_title_error);
+      dialog.setMessage(R.string.dialog_message_label_used, Book.getNonNull(label.getBid()).getDisplay());
       return dialog;
    }
 

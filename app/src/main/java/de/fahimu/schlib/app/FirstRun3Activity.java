@@ -64,12 +64,13 @@ public final class FirstRun3Activity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(false);
-
       importCSV = findView(Button.class, R.id.first_run_3_importCSV);
       gotoLogin = findView(Button.class, R.id.first_run_3_gotoLogin);
       explanation = findView(TextView.class, R.id.first_run_3_explanation);
    }
+
+   @Override
+   boolean isHomeShownAsUp() { return false; }
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) { return false; }
@@ -246,7 +247,7 @@ public final class FirstRun3Activity extends SchlibActivity {
 
    private void showAlertDialog(int id, String file) {
       NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      dialog.setTitle(R.string.first_run_3_importCSV_dialog_title);
+      dialog.setTitle(R.string.dialog_title_error);
       dialog.setMessage(id, createImportDir().getName(), file, file.replace(".csv", ".txt"));
       dialog.setPositiveButton(R.string.app_ok, NoFocusDialog.IGNORE_BUTTON).show();
    }

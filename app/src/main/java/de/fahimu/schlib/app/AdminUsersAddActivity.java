@@ -6,11 +6,19 @@
 
 package de.fahimu.schlib.app;
 
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 
+import java.util.List;
+
 import de.fahimu.android.app.Log;
+import de.fahimu.android.app.TaskRegistry;
+import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.db.User.Role;
+import de.fahimu.schlib.pdf.Document;
+import de.fahimu.schlib.pdf.Document.WriterListener;
+import de.fahimu.schlib.pdf.Idcards85x54;
 
 /**
  * An activity for adding users to the database.
@@ -22,8 +30,13 @@ import de.fahimu.schlib.db.User.Role;
 public final class AdminUsersAddActivity extends StepperActivity {
 
    Role   role  = null;
-   int    count = 0;
    String name1 = "", name2 = "";
+   int           count   = 0;
+   List<Integer> scanned = null;
+
+   int getRemaining() {
+      return count - scanned.size();
+   }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -38,7 +51,7 @@ public final class AdminUsersAddActivity extends StepperActivity {
       return firstFragment;
    }
 
-   final AdminUsersAddStep0 firstFragment = new AdminUsersAddStep0();
+   private final AdminUsersAddStep0 firstFragment = new AdminUsersAddStep0();
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -53,6 +66,34 @@ public final class AdminUsersAddActivity extends StepperActivity {
    protected void onPause() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onPause();
+      }
+   }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   @Override
+   void finishActivity() {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+               try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+                  if (role != Role.PUPIL) {
+                     User.insert(role, name1, name2, scanned.get(0));
+                     finish();
+                  } else {
+                     User.insertPupils(name1, name2, scanned);
+                     Document.writeAsync(new TaskRegistry(), new WriterListener() {
+                        @Override
+                        public void onPageWrite() { }
+
+                        @Override
+                        public void onPostWrite() { finish(); }
+                     }, new Idcards85x54());    // TODO replace Idcards85x54
+                  }
+               }
+            }
+         });
       }
    }
 

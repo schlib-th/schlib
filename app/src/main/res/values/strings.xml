@@ -2,9 +2,9 @@
 <resources>
 
     <string name="app_name">Bücherei-Verwaltung</string>
-    <string name="app_yes">Ja</string>
-    <string name="app_no">Nein</string>
     <string name="app_ok">OK</string>
+    <string name="app_no">Nein</string>
+    <string name="app_yes">Ja</string>
     <string name="app_back">Zurück</string>
     <string name="app_cont">Weiter</string>
     <string name="app_done">Fertig</string>
@@ -100,6 +100,18 @@
     <string name="snackbar_info_idcard_deleted">%1$s Ausweise verworfen (%2$s sind noch erstellt).</string>
     <string name="snackbar_info_idcard_deleted_last">Alle erstellten Ausweise verworfen.</string>
 
+    <!-- Dialog -->
+
+    <string name="dialog_title_error">Fehler!</string>
+    <string name="dialog_message_idcard_used">
+        Dieser Ausweis ist dem %1$s zugewiesen.\n
+        \nBitte nur Ausweiskarten scannen, die sich im Bestand befinden und keinem Nutzer zugewiesen sind.
+    </string>
+     <string name="dialog_message_label_used">
+        Dieses Etikett identifiziert das Buch %1$s.\n
+        \nBitte nur Klebeetiketten scannen, die sich im Bestand befinden und auf keinem Buch aufgeklebt sind.
+    </string>
+
     <!-- MainActivity -->
 
     <string name="main_explanation">Einen Moment bitte …</string>
@@ -173,7 +185,6 @@
         zu übernehmen.
     </string>
     <string name="first_run_3_importCSV">Bücherbestand übernehmen</string>
-    <string name="first_run_3_importCSV_dialog_title">Lesefehler!</string>
     <string name="first_run_3_importCSV_dialog_no_files">Keine CSV-Dateien im Verzeichnis \"%1$s\" gefunden.</string>
     <string name="first_run_3_importCSV_dialog_file_corrupted">
         Die Datei \"%2$s\" konnte nicht vollständig gelesen werden.
@@ -472,7 +483,38 @@
         Für diese Klasse können keine weiteren Konten eingerichtet werden!
     </string>
 
-    <string name="admin_users_add_step_2_label">Ausweiskarten zuweisen</string>
+    <string name="admin_users_add_step_2_label">Ausweiskarten zuteilen</string>
+    <string name="admin_users_add_step_2_explanation">
+        Zum Einrichten des neuen Kontos müssen Sie abschließend dem %2$s einen Ausweis zuteilen.\n
+        \n• Nehmen Sie 1 Ausweiskarte aus dem Bestand und scannen Sie diese.
+        \n• Drücken Sie \"FERTIG\", um das Nutzerkonto einzurichten.
+        \n• Geben Sie den Ausweis dem %2$s \"%3$s %4$s\".
+    </string>
+    <string name="admin_users_add_step_2_explanation_pupil_1">
+        Zum Einrichten des neuen Kontos müssen Sie abschließend dem Schüler einen Ausweis zuteilen.\n
+        \n• Nehmen Sie 1 Ausweiskarte aus dem Bestand und scannen Sie diese.
+        \n• Drücken Sie \"FERTIG\", um das Nutzerkonto einzurichten.
+        \n• Geben Sie den Ausweis zusammen mit der ausgedruckten Klassenliste der
+        \nLehrkraft der Klasse %3$s (%4$s).
+    </string>
+    <string name="admin_users_add_step_2_explanation_pupil_2">
+        Zum Einrichten der neuen Konten müssen Sie abschließend den %1$d Schülern Ausweise zuteilen.\n
+        \n• Nehmen Sie %1$d Ausweiskarten aus dem Bestand und scannen Sie diese.
+        \n• Drücken Sie \"FERTIG\", um die Nutzerkonten einzurichten.
+        \n• Geben Sie die Ausweise zusammen mit der ausgedruckten Klassenliste der
+        \nLehrkraft der Klasse %3$s (%4$s).
+    </string>
+    <string name="admin_users_add_step_2_class_list_hint">
+        Hinweis: Nachdem Sie \"FERTIG\" gedrückt haben, wird die Klassenliste im Austauschverzeichnis
+        des Tablets als PDF-Datei erstellt.
+        \nSchließen Sie danach das Tablet mit dem USB-Kabel an einen PC an, laden die Klassenliste
+        auf Ihren PC und drucken diese dann aus.
+    </string>
+    <string name="admin_users_add_step_2_status_n">Noch %1$d Ausweiskarten zu scannen …</string>
+    <string name="admin_users_add_step_2_status_1">Noch 1 Ausweiskarte zu scannen …</string>
+    <string name="admin_users_add_step_2_status_0">Alle Ausweiskarten gescannt.</string>
+    <string name="admin_users_add_step_2_idcard">(zuletzt gescannt: %1$s)</string>
+    <string name="admin_users_add_step_2_snackbar_error_scanned">Dieser Ausweis wurde bereits gescannt!</string>
 
     <!-- AdminUsersEditActivity -->
 
@@ -504,14 +546,7 @@
         \nNachdem alle Ausweiskarten gescannt wurden, sollte die Liste rechts leer sein.\n
         \nAndernfalls können Sie die verbliebenen Ausweise mit dem Papierkorb als ausgesondert markieren.
     </string>
-
     <string name="stocktaking_idcards_empty">Alle Ausweiskarten erfasst</string>
-
-    <string name="stocktaking_idcards_error_dialog_title">Fehler!</string>
-    <string name="stocktaking_idcards_error_dialog_idcard_used">
-        Dieser Ausweis ist dem %1$s zugewiesen.\n
-        \nBitte nur Ausweiskarten scannen, die sich im Bestand befinden und keinem Nutzer zugewiesen sind.
-    </string>
 
     <!-- StocktakingLabelsActivity -->
 
@@ -524,14 +559,7 @@
         \nNachdem alle Klebeetiketten gescannt wurden, sollte die Liste rechts leer sein.\n
         \nAndernfalls können Sie die verbliebenen Etiketten mit dem Papierkorb als ausgesondert markieren.
     </string>
-
     <string name="stocktaking_labels_empty">Alle Klebeetiketten erfasst</string>
-
-    <string name="stocktaking_labels_error_dialog_title">Fehler!</string>
-    <string name="stocktaking_labels_error_dialog_label_used">
-        Dieses Etikett identifiziert das Buch %1$s.\n
-        \nBitte nur Klebeetiketten scannen, die sich im Bestand befinden und auf keinem Buch aufgeklebt sind.
-    </string>
 
     <!-- StocktakingUsersActivity -->
 

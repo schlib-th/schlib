@@ -63,9 +63,8 @@ public final class StocktakingIdcardsActivity extends StocktakingSerialsActivity
    @NonNull
    @Override
    NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Idcard idcard) {
-      dialog.setTitle(R.string.stocktaking_idcards_error_dialog_title);
-      dialog.setMessage(R.string.stocktaking_idcards_error_dialog_idcard_used,
-            User.getNonNull(idcard.getUid()).getDisplay());
+      dialog.setTitle(R.string.dialog_title_error);
+      dialog.setMessage(R.string.dialog_message_idcard_used, User.getNonNull(idcard.getUid()).getDisplay());
       return dialog;
    }
 

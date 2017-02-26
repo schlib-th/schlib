@@ -193,11 +193,6 @@ public final class RegisterPrintsActivity extends SchlibActivity {
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
-      Preference firstRun = Preference.getNullable(Preference.FIRST_RUN);
-      this.firstRun = (firstRun == null) ? 0 : Integer.parseInt(firstRun.getValue());
-      Log.d("firstRun=" + this.firstRun);
-      setDisplayHomeAsUpEnabled(this.firstRun != 2);
-
       message = findView(TextView.class, R.id.register_prints_message);
       writeAgain = findView(Button.class, R.id.register_prints_write_again);
       explanation = findView(TextView.class, R.id.register_prints_explanation);
@@ -206,6 +201,15 @@ public final class RegisterPrintsActivity extends SchlibActivity {
       fadeInExplanation = createFadeInExplanation();
       fadeOutExplanation = createFadeOutExplanation();
    }
+
+   @Override
+   boolean isHomeShownAsUp() {
+      Preference firstRunValue = Preference.getNullable(Preference.FIRST_RUN);
+      firstRun = (firstRunValue == null) ? 0 : Integer.parseInt(firstRunValue.getValue());
+      Log.d("firstRun=" + firstRun);
+      return firstRun != 2;
+   }
+
 
    /* -------------------------------------------------------------------------------------------------------------- */
 

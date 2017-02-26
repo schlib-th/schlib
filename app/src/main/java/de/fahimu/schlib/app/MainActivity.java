@@ -68,8 +68,10 @@ public final class MainActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(false);
    }
+
+   @Override
+   boolean isHomeShownAsUp() { return false; }
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) { return false; }

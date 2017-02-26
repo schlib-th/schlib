@@ -97,8 +97,8 @@ public final class AdminUsersAddStep0 extends StepFragment {
    }
 
    @Override
-   boolean onDoneClicked() {
-      return activity.role != null;
+   boolean isDone() {
+      return true;
    }
 
 }

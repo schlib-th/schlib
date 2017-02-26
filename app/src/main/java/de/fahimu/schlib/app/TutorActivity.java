@@ -208,7 +208,6 @@ public final class TutorActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
 
       User user = Use.getLoggedInNonNull().getUser();
       TextView loggedIn = findView(TextView.class, R.id.tutor_logged_in);

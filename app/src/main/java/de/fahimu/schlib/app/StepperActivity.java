@@ -8,6 +8,7 @@ package de.fahimu.schlib.app;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -72,7 +73,6 @@ abstract class StepperActivity extends SchlibActivity {
    protected final void onCreate(@Nullable Bundle savedInstanceState) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onCreate(savedInstanceState);
-         setDisplayHomeAsUpEnabled(true);
 
          back = findView(Button.class, R.id.stepper_back);
          done = findView(Button.class, R.id.stepper_done);
@@ -115,9 +115,12 @@ abstract class StepperActivity extends SchlibActivity {
       currentFragment = fragment;
    }
 
+   private boolean finishingActivity;
+
    @Override
    protected void onResume() {
       super.onResume();
+      finishingActivity = false;
       refreshGUI();
    }
 
@@ -140,12 +143,21 @@ abstract class StepperActivity extends SchlibActivity {
       }
    }
 
-   /* -------------------------------------------------------------------------------------------------------------- */
-
    @Override
    protected final void onBarcode(String barcode) {
-      currentFragment.onBarcode(barcode);       // forward to fragment
+      if (!finishingActivity) {
+         currentFragment.onBarcode(barcode);       // forward to fragment
+      }
    }
+
+   @Override
+   public final void onBackPressed() {
+      if (!finishingActivity) {
+         super.onBackPressed();
+      }
+   }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    public final void onBackClicked(View view) {
       onBackPressed();
@@ -153,12 +165,37 @@ abstract class StepperActivity extends SchlibActivity {
 
    public final void onDoneClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         if (currentFragment.onDoneClicked() && currentFragment.getNext() != null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
-            transaction.replace(R.id.stepper_fragments, currentFragment.getNext()).addToBackStack(null).commit();
+         if (!finishingActivity && currentFragment.isDone()) {
+            if (currentFragment.getNext() != null) {
+               FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+               transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+               transaction.replace(R.id.stepper_fragments, currentFragment.getNext()).addToBackStack(null).commit();
+            } else {
+               finishingActivity = true;
+               // set HEAVY CHECK MARK on last tab
+               StepTab lastTab = stepTabs.get(stepTabs.size() - 1);
+               lastTab.setAttributes(true, true, currentFragment.getTabNameId());
+               // disable all views
+               disable(contentView.getRootView());
+               new Handler().postDelayed(new Runnable() {
+                  @Override
+                  public void run() { finishActivity(); }
+               }, 250);
+            }
          }
       }
    }
+
+   private void disable(View view) {
+      view.setEnabled(false);
+      if (view instanceof ViewGroup) {
+         ViewGroup group = (ViewGroup) view;
+         for (int i = 0, count = group.getChildCount(); i < count; i++) {
+            disable(group.getChildAt(i));
+         }
+      }
+   }
+
+   abstract void finishActivity();
 
 }

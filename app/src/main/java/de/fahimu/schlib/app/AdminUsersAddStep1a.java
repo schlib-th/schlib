@@ -30,7 +30,7 @@ public final class AdminUsersAddStep1a extends StepFragment {
    @Override
    StepFragment getNext() { return nextFragment; }
 
-   private final AdminUsersAddStep2a nextFragment = new AdminUsersAddStep2a();
+   private final AdminUsersAddStep2 nextFragment = new AdminUsersAddStep2();
 
    @Override
    int getTabNameId() { return R.string.admin_users_add_step_1a_label; }
@@ -68,6 +68,7 @@ public final class AdminUsersAddStep1a extends StepFragment {
          String text = editable.toString();
          // prevent entering of leading blanks (just because it doesn't make sense)
          if (!text.isEmpty() && text.trim().isEmpty()) { editable.clear(); }
+         activity.count = 1;
          activity.name1 = name1.getText().toString().trim();
          activity.name2 = name2.getText().toString().trim();
          activity.refreshGUI();
@@ -102,7 +103,7 @@ public final class AdminUsersAddStep1a extends StepFragment {
    }
 
    @Override
-   boolean onDoneClicked() {
+   boolean isDone() {
       if (!matches(StringType.NAME1, activity.name1, name1)) { return false; }
       if (!matches(StringType.NAME2, activity.name2, name2)) { return false; }
       User user = User.get(activity.name1, activity.name2, 0);

@@ -32,7 +32,6 @@ public final class AdminUsersEditActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setDisplayHomeAsUpEnabled(true);
       user = User.getNonNull(getIntent().getLongExtra("uid", -1L));
    }
 
