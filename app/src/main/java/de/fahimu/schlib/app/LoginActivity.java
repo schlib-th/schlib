@@ -17,9 +17,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -168,7 +166,7 @@ public final class LoginActivity extends SchlibActivity {
       message1 = findView(TextView.class, R.id.login_message_1);
       message2 = findView(TextView.class, R.id.login_message_2);
 
-      message1.setOnTouchListener(new OnTouchListener() {     // TODO remove after development
+      /*message1.setOnTouchListener(new OnTouchListener() {     // TODO remove after development
          private long lastTime = 0;
 
          @Override
@@ -176,11 +174,11 @@ public final class LoginActivity extends SchlibActivity {
             if (event.getEventTime() > lastTime + 3000) {     // ignore multi clicks
                lastTime = event.getEventTime();
                Use.login(User.getNonNull(1));
-               playSoundAndStartActivity(AdminUsersAddActivity.class);
+               playSoundAndStartActivity(AdminActivity.class);
             }
             return true;
          }
-      });                                                     // TODO remove after development
+      });                                                     // TODO remove after development */
       createScanAnimator();
       createStopAnimator();
       createAdminOrTutorDialog();

@@ -6,6 +6,9 @@
 
 package de.fahimu.schlib.pdf;
 
+import android.support.annotation.NonNull;
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,7 +20,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.fahimu.schlib.app.App;
+import de.fahimu.android.app.App;
 import de.fahimu.schlib.app.R;
 
 /**
@@ -27,13 +30,17 @@ import de.fahimu.schlib.app.R;
  * @version 1.0, 01.09.2014
  * @since SchoolLibrary 1.0
  */
-class FontMetric {
+final class FontMetric {
 
    private final int resId;
 
    private final int[] width = new int[256];
 
    private final int[][] adjust = new int[256][];
+
+   private String fontName;
+
+   private int fontBBoxLLY, fontBBoxURY;
 
    /**
     * Creates a new FontMetric for font {@code resId}. An Adobe Font Metrics file ({@code *.afm}) and
@@ -49,40 +56,63 @@ class FontMetric {
       return new LineNumberReader(new InputStreamReader(is, charset));
    }
 
+   /**
+    * Returns a Map build from the Adobe Glyph List {@code glyphlist.txt}
+    * that maps glyph names as Strings to their Unicode scalar value as Characters.
+    * A glyph name will only be added to the Map if it {@link #isSupported(char) is supported}.
+    *
+    * @return a Map build from the Adobe Glyph List {@code glyphlist.txt}.
+    *
+    * @throws IOException
+    *       if an error occurred while reading the {@code glyphlist.txt} file.
+    */
    private Map<String,Character> loadGlyphlist() throws IOException {
       Map<String,Character> glyphMap = new HashMap<>(256);
       try (LineNumberReader lnr = openFile(R.raw.glyphlist, Charset.forName("US-ASCII"))) {
-         String line = lnr.readLine();
-         while (line != null && line.startsWith("#")) {
-            line = lnr.readLine();
-         }
-         while (line != null && !line.startsWith("#")) {
-            int semicolon = line.indexOf(';');
-            String glyphname = line.substring(0, semicolon);
-            long c = Integer.parseInt(line.substring(semicolon + 1, semicolon + 5), 16);
-            if ((c >= 0x20 && c <= 0x7E) || (c >= 0xA0 && c <= 0xFF)) {
-               glyphMap.put(glyphname, (char) c);
+         String line;
+         while ((line = lnr.readLine()) != null) {
+            if (!line.startsWith("#")) {
+               final String[] field = line.split(";");      // field[0] is the glyph name, field[1] the hex value
+               if (field[1].length() == 4) {          // only consider glyph names that map to just one hex value
+                  char c = (char) Integer.parseInt(field[1], 16);
+                  if (isSupported(c)) {
+                     glyphMap.put(field[0], c);
+                  }
+               }
             }
-            line = lnr.readLine();
          }
          return glyphMap;
       }
    }
 
-   private static final Pattern WX = Pattern.compile(".*WX\\s([0-9]+)\\s;.*");
-   private static final Pattern GN = Pattern.compile(".*N\\s([A-Za-z]+)\\s;.*");
-
-   private void loadCharMetrics(LineNumberReader lnr, Map<String,Character> glyphMap) throws IOException {
+   /**
+    * Returns {@code line.split(" ")} for the first line that starts with the specified prefix.
+    *
+    * @throws IOException
+    *       if the reader is closed or another {@code IOException} occurs.
+    */
+   @NonNull
+   private String[] getLine(LineNumberReader lnr, String prefix) throws IOException {
       String line = lnr.readLine();
-      while (!line.startsWith("StartCharMetrics")) {
+      while (line != null && !line.startsWith(prefix)) {
          line = lnr.readLine();
       }
-      int nLine = Integer.parseInt(line.substring(line.indexOf(' ') + 1));
+      if (line == null) {
+         throw new IOException("missing " + prefix);
+      }
+      return line.split(" ");
+   }
+
+   private static final Pattern WX = Pattern.compile(".*WX\\s+([0-9]+)\\s+;.*");
+   private static final Pattern GN = Pattern.compile(".*N\\s+([A-Za-z]+)\\s+;.*");
+
+   private void loadCharMetrics(LineNumberReader lnr, Map<String,Character> glyphMap) throws IOException {
+      int nLine = Integer.parseInt(getLine(lnr, "StartCharMetrics")[1]);
       while (nLine-- > 0) {
-         line = lnr.readLine();
+         String line = lnr.readLine();
          Matcher wx = WX.matcher(line), gn = GN.matcher(line);
          if (wx.matches() && gn.matches() && glyphMap.containsKey(gn.group(1))) {
-            width[(int) glyphMap.get(gn.group(1))] = Integer.parseInt(wx.group(1));
+            width[glyphMap.get(gn.group(1))] = Integer.parseInt(wx.group(1));
          }
       }
    }
@@ -90,15 +120,11 @@ class FontMetric {
    private static final Pattern KPX = Pattern.compile("KPX\\s([A-Za-z]+)\\s([A-Za-z]+)\\s-([0-9]+)");
 
    private void loadKernPairs(LineNumberReader lnr, Map<String,Character> glyphMap) throws IOException {
-      String line = lnr.readLine();
-      while (!line.startsWith("StartKernPairs")) {
-         line = lnr.readLine();
-      }
-      int nLine = Integer.parseInt(line.substring(line.indexOf(' ') + 1));
+      int nLine = Integer.parseInt(getLine(lnr, "StartKernPairs")[1]);
       while (nLine-- > 0) {
          Matcher kpx = KPX.matcher(lnr.readLine());
          if (kpx.matches() && glyphMap.containsKey(kpx.group(1)) && glyphMap.containsKey(kpx.group(2))) {
-            int lft = (int) glyphMap.get(kpx.group(1)), rgt = (int) glyphMap.get(kpx.group(2));
+            char lft = glyphMap.get(kpx.group(1)), rgt = glyphMap.get(kpx.group(2));
             if (adjust[lft] == null) {
                adjust[lft] = new int[256];        // create subarray only when necessary
             }
@@ -116,29 +142,54 @@ class FontMetric {
       try {
          Map<String,Character> glyphMap = loadGlyphlist();
          try (LineNumberReader lnr = openFile(resId, Charset.forName("US-ASCII"))) {
+            fontName = getLine(lnr, "FontName")[1];
+            String[] fontBBox = getLine(lnr, "FontBBox");
+            fontBBoxLLY = Integer.parseInt(fontBBox[2]);
+            fontBBoxURY = Integer.parseInt(fontBBox[4]);
             loadCharMetrics(lnr, glyphMap);
             loadKernPairs(lnr, glyphMap);
          }
       } catch (IOException ioe) {
-         Arrays.fill(width, 1000);
+         Arrays.fill(width, 0);
          Arrays.fill(adjust, null);
       }
       return this;
    }
 
    /**
-    * Returns the width of the specified character as defined by the {@code CharMetrics} section in the {@code .afm}
-    * file.
+    * Returns the lower left corner y-value of the bounding box.
+    *
+    * @return the lower left corner y-value of the bounding box.
+    */
+   int getFontBBoxLLY() {
+      return fontBBoxLLY;
+   }
+
+   /**
+    * Returns the upper right corner y-value of the bounding box.
+    *
+    * @return the upper right corner y-value of the bounding box.
+    */
+   int getFontBBoxURY() {
+      return fontBBoxURY;
+   }
+
+   /**
+    * Returns the width of the specified character
+    * as defined by the {@code CharMetrics} section in the {@code .afm} file.
     *
     * @param c
     *       the character.
     * @return the width of the specified character.
     */
-   int getWidth(char c) { return width[(int) c]; }
+   int getWidth(char c) {
+      assertIsSupported(c);
+      return width[c];
+   }
 
    /**
-    * Returns the horizontal adjustment of the character pair {@code (lft, rgt)} as defined by the {@code KernPairs}
-    * section in the {@code .afm} file.
+    * Returns the horizontal adjustment of the character pair {@code (lft, rgt)}
+    * as defined by the {@code KernPairs} section in the {@code .afm} file.
     *
     * @param lft
     *       the left character.
@@ -147,7 +198,25 @@ class FontMetric {
     * @return the horizontal adjustment of the character pair.
     */
    int getAdjustment(char lft, char rgt) {
-      return (adjust[(int) lft] == null) ? 0 : adjust[(int) lft][(int) rgt];
+      assertIsSupported(lft);
+      assertIsSupported(rgt);
+      return (adjust[lft] == null) ? 0 : adjust[lft][rgt];
+   }
+
+   private void assertIsSupported(char c) {
+      if (!isSupported(c)) {
+         String text = "Character \\u%04X not supported (perhaps not included in font '%s')";
+         throw new AssertionError(App.format(text, (int) c, fontName));
+      }
+   }
+
+   /**
+    * Returns {@code true} if and only if the specified character is supported by this PDF framework.
+    * A character is supported if and only if its scalar value is between
+    * {@code 0x0020} and {@code 0x007E} or between {@code 0x00A1} and {@code 0x00FF}.
+    */
+   private boolean isSupported(char c) {
+      return (c >= 0x20 && c <= 0x7E) || (c >= 0xA1 && c <= 0xFF);
    }
 
 }

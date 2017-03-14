@@ -56,7 +56,7 @@ import de.fahimu.schlib.share.FileType;
  */
 public final class RegisterPrintsActivity extends SchlibActivity {
 
-   final class Page extends Row {
+   private final class Page extends Row {
       @StringRes
       final int pdfTitleId;
       final int group, number;
@@ -78,7 +78,7 @@ public final class RegisterPrintsActivity extends SchlibActivity {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   final class PageItem extends Item<Page> {
+   private final class PageItem extends Item<Page> {
       final String text;
 
       @WorkerThread
@@ -88,7 +88,7 @@ public final class RegisterPrintsActivity extends SchlibActivity {
       }
    }
 
-   final class PageViewHolder extends ViewHolder<PageItem> {
+   private final class PageViewHolder extends ViewHolder<PageItem> {
       private final TextView text;
 
       PageViewHolder(LayoutInflater inflater, ViewGroup parent) {
@@ -99,7 +99,7 @@ public final class RegisterPrintsActivity extends SchlibActivity {
       protected void bind(PageItem item) { text.setText(item.text); }
    }
 
-   final class PagesAdapter extends Adapter<Page,PageItem,PageViewHolder> {
+   private final class PagesAdapter extends Adapter<Page,PageItem,PageViewHolder> {
 
       PagesAdapter() {
          super(RegisterPrintsActivity.this, R.id.register_prints_list, R.string.register_prints_empty);

@@ -18,7 +18,7 @@ import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.db.User.Role;
 import de.fahimu.schlib.pdf.Document;
 import de.fahimu.schlib.pdf.Document.WriterListener;
-import de.fahimu.schlib.pdf.Idcards85x54;
+import de.fahimu.schlib.pdf.PupilList;
 
 /**
  * An activity for adding users to the database.
@@ -89,7 +89,7 @@ public final class AdminUsersAddActivity extends StepperActivity {
 
                         @Override
                         public void onPostWrite() { finish(); }
-                     }, new Idcards85x54());    // TODO replace Idcards85x54
+                     }, new PupilList(name1, name2));
                   }
                }
             }

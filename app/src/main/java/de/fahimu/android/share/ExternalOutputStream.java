@@ -41,36 +41,52 @@ public final class ExternalOutputStream extends OutputStream {
       }
    }
 
+   /** {@inheritDoc} */
    @Override
    public void write(int i) {
-      try { outputStream.write(i); } catch (IOException e) {
+      try {
+         outputStream.write(i);
+      } catch (IOException e) {
          throw new RuntimeException("ExternalOutputStream:writeInt", e);
       }
    }
 
+   /** {@inheritDoc} */
    @Override
    public void write(@NonNull byte[] buffer, int offset, int count) {
-      try { outputStream.write(buffer, offset, count); } catch (IOException e) {
+      try {
+         outputStream.write(buffer, offset, count);
+      } catch (IOException e) {
          throw new RuntimeException("ExternalOutputStream:writeBuffer", e);
       }
    }
 
+   /** {@inheritDoc} */
    @Override
-   public void write(@NonNull byte[] buffer) { write(buffer, 0, buffer.length); }
+   public void write(@NonNull byte[] buffer) {
+      write(buffer, 0, buffer.length);
+   }
 
+   /** {@inheritDoc} */
    @Override
    public void flush() {
-      try { outputStream.flush(); } catch (IOException e) {
+      try {
+         outputStream.flush();
+      } catch (IOException e) {
          throw new RuntimeException("ExternalOutputStream:flush", e);
       }
    }
 
+   /** {@inheritDoc} */
    @Override
    public void close() {
-      try { outputStream.close(); } catch (IOException e) {
+      try {
+         outputStream.close();
+      } catch (IOException e) {
          throw new RuntimeException("ExternalOutputStream:close", e);
+      } finally {
+         externalFile.scanFile();
       }
-      externalFile.scanFile();
    }
 
 }

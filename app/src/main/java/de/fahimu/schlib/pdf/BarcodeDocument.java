@@ -20,7 +20,7 @@ import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.db.Serial;
 
 /**
- * An A4 (210 x 297 mm) PDF document with {@code barcodesPerPage} barcodes on it, arranged in a grid.
+ * A DIN A4 (210 x 297 mm) PDF document with barcodes on it, arranged in a grid.
  *
  * @author Thomas Hirsch, schlib@fahimu.de
  * @version 1.0, 01.09.2014
@@ -37,8 +37,9 @@ abstract class BarcodeDocument extends Document {
    @MainThread
    BarcodeDocument(@NonNull List<? extends Serial> serials, @StringRes int titleId, @StringRes int subject) {
       this.serials = serials;
-      pagePrefix = App.format("%s - %s ", App.getStr(titleId), App.getStr(R.string.pdf_page));
-      open(titleId, subject);
+      String title = App.getStr(titleId);
+      pagePrefix = App.format("%s\u00a0-\u00a0%s\u00a0", title, App.getStr(R.string.pdf_page));
+      open(title, App.getStr(subject));
    }
 
    @WorkerThread
@@ -47,15 +48,13 @@ abstract class BarcodeDocument extends Document {
    @WorkerThread
    abstract void finishPage(String pagePrefix, int page);
 
+   /** {@inheritDoc} */
+   @Override
    @WorkerThread
    final boolean isEmpty() { return serials.isEmpty(); }
 
-   /**
-    * Writes the document with the specified {@code asyncTask} if {@link #isEmpty()} is {@code false}.
-    *
-    * @param asyncDocumentWriter
-    *       the task which runs the method.
-    */
+   /** {@inheritDoc} */
+   @Override
    @WorkerThread
    final void writeAsync(AsyncDocumentWriter asyncDocumentWriter) {
       int count = 0, currentPage = serials.get(0).getPage();

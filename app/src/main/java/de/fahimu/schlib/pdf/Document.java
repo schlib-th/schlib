@@ -9,7 +9,6 @@ package de.fahimu.schlib.pdf;
 import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 
 
@@ -29,9 +28,9 @@ import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.share.FileType;
 
 /**
- * A {@code Document} represents a PDF file according to the PDF Specification Version 1.7. Only a small subset of the
- * available PDF features is supported to keep things as simple as possible. All citations refer to the sixth edition
- * of the PDF Reference from November 2006.
+ * A {@code Document} represents a DIN A4 (210 x 297 mm) PDF document according to the PDF Specification Version 1.7.
+ * Only a small subset of the available PDF features is supported to keep things as simple as possible.
+ * All citations refer to the sixth edition of the PDF Reference from November 2006.
  *
  * @author Thomas Hirsch, schlib@fahimu.de
  * @version 1.0, 01.09.2014
@@ -41,10 +40,21 @@ import de.fahimu.schlib.share.FileType;
 public abstract class Document {
 
    /**
-    * One millimeter expressed in pt, the unit size of the default user space (Section 4.2.1 - User Space).
+    * Returns the specified mm value in pt, the unit size of the default user space (Section 4.2.1 - User Space).
     * 1 inch = 25.4 mm = 72 pt => 1 mm = 72 pt / 25.4 = 2.8346 pt.
+    *
+    * @param mm
+    *       the value in mm.
+    * @return the specified mm value in pt.
     */
-   static final double MM = 72.0 / 25.4;
+   static double pt(double mm) {
+      return mm * 72.0 / 25.4;
+   }
+
+   /** The width of a DIN A4 document in pt. */
+   static final double PAGE_WIDTH  = pt(210.0);
+   /** The height of a DIN A4 document in pt. */
+   static final double PAGE_HEIGHT = pt(297.0);
 
    private ExternalFile         externalFile;
    private ExternalOutputStream outputStream;
@@ -52,16 +62,14 @@ public abstract class Document {
    /**
     * Opens an ExternalOutputStream and writes the PDF header and specified metadata to the document.
     *
-    * @param titleId
-    *       the ID of the string resource specifying the title.
-    * @param subjectId
-    *       the ID of the string resource specifying the subject.
+    * @param title
+    *       the title of the document.
+    * @param subject
+    *       the subject of the document.
     * @return this PDF Document.
     */
-   final Document open(@StringRes int titleId, @StringRes int subjectId) {
-      String title = App.getStr(titleId);
-      String subject = App.getStr(subjectId);
-      externalFile = new ExternalFile(FileType.PRINTS, title + ".pdf");
+   final Document open(String title, String subject) {
+      externalFile = new ExternalFile(FileType.PRINTS, title.replace('/', ':') + ".pdf");
       outputStream = ExternalOutputStream.newInstance(externalFile);
 
       // write the File Header (Section 3.4.1).
@@ -74,7 +82,7 @@ public abstract class Document {
       User user = Use.getLoggedInNonNull().getUser();
       String author = user.getName1() + " " + user.getName2();
       begObj("<<").write("/Title(%s)/Author(%s)/Subject(%s)", title, author, subject);
-      write("/Creator(%1$s)/Producer(%1$s)", "School-Library V1.0 (\u00A9 2014)");
+      write("/Creator(%1$s)/Producer(%1$s)", "School-Library V1.0 (\u00A9 2017)");
       String d = new SimpleDateFormat("yyyyMMddHHmmssZ", Locale.US).format(new Date());
       write("/CreationDate(D:%1$s'%2$s')/ModDate(D:%1$s'%2$s')", d.substring(0, 17), d.substring(17)).endObj(">>");
 
@@ -82,7 +90,7 @@ public abstract class Document {
       begObj("<<").write("/Type/Font/Subtype/Type1/Encoding/WinAnsiEncoding/BaseFont/Helvetica").endObj(">>");
 
       // Object 3: the MediaBox array
-      begObj("[").write("0 0 %.8f %.8f", 210 * MM, 297 * MM).endObj("]");
+      begObj("[").write("0 0 %.8f %.8f", PAGE_WIDTH, PAGE_HEIGHT).endObj("]");
 
       return begPage();
    }
@@ -91,6 +99,8 @@ public abstract class Document {
     * The current file offset.
     */
    private int offset;
+
+   private final byte[] buffer = new byte[1024];
 
    /**
     * Writes the specified string Windows 1252 encoded to the PDF file.
@@ -103,14 +113,18 @@ public abstract class Document {
     */
    final Document write(String format, Object... args) {
       String s = App.format(format, args);
-      for (int i = 0; i < s.length(); i++) {
+      int length = s.length();
+      final byte[] buffer = (length <= this.buffer.length) ? this.buffer : new byte[length];
+
+      for (int i = 0; i < length; i++) {
          char c = s.charAt(i);
          if ((c >= '\u0080' && c <= '\u009f') || c > '\u00ff') {
             throw new RuntimeException(App.format("char \\u%04x not WinAnsiEncoding compatible", (int) c));
          }
-         outputStream.write((int) c);
+         buffer[i] = (byte) c;
       }
-      offset += s.length();
+      outputStream.write(buffer, 0, length);
+      offset += length;
       return this;
    }
 
@@ -150,12 +164,12 @@ public abstract class Document {
    final Document writeNewPage() { return endPage().begPage(); }
 
    final Document writeElement(Element element, double x, double y) {
-      write("q 1 0 0 1 %.8f %.8f cm\n", x * MM, y * MM);
+      write("q 1 0 0 1 %.8f %.8f cm\n", x, y);
       return element.write(this).write("Q\n");
    }
 
    final Document writeElementUpright(Element element, double x, double y) {
-      write("q 0 1 -1 0 %.8f %.8f cm\n", x * MM, y * MM);
+      write("q 0 1 -1 0 %.8f %.8f cm\n", x, y);
       return element.write(this).write("Q\n");
    }
 
@@ -238,8 +252,8 @@ public abstract class Document {
    abstract boolean isEmpty();
 
    /**
-    * Writes the document with the specified {@code asyncTask} if {@link #isEmpty()} is {@code false}.
-    * The implementing method must periodically check if the task was {@link AsyncTask#isCancelled() canncelled}.
+    * Writes the document with the specified {@code asyncTask} if not {@link #isEmpty()}.
+    * The implementing method must periodically check if the task was {@link AsyncTask#isCancelled() cancelled}.
     *
     * @param asyncDocumentWriter
     *       the task which runs the method.

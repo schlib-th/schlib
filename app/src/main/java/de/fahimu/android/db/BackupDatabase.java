@@ -40,21 +40,15 @@ public final class BackupDatabase extends AsyncTask<Void,Void,Void> {
    @Override
    protected Void doInBackground(Void... voids) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         InputStream is = null;
-         OutputStream os = null;
-         ExternalFile ef = new ExternalFile(type, buildBackupFilename());
-         try {
-            is = new FileInputStream(App.getDb().getPath());
-            os = new GZIPOutputStream(ExternalOutputStream.newInstance(ef));
+         ExternalFile file = new ExternalFile(type, buildBackupFilename());
+         try (InputStream is = new FileInputStream(App.getDb().getPath());
+              OutputStream os = new GZIPOutputStream(ExternalOutputStream.newInstance(file))) {
             byte[] buffer = new byte[8192];
             for (int length; (length = is.read(buffer)) > 0; ) {
                os.write(buffer, 0, length);
             }
-         } catch (IOException e) {
-            scope.d(e.getMessage());
-         } finally {
-            try { if (is != null) { is.close(); } } catch (IOException e) { /* IGNORE */ }
-            try { if (os != null) { os.close(); } } catch (IOException e) { /* IGNORE */ }
+         } catch (IOException ioe) {
+            scope.d("****** " + ioe.getMessage());
          }
          taskRegistry.remove(this);
          return null;

@@ -47,11 +47,54 @@
 
     <!-- PDF documents -->
 
+    <string name="pdf_page">Seite</string>
+    <string name="pdf_page_of">Seite %1$d von %2$d</string>
+
     <string name="pdf_labels_title">Klebeetiketten</string>
     <string name="pdf_labels_subject">Klebeetiketten zum Ausdrucken</string>
     <string name="pdf_idcards_title">Ausweiskarten</string>
     <string name="pdf_idcards_subject">Ausweiskarten zum Ausdrucken</string>
-    <string name="pdf_page">Seite</string>
+
+    <string name="pdf_pupil_list_title">Schülerliste %1$s - %2$s - %3$s</string>
+    <string name="pdf_pupil_list_subject">Schülerliste zum Ausdrucken</string>
+    <string name="pdf_pupil_list_headline_1">Schülerliste</string>
+    <string name="pdf_pupil_list_headline_2">Klasse %1$s (Schuljahr %2$s)</string>
+    <string name="pdf_pupil_list_headline_3">(Ergänzungen vom %1$s mit %2$d neuen Schülern)</string>
+    <string name="pdf_pupil_list_text_1">
+        Liebe Lehrkraft der Klasse {CLASS-NAME},
+        \n\n
+        bitte verteilen Sie die beigefügten Ausweise der Bücherei an die
+        Schüler Ihrer Klasse und notieren Sie deren Namen in der dafür vorgesehenen Spalte.
+        \n\n
+        Schülernamen dürfen aus Datenschutzgründen nicht auf dem Tablet gespeichert werden.
+        Ersatzweise wer|den Schüler über ihre Klasse und eine fortlaufende Nummer identifiziert.
+        Diese Liste ist deshalb erforderlich, um der Nummer einen Namen zuordnen zu können, wenn beispielsweise
+        von uns Mahnlisten erstellt und an Sie verteilt werden. Wir bitten Sie daher, eine Kopie der ausgefüllten
+        Liste zur Sicherheit im Sekretariat zu hinterlegen, falls das Original einmal abhandenkommt.
+        \n\n\n
+        Wir danken Ihnen herzlich für Ihre Mithilfe,
+        \n\n\n\n\n\n
+        Ihre Büchereiverwaltung
+    </string>
+    <string name="pdf_pupil_list_text_2">
+        Liebe Lehrkraft der Klasse {CLASS-NAME},
+        \n\n
+        bitte verteilen Sie die beigefügten Ausweise der Bücherei an die neuen
+        Schüler Ihrer Klasse und notieren Sie deren Namen in der dafür vorgesehenen Spalte.
+        \n\n
+        Schülernamen dürfen aus Datenschutzgründen nicht auf dem Tablet gespeichert werden.
+        Ersatzweise wer|den Schüler über ihre Klasse und eine fortlaufende Nummer identifiziert.
+        Diese Liste ist deshalb erforderlich, um der Nummer einen Namen zuordnen zu können, wenn beispielsweise
+        von uns Mahnlisten erstellt und an Sie verteilt werden. Wir bitten Sie daher, eine Kopie der ausgefüllten
+        Liste zur Sicherheit im Sekretariat zu hinterlegen, falls das Original einmal abhandenkommt.
+        \n\n\n
+        Wir danken Ihnen herzlich für Ihre Mithilfe,
+        \n\n\n\n\n\n
+        Ihre Büchereiverwaltung
+    </string>
+    <string name="pdf_pupil_list_column_1">Nr.</string>
+    <string name="pdf_pupil_list_column_2">Ausweis</string>
+    <string name="pdf_pupil_list_column_3">Name des Schülers</string>
 
     <!-- ExternalFile -->
 
@@ -107,7 +150,7 @@
         Dieser Ausweis ist dem %1$s zugewiesen.\n
         \nBitte nur Ausweiskarten scannen, die sich im Bestand befinden und keinem Nutzer zugewiesen sind.
     </string>
-     <string name="dialog_message_label_used">
+    <string name="dialog_message_label_used">
         Dieses Etikett identifiziert das Buch %1$s.\n
         \nBitte nur Klebeetiketten scannen, die sich im Bestand befinden und auf keinem Buch aufgeklebt sind.
     </string>
@@ -153,7 +196,8 @@
     </string>
     <string name="register_prints_writing_done">
         Die PDF-Dateien wurden ins Austauschverzeichnis des Tablets geschrieben und stehen dort zum Download bereit.
-    </string>  <string name="register_prints_explanation">
+    </string>
+    <string name="register_prints_explanation">
         Bitte schließen Sie jetzt das Tablet mit dem USB-Kabel an einen PC an, laden die PDF-Dateien im
         Austauschverzeichnis auf Ihren PC und drucken diese dann auf geeigneten Medien aus.\n
         \nZum Ausdrucken der Ausweiskarten (85 x 54 mm, 10 Stück je DIN A4 Seite) empfehlen sich Visitenkarten
@@ -433,7 +477,7 @@
         \n(Lupe in der Werkzeugleiste)\n
         \n• Neue Nutzerkonten einrichten
         \n(Pluszeichen in der Werkzeugleiste)\n
-        \n• Ein Nutzerkonto bearbeiten
+        \n• Weitere Informationen zum Nutzerkonto abfragen oder das Konto bearbeiten
         \n(Info-Symbol)\n
         \nWenn sie ein Nutzerkonto löschen möchten, gehen Sie bitte zurück
         und wechseln in den Bereich \"Nutzerkonten löschen\".
@@ -494,21 +538,21 @@
         Zum Einrichten des neuen Kontos müssen Sie abschließend dem Schüler einen Ausweis zuteilen.\n
         \n• Nehmen Sie 1 Ausweiskarte aus dem Bestand und scannen Sie diese.
         \n• Drücken Sie \"FERTIG\", um das Nutzerkonto einzurichten.
-        \n• Geben Sie den Ausweis zusammen mit der ausgedruckten Klassenliste der
+        \n• Geben Sie den Ausweis zusammen mit der ausgedruckten Schülerliste der
         \nLehrkraft der Klasse %3$s (%4$s).
     </string>
     <string name="admin_users_add_step_2_explanation_pupil_2">
         Zum Einrichten der neuen Konten müssen Sie abschließend den %1$d Schülern Ausweise zuteilen.\n
         \n• Nehmen Sie %1$d Ausweiskarten aus dem Bestand und scannen Sie diese.
         \n• Drücken Sie \"FERTIG\", um die Nutzerkonten einzurichten.
-        \n• Geben Sie die Ausweise zusammen mit der ausgedruckten Klassenliste der
+        \n• Geben Sie die Ausweise zusammen mit der ausgedruckten Schülerliste der
         \nLehrkraft der Klasse %3$s (%4$s).
     </string>
     <string name="admin_users_add_step_2_class_list_hint">
-        Hinweis: Nachdem Sie \"FERTIG\" gedrückt haben, wird die Klassenliste im Austauschverzeichnis
+        Hinweis: Nachdem Sie \"FERTIG\" gedrückt haben, wird die Schülerliste im Austauschverzeichnis
         des Tablets als PDF-Datei erstellt.
-        \nSchließen Sie danach das Tablet mit dem USB-Kabel an einen PC an, laden die Klassenliste
-        auf Ihren PC und drucken diese dann aus.
+        \nSchließen Sie danach das Tablet mit dem USB-Kabel an einen PC an, laden die Schülerliste
+        auf Ihren PC und drucken diese aus.
     </string>
     <string name="admin_users_add_step_2_status_n">Noch %1$d Ausweiskarten zu scannen …</string>
     <string name="admin_users_add_step_2_status_1">Noch 1 Ausweiskarte zu scannen …</string>

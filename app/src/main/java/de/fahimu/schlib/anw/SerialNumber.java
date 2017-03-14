@@ -128,7 +128,7 @@ public final class SerialNumber {
    }
 
    public String getDisplay() {
-      return "# " + getDecimal() + " #";
+      return "#\u00a0" + getDecimal() + "\u00a0#";
    }
 
 }
