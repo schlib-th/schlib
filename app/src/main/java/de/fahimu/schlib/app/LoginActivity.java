@@ -206,13 +206,13 @@ public final class LoginActivity extends SchlibActivity {
             AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
                @Override
                public void run() {
-                  new BackupDatabase(FileType.BACKUP).execute();
                   ExternalFile backupDir = new ExternalFile(FileType.BACKUP, null);
                   String[] backupFiles = backupDir.listNames("sqlite3.gzip");
                   Arrays.sort(backupFiles);
                   for (int i = 0; i < backupFiles.length - 9; i++) {
                      new ExternalFile(FileType.BACKUP, backupFiles[i]).delete();
                   }
+                  new BackupDatabase(FileType.BACKUP).execute();
                }
             });
          }
