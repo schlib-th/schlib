@@ -63,24 +63,16 @@
     <string name="pdf_pupil_list_text_1">
         Liebe Lehrkraft der Klasse {CLASS-NAME},
         \n\n
+    </string>
+    <string name="pdf_pupil_list_text_2a">
         bitte verteilen Sie die beigefügten Ausweise der Bücherei an die
         Schüler Ihrer Klasse und notieren Sie deren Namen in der dafür vorgesehenen Spalte.
-        \n\n
-        Schülernamen dürfen aus Datenschutzgründen nicht auf dem Tablet gespeichert werden.
-        Ersatzweise wer|den Schüler über ihre Klasse und eine fortlaufende Nummer identifiziert.
-        Diese Liste ist deshalb erforderlich, um der Nummer einen Namen zuordnen zu können, wenn beispielsweise
-        von uns Mahnlisten erstellt und an Sie verteilt werden. Wir bitten Sie daher, eine Kopie der ausgefüllten
-        Liste zur Sicherheit im Sekretariat zu hinterlegen, falls das Original einmal abhandenkommt.
-        \n\n\n
-        Wir danken Ihnen herzlich für Ihre Mithilfe,
-        \n\n\n\n\n\n
-        Ihre Büchereiverwaltung
     </string>
-    <string name="pdf_pupil_list_text_2">
-        Liebe Lehrkraft der Klasse {CLASS-NAME},
-        \n\n
+    <string name="pdf_pupil_list_text_2b">
         bitte verteilen Sie die beigefügten Ausweise der Bücherei an die neuen
         Schüler Ihrer Klasse und notieren Sie deren Namen in der dafür vorgesehenen Spalte.
+    </string>
+    <string name="pdf_pupil_list_text_3">
         \n\n
         Schülernamen dürfen aus Datenschutzgründen nicht auf dem Tablet gespeichert werden.
         Ersatzweise wer|den Schüler über ihre Klasse und eine fortlaufende Nummer identifiziert.
@@ -89,7 +81,7 @@
         Liste zur Sicherheit im Sekretariat zu hinterlegen, falls das Original einmal abhandenkommt.
         \n\n\n
         Wir danken Ihnen herzlich für Ihre Mithilfe,
-        \n\n\n\n\n\n
+        \n\n\n\n\n
         Ihre Büchereiverwaltung
     </string>
     <string name="pdf_pupil_list_column_1">Nr.</string>

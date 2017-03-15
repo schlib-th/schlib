@@ -10,10 +10,9 @@ import android.animation.Animator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
@@ -25,11 +24,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import java.util.Arrays;
+
 import de.fahimu.android.app.DelayedTask;
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.SmartAnimator;
 import de.fahimu.android.app.scanner.NoFocusDialog;
 import de.fahimu.android.app.scanner.NoFocusDialog.ButtonListener;
+import de.fahimu.android.db.BackupDatabase;
+import de.fahimu.android.share.ExternalFile;
 import de.fahimu.schlib.anw.ISBN;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
@@ -38,6 +41,7 @@ import de.fahimu.schlib.db.Label;
 import de.fahimu.schlib.db.Use;
 import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.db.User.Role;
+import de.fahimu.schlib.share.FileType;
 
 /**
  * Login with Idcard.
@@ -108,13 +112,7 @@ public final class LoginActivity extends SchlibActivity {
    }
 
    private void createAdminOrTutorDialog() {
-      adminOrTutorDialog = new NoFocusDialog(this, new OnCancelListener() {
-         @Override
-         public void onCancel(DialogInterface dialog) {
-            Use.getLoggedInNonNull().setLogoutToNow().update();
-            scanAnimator.start();
-         }
-      });
+      adminOrTutorDialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
       adminOrTutorDialog.setTitle(R.string.login_dialog_title);
       adminOrTutorDialog.setMessage(R.string.login_dialog_message);
       adminOrTutorDialog.setNegativeButton(R.string.login_dialog_tutor, new ButtonListener() {
@@ -200,9 +198,24 @@ public final class LoginActivity extends SchlibActivity {
    protected void onPermissionGranted() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          scanAnimator.start();
-         // assure that no one is logged in, e. g. after the app was killed by the user
+         // assure that no one is logged in
          Use use = Use.getLoggedInNullable();
-         if (use != null) { use.setLogoutToNow().update(); }
+         if (use != null) {
+            use.setLogoutToNow().update();
+            // Delete the oldest backup files if there are more than 9 files, and make a new backup
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+               @Override
+               public void run() {
+                  new BackupDatabase(FileType.BACKUP).execute();
+                  ExternalFile backupDir = new ExternalFile(FileType.BACKUP, null);
+                  String[] backupFiles = backupDir.listNames("sqlite3.gzip");
+                  Arrays.sort(backupFiles);
+                  for (int i = 0; i < backupFiles.length - 9; i++) {
+                     new ExternalFile(FileType.BACKUP, backupFiles[i]).delete();
+                  }
+               }
+            });
+         }
       }
    }
 

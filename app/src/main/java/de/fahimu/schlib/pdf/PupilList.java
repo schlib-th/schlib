@@ -92,32 +92,39 @@ public final class PupilList extends TextDocument {
          String headline1 = App.getStr(R.string.pdf_pupil_list_headline_1);
          String headline2 = App.getStr(R.string.pdf_pupil_list_headline_2, name1, name2);
          String headline3 = App.getStr(R.string.pdf_pupil_list_headline_3, date, users.size());
-         add(new SingleCenteredLine(headline1, 0.0, 18, 30));
-         add(new SingleCenteredLine(headline2, 0.0, 18, 30));
-         if (!firstList) {
-            add(new SingleCenteredLine(headline3, 0.0, 10, 12));
+         add(new SingleCenteredLine(headline1, 0.0, 20, 22 + 11));
+         if (firstList) {
+            add(new SingleCenteredLine(headline2, 0.0, 20, 22 + 33));
+         } else {
+            add(new SingleCenteredLine(headline2, 0.0, 20, 22 + 11));
+            add(new SingleCenteredLine(headline3, 0.0, 10, 12 + 33));
          }
-         add(new Line(36));
 
-         String info = App.getStr(firstList ? R.string.pdf_pupil_list_text_1 : R.string.pdf_pupil_list_text_2);
+         String info = getInfoText();
          info = replaceUserVariables(info, "DATE", date, "CLASS-NAME", name1, "SCHOOL-YEAR", name2);
          for (String line : info.split("\n")) {
             add(line.isEmpty() ? new Line(8) : new MultiLine(line, 0.0, 10, 12, true));
          }
-         add(new Line(36));
+         add(new Line(24));
 
          String column1 = App.getStr(R.string.pdf_pupil_list_column_1);
          String column2 = App.getStr(R.string.pdf_pupil_list_column_2);
          String column3 = App.getStr(R.string.pdf_pupil_list_column_3);
-         add(new TableRow(0.0, 10, 20, column1, column2, column3));
+         add(new TableRow(0.0, 10, 24, column1, column2, column3));
 
          for (User pupil : users) {
             String serial = App.format("%02d", pupil.getSerial());
             String idcard = new SerialNumber(pupil.getIdcard()).getDisplay();
-            add(new TableRow(0.0, 10, 25, serial, idcard));    // TODO define height between 20 and 30
+            add(new TableRow(0.0, 10, 24, serial, idcard));
          }
          finalizeTable(3, 0.75, 0.5);
       }
+   }
+
+   private String getInfoText() {
+      return App.getStr(R.string.pdf_pupil_list_text_1) +
+            App.getStr(firstList ? R.string.pdf_pupil_list_text_2a : R.string.pdf_pupil_list_text_2b) +
+            App.getStr(R.string.pdf_pupil_list_text_3);
    }
 
 }

@@ -69,7 +69,7 @@ public abstract class Document {
     * @return this PDF Document.
     */
    final Document open(String title, String subject) {
-      externalFile = new ExternalFile(FileType.PRINTS, title.replace('/', ':') + ".pdf");
+      externalFile = new ExternalFile(FileType.PRINTS, title.replace('/', '-') + ".pdf");
       outputStream = ExternalOutputStream.newInstance(externalFile);
 
       // write the File Header (Section 3.4.1).
