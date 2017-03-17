@@ -171,7 +171,7 @@ public final class LoginActivity extends SchlibActivity {
          public synchronized boolean onTouch(View v, MotionEvent event) {
             if (event.getEventTime() > lastTime + 3000) {     // ignore multi clicks
                lastTime = event.getEventTime();
-               Use.login(User.getNonNull(1));
+               Use.login(User.getNonNull(2));
                playSoundAndStartActivity(AdminActivity.class);
             }
             return true;
@@ -206,8 +206,7 @@ public final class LoginActivity extends SchlibActivity {
             AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
                @Override
                public void run() {
-                  ExternalFile backupDir = new ExternalFile(FileType.BACKUP, null);
-                  String[] backupFiles = backupDir.listNames("sqlite3.gzip");
+                  String[] backupFiles = new ExternalFile(FileType.BACKUP, null).listNames("sqlite3.gzip");
                   Arrays.sort(backupFiles);
                   for (int i = 0; i < backupFiles.length - 9; i++) {
                      new ExternalFile(FileType.BACKUP, backupFiles[i]).delete();

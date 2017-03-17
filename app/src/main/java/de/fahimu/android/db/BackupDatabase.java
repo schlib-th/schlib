@@ -62,7 +62,7 @@ public final class BackupDatabase extends AsyncTask<Void,Void,Void> {
          char c = time.charAt(i);
          if (c >= '0' && c <= '9') { b.append(c); }
       }
-      return b.append(".sqlite3").append(".gzip").toString();
+      return b.append(".sqlite3.gzip").toString();
    }
 
 }
