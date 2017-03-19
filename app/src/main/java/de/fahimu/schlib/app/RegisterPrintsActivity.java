@@ -65,6 +65,7 @@ public final class RegisterPrintsActivity extends SchlibActivity {
          this.pdfTitleId = pdfTitleId; this.group = group; this.number = number;
       }
 
+      @NonNull
       @Override
       protected String getTable() {
          throw new UnsupportedOperationException("read only");

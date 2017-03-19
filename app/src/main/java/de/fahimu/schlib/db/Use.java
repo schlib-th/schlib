@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
@@ -73,24 +72,16 @@ public final class Use extends Row {
 
    /* ============================================================================================================== */
 
-   /**
-    * Creates a new {@code Use} that initially contains the column values from the specified cursor {@code c}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   @SuppressWarnings ("unused")
-   public Use(Cursor cursor) { super(cursor); }
-
+   @NonNull
    @Override
    protected String getTable() { return TAB; }
 
-   /* ============================================================================================================== */
-
+   @NonNull
    public User getUser() {
       return User.getNonNull(values.getLong(UID));
    }
 
+   @NonNull
    public Use setLogoutToNow() {
       return (Use) setNonNull(LOGOUT, SQLite.getDatetimeNow());
    }

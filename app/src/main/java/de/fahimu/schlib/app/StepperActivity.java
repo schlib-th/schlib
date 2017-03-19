@@ -1,5 +1,5 @@
 /*
- * SchlibStepperActivity.java
+ * StepperActivity.java
  *
  * Copyright 2017 by Thomas Hirsch, schlib@fahimu.de
  */
@@ -9,6 +9,8 @@ package de.fahimu.schlib.app;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -28,7 +30,7 @@ import java.util.List;
 import de.fahimu.android.app.Log;
 
 /**
- * An activity with support for Material Design Steppers.
+ * A {@link SchlibActivity} with support for Material Design Steppers.
  *
  * @author Thomas Hirsch, schlib@fahimu.de
  * @version 1.0, 01.04.2017
@@ -37,31 +39,43 @@ import de.fahimu.android.app.Log;
  */
 abstract class StepperActivity extends SchlibActivity {
 
-   final class StepTab {
+   private final class StepTab {
 
       private final String   number;
-      private final TextView oval, name;
+      private final TextView oval, name, optional;
 
       StepTab(int number, View stepTab) {
          this.number = App.format("%d", number);
          this.oval = App.findView(stepTab, TextView.class, R.id.step_tab_oval);
          this.name = App.findView(stepTab, TextView.class, R.id.step_tab_name);
+         this.optional = App.findView(stepTab, TextView.class, R.id.step_tab_optional);
       }
 
-      void setAttributes(boolean active, boolean heavyCheckMark, @StringRes int tabNameId) {
-         if (active) {
-            oval.setBackgroundResource(R.drawable.sh_oval_stepper_active_24dp);
-            name.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-            name.setTextColor(App.getColorFromRes(R.color.color_87_percent_black));
-         } else {
-            oval.setBackgroundResource(R.drawable.sh_oval_stepper_inactive_24dp);
-            name.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
-            name.setTextColor(App.getColorFromRes(R.color.color_38_percent_black));
-         }
-         oval.setText(heavyCheckMark ? "\u2714" : number);     // HEAVY CHECK MARK or number
+      void setAttributes(int state, @StringRes int tabNameId, boolean isOptional) {
+         oval.setText(state < 0 ? "\u2714" : number);          // HEAVY CHECK MARK or number
+         oval.setBackgroundResource(state <= 0 ? ovalActive : ovalInactive);
          name.setText(App.getStr(tabNameId));
+         name.setTypeface(state != 0 ? regular : medium);
+         name.setTextColor(state <= 0 ? black87Percent : black38Percent);
+         optional.setTextColor(state <= 0 ? black54Percent : black38Percent);
+         optional.setVisibility(isOptional ? View.VISIBLE : View.GONE);
       }
    }
+
+   @DrawableRes
+   private static final int ovalActive   = R.drawable.sh_oval_stepper_active_24dp;
+   @DrawableRes
+   private static final int ovalInactive = R.drawable.sh_oval_stepper_inactive_24dp;
+
+   private static final Typeface regular = Typeface.create("sans-serif", Typeface.NORMAL);
+   private static final Typeface medium  = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+
+   @ColorInt
+   private static final int black87Percent = App.getColorFromRes(R.color.color_87_percent_black);
+   @ColorInt
+   private static final int black54Percent = App.getColorFromRes(R.color.color_54_percent_black);
+   @ColorInt
+   private static final int black38Percent = App.getColorFromRes(R.color.color_38_percent_black);
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -130,14 +144,14 @@ abstract class StepperActivity extends SchlibActivity {
          done.setEnabled(currentFragment.isDoneEnabled());
          done.setText(currentFragment.getNext() == null ? R.string.app_done : R.string.app_cont);
 
-         boolean active = true;
+         int state = -1;      // <0: left of currentFragment, 0: currentFragment, >0: right of currentFragment
          Iterator<StepTab> iterator = stepTabs.iterator();
          for (StepFragment f = getFirstFragment(); f != null; f = f.getNext()) {
             if (f == currentFragment) {
-               iterator.next().setAttributes(true, false, f.getTabNameId());
-               active = false;
+               iterator.next().setAttributes(0, f.getTabNameId(), f.getOptional());
+               state = 1;
             } else {
-               iterator.next().setAttributes(active, active, f.getTabNameId());
+               iterator.next().setAttributes(state, f.getTabNameId(), f.getOptional());
             }
          }
       }
@@ -174,7 +188,7 @@ abstract class StepperActivity extends SchlibActivity {
                finishingActivity = true;
                // set HEAVY CHECK MARK on last tab
                StepTab lastTab = stepTabs.get(stepTabs.size() - 1);
-               lastTab.setAttributes(true, true, currentFragment.getTabNameId());
+               lastTab.setAttributes(-1, currentFragment.getTabNameId(), currentFragment.getOptional());
                // disable all views
                disable(contentView.getRootView());
                new Handler().postDelayed(new Runnable() {

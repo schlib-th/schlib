@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -170,15 +169,7 @@ public final class Idcard extends Serial {
 
    /* ============================================================================================================== */
 
-   /**
-    * Creates a new {@code Idcard} that initially contains the column values from the specified {@code cursor}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   @SuppressWarnings ("unused")
-   public Idcard(@NonNull Cursor cursor) { super(cursor); }
-
+   @NonNull
    @Override
    protected String getTable() { return TAB; }
 
@@ -201,6 +192,7 @@ public final class Idcard extends Serial {
       return values.getLong(User.UID);
    }
 
+   @NonNull
    @Override
    String getDisplayUsed() {
       return App.getStr(R.string.serial_display_used_idcard);

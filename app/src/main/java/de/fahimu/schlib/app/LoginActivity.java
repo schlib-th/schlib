@@ -16,7 +16,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -164,19 +166,22 @@ public final class LoginActivity extends SchlibActivity {
       message1 = findView(TextView.class, R.id.login_message_1);
       message2 = findView(TextView.class, R.id.login_message_2);
 
-      /*message1.setOnTouchListener(new OnTouchListener() {     // TODO remove after development
-         private long lastTime = 0;
+      if (BuildConfig.DEBUG) {
+         // A hack solution for debugging to quickly login without using the barcode scanner
+         message1.setOnTouchListener(new OnTouchListener() {
+            private long lastTime = 0;
 
-         @Override
-         public synchronized boolean onTouch(View v, MotionEvent event) {
-            if (event.getEventTime() > lastTime + 3000) {     // ignore multi clicks
-               lastTime = event.getEventTime();
-               Use.login(User.getNonNull(2));
-               playSoundAndStartActivity(AdminActivity.class);
+            @Override
+            public synchronized boolean onTouch(View v, MotionEvent event) {
+               if (event.getEventTime() > lastTime + 3000) {     // ignore multi clicks
+                  lastTime = event.getEventTime();
+                  Use.login(User.getNonNull(1));
+                  playSoundAndStartActivity(AdminActivity.class);
+               }
+               return true;
             }
-            return true;
-         }
-      });                                                     // TODO remove after development */
+         });
+      }
       createScanAnimator();
       createStopAnimator();
       createAdminOrTutorDialog();

@@ -79,7 +79,7 @@ abstract class SchlibActivity extends ScannerActivity {
    private boolean userDeniedPermission = false;
 
    @Override
-   protected void onPostResume() {
+   protected final void onPostResume() {
       super.onPostResume();
       if (!userDeniedPermission) {
          requestPermission(permission.WRITE_EXTERNAL_STORAGE);
@@ -89,7 +89,6 @@ abstract class SchlibActivity extends ScannerActivity {
    /**
     * Called after the permission was granted.
     */
-
    void onPermissionGranted() {}
 
    private void requestPermission(String permission) {
@@ -102,7 +101,7 @@ abstract class SchlibActivity extends ScannerActivity {
       }
    }
 
-   private static final int REQUEST_ID = 0x24011972;
+   private static final int REQUEST_ID = 0x23122003;
 
    /**
     * Shows a NoFocusDialog that explains why we need this permission and then requests for it.
@@ -121,7 +120,7 @@ abstract class SchlibActivity extends ScannerActivity {
    }
 
    @Override
-   public void onRequestPermissionsResult(int reqId, @NonNull String[] permissions, @NonNull int[] grantResults) {
+   public final void onRequestPermissionsResult(int reqId, @NonNull String[] permissions, @NonNull int[] grantResults) {
       if (reqId == REQUEST_ID) {
          if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             userDeniedPermission = true;
@@ -141,18 +140,16 @@ abstract class SchlibActivity extends ScannerActivity {
 
    /* ============================================================================================================== */
 
-   protected final void showErrorSnackbar(@StringRes int resId, Object... formatArgs) {
+   final void showErrorSnackbar(@StringRes int resId, Object... formatArgs) {
       showSnackbar(android.R.color.holo_red_dark, resId, formatArgs);
    }
 
-   protected final void showInfoSnackbar(@StringRes int resId, Object... formatArgs) {
+   final void showInfoSnackbar(@StringRes int resId, Object... formatArgs) {
       showSnackbar(R.color.color_primary_dark, resId, formatArgs);
    }
 
-   protected final void showUndoSnackbar(String undo, OnClickListener onUndoListener,
-         @StringRes int resId, Object... formatArgs) {
-      showSnackbar(undo, android.R.color.holo_red_light,
-            onUndoListener, R.color.color_primary_dark, resId, formatArgs);
+   final void showUndoSnackbar(String undo, OnClickListener onUndoListener, @StringRes int resId, Object... args) {
+      showSnackbar(undo, android.R.color.holo_red_light, onUndoListener, R.color.color_primary_dark, resId, args);
    }
 
 }

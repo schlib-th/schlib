@@ -13,6 +13,7 @@
     <string name="app_book_icon">Ein Buch</string>
     <string name="app_user_icon">Ein Nutzer</string>
     <string name="app_animation">Eine Animation</string>
+    <string name="app_step_tab_optional">Optional</string>
 
     <!-- CSVParser -->
 
@@ -564,6 +565,18 @@
     <!-- AdminBooksAddActivity -->
 
     <string name="admin_books_add_label">Neues Buch erfassen</string>
+
+    <string name="admin_books_add_step_0_label">ISBN/Label scannen</string>
+    <string name="admin_books_add_step_0_explanation">
+        Bitte scannen Sie als Erstes die ISBN des Buchs:\n
+        \n• E.
+    </string>
+
+    <string name="admin_books_add_step_1_label">Ablageort festlegen</string>
+    <string name="admin_books_add_step_1_explanation">
+        Bitte legen Sie jetzt den Ablageort des Buchs fest:\n
+        \n• E.
+    </string>
 
     <!-- AdminBooksEditActivity -->
 

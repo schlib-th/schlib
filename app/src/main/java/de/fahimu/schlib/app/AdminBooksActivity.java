@@ -44,7 +44,7 @@ import de.fahimu.schlib.db.Label;
  */
 public final class AdminBooksActivity extends SchlibActivity {
 
-   final class BookItem extends Item<Book> {
+   private final class BookItem extends Item<Book> {
       BookItem(@NonNull Book book) {
          super(book,
                book.getShelf(), book.getDisplayNumber(),
@@ -53,7 +53,7 @@ public final class AdminBooksActivity extends SchlibActivity {
       }
    }
 
-   final class BookViewHolder extends ViewHolder<BookItem> {
+   private final class BookViewHolder extends ViewHolder<BookItem> {
       private final TextView shelf, number, title, author, keywords, publisher, isbnLabel;
 
       BookViewHolder(LayoutInflater inflater, ViewGroup parent) {
@@ -79,7 +79,7 @@ public final class AdminBooksActivity extends SchlibActivity {
       }
    }
 
-   final class BooksAdapter extends Adapter<Book,BookItem,BookViewHolder> {
+   private final class BooksAdapter extends Adapter<Book,BookItem,BookViewHolder> {
 
       BooksAdapter() {
          super(AdminBooksActivity.this, R.id.admin_books_list, R.string.admin_books_empty);
@@ -116,7 +116,7 @@ public final class AdminBooksActivity extends SchlibActivity {
    /**
     * Filters the book list depending on the currently displayed queryText.
     */
-   final class BookItemFilter implements Filter<BookItem> {
+   private final class BookItemFilter implements Filter<BookItem> {
       @NonNull
       private final String[] normalizedQueries = SearchString.getNormalizedQueries(searchView);
 

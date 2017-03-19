@@ -29,8 +29,9 @@ import de.fahimu.schlib.pdf.PupilList;
  */
 public final class AdminUsersAddActivity extends StepperActivity {
 
-   Role   role  = null;
-   String name1 = "", name2 = "";
+   Role          role    = null;
+   String        name1   = "";
+   String        name2   = "";
    int           count   = 0;
    List<Integer> scanned = null;
 

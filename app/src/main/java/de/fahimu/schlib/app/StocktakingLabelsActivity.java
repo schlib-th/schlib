@@ -57,9 +57,7 @@ public final class StocktakingLabelsActivity extends StocktakingSerialsActivity<
    @Override
    int[] getSnackbarIds() { return SNACKBAR_IDS; }
 
-   /**
-    * {@inheritDoc}
-    */
+   /** {@inheritDoc} */
    @NonNull
    @Override
    NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Label label) {

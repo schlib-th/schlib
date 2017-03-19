@@ -45,12 +45,12 @@ import de.fahimu.schlib.db.Label;
  */
 public final class FirstRun4Activity extends SchlibActivity {
 
-   final class BookItem extends Item<Book> {
+   private final class BookItem extends Item<Book> {
       @WorkerThread
       BookItem(@NonNull Book book) { super(book); }
    }
 
-   final class BookViewHolder extends ViewHolder<BookItem> {
+   private final class BookViewHolder extends ViewHolder<BookItem> {
       private final TextView shelf, number, title, isbn, label;
       private final ImageButton action;
 
@@ -80,7 +80,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       }
    }
 
-   final class BooksAdapter extends Adapter<Book,BookItem,BookViewHolder> {
+   private final class BooksAdapter extends Adapter<Book,BookItem,BookViewHolder> {
 
       BooksAdapter() {
          super(FirstRun4Activity.this, R.id.first_run_4_list, R.string.first_run_4_empty);
@@ -92,7 +92,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<Book> loadData() { return Book.getNoScanId(); }
+      protected ArrayList<Book> loadData() { return Book.get(); }
 
       @Override
       protected BookItem createItem(Book book) { return new BookItem(book); }
@@ -166,9 +166,9 @@ public final class FirstRun4Activity extends SchlibActivity {
             showDialogDelete(item);
          } else {
             if (item.row.hasLabel()) {
-               Label.getNonNull(item.row.getLabel()).setLost(true).update();
+               item.row.getLabel().setLost(true).update();
             }
-            item.row.setISBN(null).setLabel((Integer) null).update();
+            item.row.setISBN(null).setLabel(null).update();
             booksAdapter.setData(item);
             booksAdapter.updateAsync(0);
          }

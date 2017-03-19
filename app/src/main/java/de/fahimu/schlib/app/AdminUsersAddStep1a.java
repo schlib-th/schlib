@@ -62,7 +62,7 @@ public final class AdminUsersAddStep1a extends StepFragment {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   final class TextChangedListener extends AbstractTextWatcher {
+   private final class TextChangedListener extends AbstractTextWatcher {
       @Override
       public void afterTextChanged(Editable editable) {
          String text = editable.toString();

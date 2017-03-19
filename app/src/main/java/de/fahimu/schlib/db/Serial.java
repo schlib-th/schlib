@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
@@ -273,14 +272,6 @@ public abstract class Serial extends Row {
    /* ============================================================================================================== */
 
    /**
-    * Creates a new {@code Serial} that initially contains the column values from the specified {@code cursor}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   Serial(@NonNull Cursor cursor) { super(cursor); }
-
-   /**
     * Returns the serial number.
     *
     * @return the serial number.
@@ -345,14 +336,17 @@ public abstract class Serial extends Row {
       return App.format("%s.%s.%s", datetime.substring(8, 10), datetime.substring(5, 7), datetime.substring(0, 4));
    }
 
+   @NonNull
    public final Serial setLost(boolean lost) {
       return (Serial) setNullable(LOST, lost ? SQLite.getDatetimeNow() : null);
    }
 
+   @NonNull
    public final String getDisplayId() {
       return new SerialNumber(getId()).getDisplay();
    }
 
+   @NonNull
    public final String getDisplay() {
       if (isPrinted()) {
          return App.getStr(R.string.serial_display_printed, getPage());
@@ -365,6 +359,7 @@ public abstract class Serial extends Row {
       }
    }
 
+   @NonNull
    abstract String getDisplayUsed();
 
 }

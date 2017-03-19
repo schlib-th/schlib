@@ -39,7 +39,7 @@ public final class AdminUsersAddStep2 extends StepFragment {
    /* ============================================================================================================== */
 
    @Override
-   protected int getContentViewId() { return R.layout.admin_users_add_step_2; }
+   int getContentViewId() { return R.layout.admin_users_add_step_2; }
 
    private TextView explanation, classListHint, textStatus, textIdcard;
 

@@ -40,14 +40,18 @@ abstract class StepFragment extends Fragment {
       }
    }
 
-   @LayoutRes
-   abstract int getContentViewId();
+   @Nullable
+   abstract StepFragment getNext();
 
    @StringRes
    abstract int getTabNameId();
 
-   @Nullable
-   abstract StepFragment getNext();
+   boolean getOptional() { return false; }
+
+   /* ============================================================================================================== */
+
+   @LayoutRes
+   abstract int getContentViewId();
 
    @Override
    public final View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

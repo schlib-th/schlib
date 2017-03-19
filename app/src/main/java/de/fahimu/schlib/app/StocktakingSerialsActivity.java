@@ -43,7 +43,7 @@ import de.fahimu.schlib.db.Serial;
  */
 abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivity {
 
-   final class SerialItem extends Item<S> {
+   private final class SerialItem extends Item<S> {
       final String key, info;
 
       @WorkerThread
@@ -54,7 +54,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       }
    }
 
-   final class SerialItemViewHolder extends ViewHolder<SerialItem> {
+   private final class SerialItemViewHolder extends ViewHolder<SerialItem> {
       private final TextView key, info;
       private final ImageButton action;
 
@@ -78,7 +78,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       }
    }
 
-   final class SerialsAdapter extends Adapter<S,SerialItem,SerialItemViewHolder> {
+   private final class SerialsAdapter extends Adapter<S,SerialItem,SerialItemViewHolder> {
 
       SerialsAdapter() {
          super(StocktakingSerialsActivity.this, getListViewId(), getEmptyStringId());

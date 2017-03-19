@@ -21,40 +21,19 @@ import android.support.annotation.Nullable;
 public abstract class Row {
 
    /** The values of this row. */
-   protected final Values values;
+   protected final Values values = new Values();
 
    /** The changed values of this row. Must be cleared after an {@link #update()} or {@link #insert()}. */
    private final Values change = new Values();
 
-   /**
-    * Creates a new empty row.
-    */
-   protected Row() {
-      values = new Values();
-   }
-
-   /**
-    * Creates a new row that initially contains the column values from the specified row {@code other}.
-    *
-    * @param other
-    *       the row from where the column values are copied.
-    */
-   protected Row(Row other) {
-      values = new Values(other.values);
-   }
-
-   /**
-    * Creates a new row that initially contains the column values from the specified cursor {@code c}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   protected Row(Cursor cursor) {
-      values = new Values().add(cursor);
+   final <R extends Row> R add(Class<R> cls, Cursor cursor) {
+      values.add(cursor);
+      return cls.cast(this);
    }
 
    /* ============================================================================================================== */
 
+   @NonNull
    protected abstract String getTable();
 
    public long getOid() {
@@ -63,28 +42,34 @@ public abstract class Row {
 
    /* ============================================================================================================== */
 
+   @NonNull
    protected final Row setNonNull(@NonNull String key, @NonNull String value) {
       return setNullable(key, value);
    }
 
+   @NonNull
    protected final Row setNullable(@NonNull String key, @Nullable String value) {
       change.add(key, value); values.add(key, value);
       return this;
    }
 
+   @NonNull
    protected final Row setNonNull(@NonNull String key, int value) {
       return setNullable(key, value);
    }
 
+   @NonNull
    protected final Row setNullable(@NonNull String key, @Nullable Integer value) {
       change.add(key, value); values.add(key, value);
       return this;
    }
 
+   @NonNull
    protected final Row setNonNull(@NonNull String key, long value) {
       return setNullable(key, value);
    }
 
+   @NonNull
    protected final Row setNullable(@NonNull String key, @Nullable Long value) {
       change.add(key, value); values.add(key, value);
       return this;
@@ -92,6 +77,7 @@ public abstract class Row {
 
    /* ============================================================================================================== */
 
+   @NonNull
    protected Row insert() {
       long oid = SQLite.insert(getTable(), change);
       values.add(BaseColumns._ID, oid);
@@ -103,6 +89,7 @@ public abstract class Row {
       SQLite.delete(getTable(), BaseColumns._ID + "=?", values.getLong(BaseColumns._ID));
    }
 
+   @NonNull
    public final Row update() {
       SQLite.update(getTable(), change, BaseColumns._ID + "=?", values.getLong(BaseColumns._ID));
       change.clear();

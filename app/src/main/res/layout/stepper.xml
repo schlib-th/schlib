@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:elevation="4dp"
-        android:padding="24dp">
+        android:paddingEnd="24dp"
+        android:paddingStart="24dp">
 
         <LinearLayout
             android:id="@+id/stepper_tabs"

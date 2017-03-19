@@ -235,11 +235,14 @@ public final class FirstRun3Activity extends SchlibActivity {
 
    private void insertLine(CSVParser parser, String[] line) {
       try {
-         Book book = Book.create(line[0], Integer.parseInt(line[1]), line[2]);
-         book.setPublisher(line[3]).setAuthor(line[4]).setKeywords(line[5]);
+         Book book = new Book();
+         book.setTitle(line[2]).setPublisher(line[3]).setAuthor(line[4]).setKeywords(line[5]);
 
          String date = line[6].substring(6) + "-" + line[6].substring(3, 5) + "-" + line[6].substring(0, 2);
          book.setStocked(SQLite.getFromRawQuery("SELECT DATETIME(?,?)", date, "+8 hours"));  // set time to 8 AM UTC
+
+         book.setShelf(line[0]).setNumber(Integer.parseInt(line[1]));
+         book.setPeriod(14);
 
          book.insert();
       } catch (SQLException e) { parser.writeThrowable(e); }

@@ -43,13 +43,13 @@ import de.fahimu.schlib.db.User;
  */
 public final class AdminUsersActivity extends SchlibActivity {
 
-   final class UserItem extends Item<User> {
+   private final class UserItem extends Item<User> {
       UserItem(@NonNull User user) {
          super(user, user.getDisplay(), new SerialNumber(user.getIdcard()).getDisplay());
       }
    }
 
-   final class UserViewHolder extends ViewHolder<UserItem> {
+   private final class UserViewHolder extends ViewHolder<UserItem> {
       private final TextView roleName, idcards;
 
       UserViewHolder(LayoutInflater inflater, ViewGroup parent) {
@@ -65,7 +65,7 @@ public final class AdminUsersActivity extends SchlibActivity {
       }
    }
 
-   final class UsersAdapter extends Adapter<User,UserItem,AdminUsersActivity.UserViewHolder> {
+   private final class UsersAdapter extends Adapter<User,UserItem,AdminUsersActivity.UserViewHolder> {
 
       UsersAdapter() {
          super(AdminUsersActivity.this, R.id.admin_users_list, R.string.admin_users_empty);
@@ -102,7 +102,7 @@ public final class AdminUsersActivity extends SchlibActivity {
    /**
     * Filters the user list depending on the currently displayed queryText.
     */
-   final class UserItemFilter implements Filter<UserItem> {
+   private final class UserItemFilter implements Filter<UserItem> {
       @NonNull
       private final String[] normalizedQueries = SearchString.getNormalizedQueries(searchView);
 

@@ -59,7 +59,7 @@ public final class AdminUsersAddStep0 extends StepFragment {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   final class RadioGroupListener implements OnCheckedChangeListener {
+   private final class RadioGroupListener implements OnCheckedChangeListener {
       @Override
       public void onCheckedChanged(RadioGroup group, int checkedId) {
          activity.role = null;

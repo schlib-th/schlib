@@ -6,6 +6,8 @@
 
 package de.fahimu.schlib.anw;
 
+import android.support.annotation.NonNull;
+
 /**
  * A {@code SerialNumber} uniquely identifies an {@link de.fahimu.schlib.db.Idcard Idcard} or a
  * {@link de.fahimu.schlib.db.Label Label}. It has two external string representations. The first one is
@@ -49,6 +51,7 @@ public final class SerialNumber {
     *
     * @return a 22-digit decimal string.
     */
+   @NonNull
    public String getCode128() {
       long cipher = IntCipher.encrypt(value);
       char[] buf = new char[22];
@@ -86,6 +89,7 @@ public final class SerialNumber {
     *
     * @return this {@code SerialNumber}'s value as a decimal string with an appended check digit.
     */
+   @NonNull
    public String getDecimal() {
       String plain = Integer.toString(value);
       char digit = '0';
@@ -101,32 +105,12 @@ public final class SerialNumber {
          "4810769532", "3692187405"
    };
 
-   /**
-    * Returns the integer value of the specified string
-    * or 0 if the argument is not the result string of a call to {@link #getDecimal() getDecimal}.
-    *
-    * @param s
-    *       the string to parse.
-    * @return the integer value represented by the specified string or 0.
-    */
-   public static int parseDecimal(String s) {
-      if (s.length() < 2) { return 0; }
-
-      char digit = '0';
-      String plain = s.substring(0, s.length() - 1);
-      for (int p = 0; p < plain.length(); p++) {
-         int v = plain.charAt(p) - '0';
-         if (v < 0 || v > 9) { return 0; }
-         digit = TASQG[digit - '0'].charAt(v);
-      }
-      return (digit != s.charAt(s.length() - 1)) ? 0 : Integer.parseInt(plain);
-   }
-
    @Override
    public String toString() {
       return Integer.toString(value);
    }
 
+   @NonNull
    public String getDisplay() {
       return "#\u00a0" + getDecimal() + "\u00a0#";
    }

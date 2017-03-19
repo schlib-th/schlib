@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
@@ -50,6 +49,7 @@ public final class Preference extends Row {
 
    /* ============================================================================================================== */
 
+   @NonNull
    public static Preference insert(@NonNull String key, @NonNull String value) {
       return (Preference) new Preference().setKey(key).setValue(value).insert();
    }
@@ -69,22 +69,11 @@ public final class Preference extends Row {
 
    /* ============================================================================================================== */
 
-   private Preference() { super(); }
-
-   /**
-    * Creates a new {@code Preference} that initially contains the column values from the specified cursor {@code c}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   @SuppressWarnings ("unused")
-   public Preference(Cursor cursor) { super(cursor); }
-
+   @NonNull
    @Override
    protected String getTable() { return TAB; }
 
-   /* ============================================================================================================== */
-
+   @NonNull
    private Preference setKey(@NonNull String key) {
       return (Preference) setNonNull(KEY, key);
    }
@@ -94,6 +83,7 @@ public final class Preference extends Row {
       return values.getNonNull(VALUE);
    }
 
+   @NonNull
    public Preference setValue(@NonNull String value) {
       return (Preference) setNonNull(VALUE, value);
    }

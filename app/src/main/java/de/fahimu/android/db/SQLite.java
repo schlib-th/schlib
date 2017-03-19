@@ -13,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import de.fahimu.android.app.App;
@@ -214,9 +213,8 @@ public final class SQLite {
          String group, String order, String where, Object... args) throws SQLException {
       try (Cursor cursor = query(table, columns, group, order, where, args)) {
          ArrayList<R> list = new ArrayList<>(cursor.getCount());
-         Constructor<R> constructor = cls.getConstructor(Cursor.class);
          while (cursor.moveToNext()) {
-            list.add(constructor.newInstance(cursor));
+            list.add(cls.newInstance().add(cls, cursor));
          }
          String prefix = "list<" + cls.getSimpleName() + ">(" + list.size() + ")=";
          if (list.size() <= 50) {

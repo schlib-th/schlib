@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
@@ -125,12 +124,7 @@ public final class Book extends Row {
    /* ============================================================================================================== */
 
    @NonNull
-   public static Book create(String shelf, int number, String title) {
-      return new Book().setShelf(shelf).setNumber(number).setTitle(title).
-            setPublisher("").setAuthor("").setKeywords("").setPeriod(14);
-   }
-
-   @NonNull
+   @Override
    public Book insert() {
       try (SQLite.Transaction transaction = new SQLite.Transaction()) {
          setNonNull(BID, SQLite.insert(IDS, new Values().add(OID)));
@@ -223,6 +217,7 @@ public final class Book extends Row {
     *       if the specified {@code column} is not one of
     *       {@link #TITLE}, {@link #PUBLISHER}, {@link #AUTHOR}, {@link #KEYWORDS} or {@link #SHELF}.
     */
+   @NonNull
    public static ArrayList<Book> getColumnValues(String column, boolean history) {
       if (!acceptedColumns.contains(column)) {
          throw new IllegalArgumentException(column + " not allowed");
@@ -248,21 +243,9 @@ public final class Book extends Row {
 
    /* ============================================================================================================== */
 
-   private Book() { super(); }
-
-   /**
-    * Creates a new {@code Book} that initially contains the column values from the specified {@code cursor}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   @SuppressWarnings ("unused")
-   public Book(Cursor cursor) { super(cursor); }
-
+   @NonNull
    @Override
    protected String getTable() { return TAB; }
-
-   /* ============================================================================================================== */
 
    public long getBid() {
       return values.getLong(BID);
@@ -273,6 +256,7 @@ public final class Book extends Row {
       return values.getNonNull(SHELF);
    }
 
+   @NonNull
    public Book setShelf(@NonNull String shelf) {
       return (Book) setNonNull(SHELF, shelf);
    }
@@ -281,6 +265,7 @@ public final class Book extends Row {
       return values.getInt(NUMBER);
    }
 
+   @NonNull
    public Book setNumber(int number) {
       return (Book) setNonNull(NUMBER, number);
    }
@@ -290,6 +275,7 @@ public final class Book extends Row {
       return values.getNonNull(TITLE);
    }
 
+   @NonNull
    public Book setTitle(@NonNull String title) {
       return (Book) setNonNull(TITLE, title);
    }
@@ -299,6 +285,7 @@ public final class Book extends Row {
       return values.getNonNull(PUBLISHER);
    }
 
+   @NonNull
    public Book setPublisher(@NonNull String publisher) {
       return (Book) setNonNull(PUBLISHER, publisher);
    }
@@ -308,6 +295,7 @@ public final class Book extends Row {
       return values.getNonNull(AUTHOR);
    }
 
+   @NonNull
    public Book setAuthor(@NonNull String author) {
       return (Book) setNonNull(AUTHOR, author);
    }
@@ -317,6 +305,7 @@ public final class Book extends Row {
       return values.getNonNull(KEYWORDS);
    }
 
+   @NonNull
    public Book setKeywords(@NonNull String keywords) {
       return (Book) setNonNull(KEYWORDS, keywords);
    }
@@ -326,6 +315,7 @@ public final class Book extends Row {
       return values.getNonNull(STOCKED);
    }
 
+   @NonNull
    public Book setStocked(@NonNull String stocked) {
       return (Book) setNonNull(STOCKED, stocked);
    }
@@ -334,6 +324,7 @@ public final class Book extends Row {
       return values.getInt(PERIOD);
    }
 
+   @NonNull
    public Book setPeriod(int period) {
       return (Book) setNonNull(PERIOD, period);
    }
@@ -363,6 +354,7 @@ public final class Book extends Row {
       return new ISBN(values.getLong(ISBN));
    }
 
+   @NonNull
    public Book setISBN(@Nullable ISBN isbn) {
       return (Book) setNullable(ISBN, (isbn == null) ? null : isbn.getValue());
    }
@@ -373,37 +365,40 @@ public final class Book extends Row {
     *
     * @return the {@code Label} number of this {@code Book}.
     */
-   public int getLabel() {
-      return values.getInt(LABEL);
+   @NonNull
+   public Label getLabel() {
+      return Label.getNonNull(values.getInt(LABEL));
    }
 
-   public Book setLabel(@Nullable Integer label) {
-      return (Book) setNullable(LABEL, label);
-   }
-
+   @NonNull
    public Book setLabel(@Nullable Label label) {
       return (Book) setNullable(LABEL, (label == null) ? null : label.getId());
    }
 
    /* ============================================================================================================== */
 
+   @NonNull
    public String getDisplayNumber() {
       return App.format("%03d", getNumber());
    }
 
+   @NonNull
    public String getDisplayISBN() {
       return !hasISBN() ? "" : getISBN().getDisplay();
    }
 
+   @NonNull
    public String getDisplayLabel() {
-      return !hasLabel() ? "" : new SerialNumber(getLabel()).getDisplay();
+      return !hasLabel() ? "" : new SerialNumber(values.getInt(LABEL)).getDisplay();
    }
 
+   @NonNull
    public String getDisplayMultilineISBNLabel() {
       String isbn = getDisplayISBN(), label = getDisplayLabel();
       return isbn.isEmpty() ? label : label.isEmpty() ? isbn : isbn + '\n' + label;
    }
 
+   @NonNull
    public String getDisplay() {
       return App.format("\"%s\" (%s %03d)", getTitle(), getShelf(), getNumber());
    }

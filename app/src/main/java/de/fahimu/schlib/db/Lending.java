@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
@@ -86,19 +85,9 @@ public final class Lending extends Row {
 
    /* ============================================================================================================== */
 
-   /**
-    * Creates a new {@code Lending} that initially contains the column values from the specified {@code cursor}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   @SuppressWarnings ("unused")
-   public Lending(@NonNull Cursor cursor) { super(cursor); }
-
+   @NonNull
    @Override
    protected String getTable() { return TAB; }
-
-   /* ============================================================================================================== */
 
    /**
     * Returns the book ID of this issue.

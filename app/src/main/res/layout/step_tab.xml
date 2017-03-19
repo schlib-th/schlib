@@ -4,12 +4,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="72dp">
 
     <TextView
         android:id="@+id/step_tab_oval"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_centerVertical="true"
         android:layout_marginEnd="8dp"
         android:background="@drawable/sh_oval_stepper_active_24dp"
         android:gravity="center"
@@ -17,15 +18,32 @@
         android:textSize="12sp"
         tools:text="1" />
 
-    <TextView
-        android:id="@+id/step_tab_name"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/step_tab_oval"
+        android:layout_centerVertical="true"
         android:layout_toEndOf="@id/step_tab_oval"
-        android:fontFamily="sans-serif-medium"
-        android:textColor="@color/color_87_percent_black"
-        android:textSize="14sp"
-        tools:text="name" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/step_tab_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/color_87_percent_black"
+            android:textSize="14sp"
+            tools:text="Funktion" />
+
+        <TextView
+            android:id="@+id/step_tab_optional"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="@string/app_step_tab_optional"
+            android:textColor="@color/color_54_percent_black"
+            android:textSize="12sp"
+            android:visibility="visible" />
+
+    </LinearLayout>
 
 </RelativeLayout>

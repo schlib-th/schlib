@@ -82,7 +82,7 @@ public final class AdminUsersAddStep1b extends StepFragment {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   final class TextChangedListener extends AbstractTextWatcher {
+   private final class TextChangedListener extends AbstractTextWatcher {
       @Override
       public void afterTextChanged(Editable editable) {
          String text = editable.toString();
@@ -96,13 +96,13 @@ public final class AdminUsersAddStep1b extends StepFragment {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   final static class PupilName1Item extends ColumnItem {
+   private final static class PupilName1Item extends ColumnItem {
       PupilName1Item(@NonNull User user) {
          super(user, user.getName1());
       }
    }
 
-   final class PupilName1Adapter extends ColumnAdapter<PupilName1Item> {
+   private final class PupilName1Adapter extends ColumnAdapter<PupilName1Item> {
       @Override
       protected void loadData(ArrayList<PupilName1Item> data) {
          ArrayList<User> users = User.getPupilsName1();
@@ -114,7 +114,7 @@ public final class AdminUsersAddStep1b extends StepFragment {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   final class RadioGroupListener implements OnCheckedChangeListener {
+   private final class RadioGroupListener implements OnCheckedChangeListener {
       @Override
       public void onCheckedChanged(RadioGroup group, int checkedId) {
          RadioButton button = (checkedId == R.id.admin_users_add_step_1b_name2_year_0 ? name2Year0 : name2Year1);
@@ -159,7 +159,7 @@ public final class AdminUsersAddStep1b extends StepFragment {
       activity.refreshGUI();
    }
 
-   final class SeekBarListener implements OnSeekBarChangeListener {
+   private final class SeekBarListener implements OnSeekBarChangeListener {
       @Override
       public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
          activity.count = (countSeek.getMax() == 0) ? 0 : (progress == 0) ? 1 : progress;

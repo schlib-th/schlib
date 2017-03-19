@@ -78,9 +78,7 @@ public final class AdminLabelsActivity extends AdminSerialsActivity<Label> {
    @Override
    int[] getSnackbarIds() { return SNACKBAR_IDS; }
 
-   /**
-    * {@inheritDoc}
-    */
+   /** {@inheritDoc} */
    @NonNull
    @Override
    NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Label label) {

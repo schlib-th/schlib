@@ -78,9 +78,7 @@ public final class AdminIdcardsActivity extends AdminSerialsActivity<Idcard> {
    @Override
    int[] getSnackbarIds() { return SNACKBAR_IDS; }
 
-   /**
-    * {@inheritDoc}
-    */
+   /** {@inheritDoc} */
    @NonNull
    @Override
    NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Idcard idcard) {

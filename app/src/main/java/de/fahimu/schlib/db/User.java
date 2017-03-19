@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
@@ -179,6 +178,8 @@ public final class User extends Row {
       return user.setRole(role).setNbooks(nbooks).setIdcard(idcard).insert();
    }
 
+   @NonNull
+   @Override
    protected User insert() {
       try (SQLite.Transaction transaction = new SQLite.Transaction()) {
          setNonNull(UID, SQLite.insert(IDS, new Values().add(OID)));
@@ -243,6 +244,7 @@ public final class User extends Row {
     *
     * @return a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
     */
+   @NonNull
    public static ArrayList<User> get() {
       String order = App.format("(CASE %s WHEN '%s' THEN 0 WHEN '%s' THEN 1 ELSE 2 END), %s, %s, %s",
             ROLE, ADMIN, TUTOR, NAME2, NAME1, SERIAL);
@@ -256,6 +258,7 @@ public final class User extends Row {
     *
     * @return a list of pupils grouped and ordered by column {@code name1}.
     */
+   @NonNull
    public static ArrayList<User> getPupilsName1() {
       // SELECT _id, name1 FROM prev_users WHERE role='pupil' GROUP BY name1 ORDER BY name1 ;
       Values columns = new Values().add(OID).add(NAME1);
@@ -302,6 +305,7 @@ public final class User extends Row {
     * are permitted to be called for the returned {@code User} objects.
     * This method will be called e. g. by {@link PupilList}.
     */
+   @NonNull
    public static ArrayList<User> getPupilList(String name1, String name2, String date) {
       // SELECT serial, idcard FROM (<OLDEST-PUPIL-ROWS>)
       //    WHERE name1='$name1' AND name2='$name2' AND tstamp='$date' ORDER BY serial ;
@@ -310,6 +314,7 @@ public final class User extends Row {
       return SQLite.get(User.class, OLDEST_PUPIL_ROWS, columns, null, SERIAL, where, name1, name2, date);
    }
 
+   @NonNull
    private static ArrayList<User> getInsertPupilsEvents(
          Values columns, String group, String order, String where, Object... args) {
       String minSerial = App.format("MIN(%s) AS %s", SERIAL, MIN_SERIAL);
@@ -324,6 +329,7 @@ public final class User extends Row {
     * and {@link #getTstamp()} are permitted to be called for the returned {@code User} objects.
     * This method will be called e. g. by {@link PupilList} to determine which version of pupil list must be printed.
     */
+   @NonNull
    public static ArrayList<User> getInsertPupilsEvents(String name1, String name2) {
       // SELECT MIN(serial) AS minSerial, MAX(serial) AS maxSerial, tstamp FROM (<OLDEST-PUPIL-ROWS>)
       //    WHERE name1='$name1' AND name2='$name2' GROUP BY tstamp ORDER BY tstamp ;
@@ -337,6 +343,7 @@ public final class User extends Row {
     * and {@link #getTstamp()} are permitted to be called for the returned {@code User} objects.
     * This method will be called to present all such events in a list when a pupil list should be reprinted.
     */
+   @NonNull
    public static ArrayList<User> getInsertPupilsEvents() {
       // SELECT name1, name2, MIN(serial) AS minSerial, MAX(serial) AS maxSerial, tstamp FROM (<OLDEST-PUPIL-ROWS>)
       //    GROUP BY tstamp, name2, name1 ORDER BY tstamp DESC, name2, name1
@@ -347,21 +354,9 @@ public final class User extends Row {
 
    /* ============================================================================================================== */
 
-   private User() { super(); }
-
-   /**
-    * Creates a new {@code User} that initially contains the column values from the specified cursor {@code c}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   @SuppressWarnings ("unused")
-   public User(Cursor cursor) { super(cursor); }
-
+   @NonNull
    @Override
    protected String getTable() { return TAB; }
-
-   /* ============================================================================================================== */
 
    public long getUid() {
       return values.getLong(UID);
@@ -375,6 +370,7 @@ public final class User extends Row {
    /**
     * Attribute {@code name1} cannot be changed after creation for security reasons.
     */
+   @NonNull
    private User setName1(@NonNull String name1) {
       return (User) setNonNull(NAME1, name1);
    }
@@ -387,6 +383,7 @@ public final class User extends Row {
    /**
     * Attribute {@code name2} cannot be changed after creation for security reasons.
     */
+   @NonNull
    private User setName2(@NonNull String name2) {
       return (User) setNonNull(NAME2, name2);
    }
@@ -398,6 +395,7 @@ public final class User extends Row {
    /**
     * Attribute {@code serial} cannot be changed after creation for security reasons.
     */
+   @NonNull
    private User setSerial(int serial) {
       return (User) setNonNull(SERIAL, serial);
    }
@@ -407,6 +405,7 @@ public final class User extends Row {
       return Role.getEnum(values.getNonNull(ROLE));
    }
 
+   @NonNull
    public User setRole(@NonNull Role role) {
       return (User) setNonNull(ROLE, role.value);
    }
@@ -415,24 +414,16 @@ public final class User extends Row {
       return values.getInt(NBOOKS);
    }
 
+   @NonNull
    public User setNbooks(int nbooks) {
       return (User) setNonNull(NBOOKS, nbooks);
    }
 
-   public boolean hasIdcard() {
-      return values.getNullable(IDCARD) != null;
-   }
-
-   /**
-    * Returns the number of the idcard that is assigned to this {@link User}.
-    * <p> Precondition: {@link #hasIdcard()} must be {@code true}. </p>
-    *
-    * @return the number of the idcard that is assigned to this {@link User}.
-    */
    public int getIdcard() {
       return values.getInt(IDCARD);
    }
 
+   @NonNull
    public User setIdcard(int idcard) {
       return (User) setNonNull(IDCARD, idcard);
    }

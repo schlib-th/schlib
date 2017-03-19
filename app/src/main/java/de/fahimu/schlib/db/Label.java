@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.db;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -168,15 +167,7 @@ public final class Label extends Serial {
 
    /* ============================================================================================================== */
 
-   /**
-    * Creates a new {@code Label} that initially contains the column values from the specified {@code cursor}.
-    *
-    * @param cursor
-    *       the cursor.
-    */
-   @SuppressWarnings ("unused")
-   public Label(@NonNull Cursor cursor) { super(cursor); }
-
+   @NonNull
    @Override
    protected String getTable() { return TAB; }
 
@@ -199,6 +190,7 @@ public final class Label extends Serial {
       return values.getLong(Book.BID);
    }
 
+   @NonNull
    @Override
    String getDisplayUsed() {
       return App.getStr(R.string.serial_display_used_label);
