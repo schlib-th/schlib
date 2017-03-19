@@ -188,9 +188,8 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       if (serial == null) {
          showErrorSnackbar(getSnackbarIds()[0]);
       } else if (serial.isUsed()) {
-         NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-         dialog.setPositiveButton(R.string.app_ok, NoFocusDialog.IGNORE_BUTTON);
-         configInfoDialog(dialog, serial).show();
+         NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.DEFAULT_CANCEL);
+         configInfoDialog(dialog, serial).show(R.raw.horn);
       } else {
          hiddenSerials.add(serial.getId());
          if (serial.isLost()) {

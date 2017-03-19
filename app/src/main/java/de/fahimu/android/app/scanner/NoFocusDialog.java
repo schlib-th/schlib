@@ -14,6 +14,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.RawRes;
 import android.support.annotation.StringRes;
 import android.view.ViewGroup;
 
@@ -94,11 +95,6 @@ public final class NoFocusDialog {
    }
 
    @NonNull
-   public NoFocusDialog setNeutralButton(@StringRes int resId, @NonNull ButtonListener listener) {
-      builder.setNeutralButton(App.getStr(resId), new OnButtonClickListener(listener)); return this;
-   }
-
-   @NonNull
    public NoFocusDialog setNegativeButton(@StringRes int resId, @NonNull ButtonListener listener) {
       builder.setNegativeButton(App.getStr(resId), new OnButtonClickListener(listener)); return this;
    }
@@ -109,6 +105,17 @@ public final class NoFocusDialog {
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
+
+   /**
+    * Plays the specified sound {@code resId}, builds the {@link AlertDialog} and {@link #show() shows} it.
+    *
+    * @param resId
+    *       the name of the sound file without its extension.
+    */
+   @MainThread
+   public void show(@RawRes int resId) {
+      App.playSound(resId); show();
+   }
 
    /**
     * Builds the {@link AlertDialog} and shows it.

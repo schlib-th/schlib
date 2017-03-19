@@ -9,12 +9,12 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/admin_books_add_step_1_explanation"
+        android:id="@+id/admin_books_add_step_2_explanation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:gravity="center"
-        android:text="@string/admin_books_add_step_1_explanation_1"
+        android:text="@string/admin_books_add_step_2_explanation"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </LinearLayout>

@@ -9,12 +9,41 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/admin_books_add_step_0_explanation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_height="0dp"
+        android:layout_weight="382"
         android:gravity="center"
         android:text="@string/admin_books_add_step_0_explanation"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <RadioGroup
+        android:id="@+id/admin_books_add_step_0_group"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="618"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/admin_books_add_step_0_isbn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="48dp"
+            android:text="@string/admin_books_add_step_0_isbn"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="12dp" />
+
+        <RadioButton
+            android:id="@+id/admin_books_add_step_0_no_isbn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="48dp"
+            android:text="@string/admin_books_add_step_0_no_isbn"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </RadioGroup>
 
 </LinearLayout>

@@ -141,6 +141,7 @@ abstract class SchlibActivity extends ScannerActivity {
    /* ============================================================================================================== */
 
    final void showErrorSnackbar(@StringRes int resId, Object... formatArgs) {
+      App.playSound(R.raw.horn);
       showSnackbar(android.R.color.holo_red_dark, resId, formatArgs);
    }
 

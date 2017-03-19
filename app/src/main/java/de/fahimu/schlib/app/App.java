@@ -45,16 +45,12 @@ public final class App extends de.fahimu.android.app.App {
    @NonNull
    public String getName() { return getStr(R.string.app_name); }
 
+   @NonNull
+   @Override
+   protected SoundPlayer getSoundPlayer() { return soundPlayer; }
+
    @Override
    @NonNull
    public SQLiteOpenHelper getOpenHelper() { return new OpenHelper(); }
-
-   /**
-    * Returns the {@code SoundPlayer} for this app.
-    *
-    * @return the {@code SoundPlayer} for this app.
-    */
-   @NonNull
-   public static SoundPlayer getSoundPlayer() { return soundPlayer; }
 
 }

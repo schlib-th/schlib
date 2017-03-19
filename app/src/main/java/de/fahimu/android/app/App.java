@@ -14,6 +14,7 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RawRes;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -51,6 +52,19 @@ public abstract class App extends android.app.Application {
 
    @NonNull
    public abstract String getName();
+
+   @NonNull
+   protected abstract SoundPlayer getSoundPlayer();
+
+   /**
+    * Play the specified sound file.
+    *
+    * @param resId
+    *       the name of the sound file without its extension.
+    */
+   public static void playSound(@RawRes int resId) {
+      getInstance().getSoundPlayer().play(resId);
+   }
 
    /* ============================================================================================================== */
 

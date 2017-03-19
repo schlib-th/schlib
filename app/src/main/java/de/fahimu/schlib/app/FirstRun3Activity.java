@@ -249,10 +249,9 @@ public final class FirstRun3Activity extends SchlibActivity {
    }
 
    private void showAlertDialog(int id, String file) {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
+      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.DEFAULT_CANCEL);
       dialog.setTitle(R.string.dialog_title_error);
-      dialog.setMessage(id, createImportDir().getName(), file, file.replace(".csv", ".txt"));
-      dialog.setPositiveButton(R.string.app_ok, NoFocusDialog.IGNORE_BUTTON).show();
+      dialog.setMessage(id, createImportDir().getName(), file, file.replace(".csv", ".txt")).show(R.raw.horn);
    }
 
 }

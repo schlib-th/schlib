@@ -327,7 +327,7 @@ public final class TutorActivity extends SchlibActivity {
          TutorActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-               App.getSoundPlayer().play(R.raw.beep);
+               App.playSound(R.raw.beep);
                message1.setText(getString(R.string.tutor_message_1_auto_logout, secondsToLogout));
                message2.setText(R.string.tutor_message_2_auto_logout);
             }
@@ -386,7 +386,7 @@ public final class TutorActivity extends SchlibActivity {
             User user = User.getNonNull(idcard.getUid());
             List<Book> lentBooks = Book.getLentTo(user);
             if (lentBooks.size() == user.getNbooks()) {
-               App.getSoundPlayer().play(R.raw.horn);
+               App.playSound(R.raw.horn);
                String lentBook = lentBooks.get(0).getDisplay();
                if (user.getNbooks() == 1) {
                   setDisplay(3, 0, R.string.tutor_progress_limit_1, user.getDisplay(), lentBook);
@@ -396,7 +396,7 @@ public final class TutorActivity extends SchlibActivity {
                stopAnimator.start();
             } else {
                Lending.issueBook(scannedBook.getBid(), user.getUid());
-               App.getSoundPlayer().play(R.raw.bell_issue);
+               App.playSound(R.raw.bell_issue);
                setDisplay(1, 0, R.string.tutor_progress_issue_done, scannedBook.getDisplay(), user.getDisplay());
             }
          }
@@ -433,19 +433,19 @@ public final class TutorActivity extends SchlibActivity {
       } else {
          Lending lending = Lending.getPendingLending(book.getBid());
          if (lending == null) {
-            App.getSoundPlayer().play(R.raw.bell);
+            App.playSound(R.raw.bell);
             setDisplay(2, 0, R.string.tutor_progress_issue_init, book.getDisplay());
             scannedBook = book;
          } else {
             int days = lending.returnBook() - book.getPeriod();
             User user = User.getNonNull(lending.getUid());
             if (days < 2) {
-               App.getSoundPlayer().play(R.raw.bell_return);
+               App.playSound(R.raw.bell_return);
                setDisplay(0, 1, R.string.tutor_progress_return_in_time, book.getDisplay(), user.getDisplay());
             } else {
-               int m = days < 7 ? 2 : 3;
-               App.getSoundPlayer().play(m == 2 ? R.raw.whistle_1 : R.raw.whistle_2);
-               setDisplay(0, m, R.string.tutor_progress_return_belated, book.getDisplay(), user.getDisplay(), days);
+               App.playSound(days <= 10 ? R.raw.whistle_1 : R.raw.whistle_2);
+               setDisplay(0, days <= 10 ? 2 : 3, R.string.tutor_progress_return_belated,
+                     book.getDisplay(), user.getDisplay(), days);
             }
          }
          selectBook();
@@ -454,7 +454,7 @@ public final class TutorActivity extends SchlibActivity {
    }
 
    private void setError(int resId1, int resId2) {
-      App.getSoundPlayer().play(R.raw.horn);
+      App.playSound(R.raw.horn);
       stopAnimator.start();
       message1.setText(resId1);
       message2.setText(resId2);

@@ -13,7 +13,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Gravity;
 import android.view.View;
@@ -51,14 +50,14 @@ abstract class StepperActivity extends SchlibActivity {
          this.optional = App.findView(stepTab, TextView.class, R.id.step_tab_optional);
       }
 
-      void setAttributes(int state, @StringRes int tabNameId, boolean isOptional) {
+      void setAttributes(int state, StepFragment fragment) {
          oval.setText(state < 0 ? "\u2714" : number);          // HEAVY CHECK MARK or number
          oval.setBackgroundResource(state <= 0 ? ovalActive : ovalInactive);
-         name.setText(App.getStr(tabNameId));
+         name.setText(App.getStr(fragment.getTabNameId()));
          name.setTypeface(state != 0 ? regular : medium);
          name.setTextColor(state <= 0 ? black87Percent : black38Percent);
          optional.setTextColor(state <= 0 ? black54Percent : black38Percent);
-         optional.setVisibility(isOptional ? View.VISIBLE : View.GONE);
+         optional.setVisibility(fragment.maybeOptional() ? View.VISIBLE : View.GONE);
       }
    }
 
@@ -142,19 +141,26 @@ abstract class StepperActivity extends SchlibActivity {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          back.setEnabled(currentFragment != getFirstFragment());
          done.setEnabled(currentFragment.isDoneEnabled());
-         done.setText(currentFragment.getNext() == null ? R.string.app_done : R.string.app_cont);
+         done.setText(getNext() == null ? R.string.app_done : R.string.app_cont);
 
          int state = -1;      // <0: left of currentFragment, 0: currentFragment, >0: right of currentFragment
          Iterator<StepTab> iterator = stepTabs.iterator();
          for (StepFragment f = getFirstFragment(); f != null; f = f.getNext()) {
             if (f == currentFragment) {
-               iterator.next().setAttributes(0, f.getTabNameId(), f.getOptional());
+               iterator.next().setAttributes(0, f);
                state = 1;
             } else {
-               iterator.next().setAttributes(state, f.getTabNameId(), f.getOptional());
+               iterator.next().setAttributes(state, f);
             }
          }
       }
+   }
+
+   @Nullable
+   private StepFragment getNext() {
+      StepFragment next = currentFragment.getNext();
+      while (next != null && next.isOptional()) { next = next.getNext(); }
+      return next;
    }
 
    @Override
@@ -180,15 +186,17 @@ abstract class StepperActivity extends SchlibActivity {
    public final void onDoneClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          if (!finishingActivity && currentFragment.isDone()) {
-            if (currentFragment.getNext() != null) {
+            if (getNext() != null) {
                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
-               transaction.replace(R.id.stepper_fragments, currentFragment.getNext()).addToBackStack(null).commit();
+               transaction.replace(R.id.stepper_fragments, getNext()).addToBackStack(null).commit();
             } else {
                finishingActivity = true;
-               // set HEAVY CHECK MARK on last tab
-               StepTab lastTab = stepTabs.get(stepTabs.size() - 1);
-               lastTab.setAttributes(-1, currentFragment.getTabNameId(), currentFragment.getOptional());
+               // set HEAVY CHECK MARK on all tabs
+               Iterator<StepTab> iterator = stepTabs.iterator();
+               for (StepFragment f = getFirstFragment(); f != null; f = f.getNext()) {
+                  iterator.next().setAttributes(-1, f);
+               }
                // disable all views
                disable(contentView.getRootView());
                new Handler().postDelayed(new Runnable() {

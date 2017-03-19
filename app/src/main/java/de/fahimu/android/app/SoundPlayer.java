@@ -60,7 +60,7 @@ public final class SoundPlayer {
     * @param resId
     *       the name of the sound file without its extension.
     */
-   public synchronized void play(int resId) {
+   synchronized void play(@RawRes int resId) {
       if (soundPool != null && pendingLoads == 0 && soundMap.get(resId, -1) != -1) {
          soundPool.play(soundMap.get(resId), 1f, 1f, 0, 0, 1f);
       }

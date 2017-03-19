@@ -336,7 +336,7 @@ public final class RegisterPrintsActivity extends SchlibActivity {
          if (serial.isLost()) {
             serial.setLost(false).update();     // Surprise! The serial isn't lost, set this serial to 'Stocked'.
          }
-         showErrorSnackbar(R.string.register_prints_error_not_printed);
+         showInfoSnackbar(R.string.register_prints_info_not_printed);
          return true;
       }
    }

@@ -8,10 +8,13 @@ package de.fahimu.schlib.app;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.widget.TextView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 
 
 import de.fahimu.android.app.Log;
+import de.fahimu.schlib.anw.ISBN;
 
 /**
  * Step 0 of adding books to the database.
@@ -35,16 +38,19 @@ public final class AdminBooksAddStep0 extends StepFragment {
    @Override
    int getContentViewId() { return R.layout.admin_books_add_step_0; }
 
-   private TextView explanation;
+   private RadioButton isbn;
+   private RadioGroup  group;
 
    @Override
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onActivityCreated(savedInstanceState);
-
-         explanation = findView(TextView.class, R.id.admin_books_add_step_0_explanation);
+         isbn = findView(RadioButton.class, R.id.admin_books_add_step_0_isbn);
+         group = findView(RadioGroup.class, R.id.admin_books_add_step_0_group);
 
          activity = (AdminBooksAddActivity) stepperActivity;
+
+         group.setOnCheckedChangeListener(new RadioGroupListener());
       }
    }
 
@@ -52,13 +58,25 @@ public final class AdminBooksAddStep0 extends StepFragment {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
+   private final class RadioGroupListener implements OnCheckedChangeListener {
+      @Override
+      public void onCheckedChanged(RadioGroup group, int checkedId) {
+         if (checkedId != R.id.admin_books_add_step_0_isbn) {
+            activity.isbn = null;
+         }
+         String isbnDisplay = (activity.isbn == null) ? "" : activity.isbn.getDisplay();
+         isbn.setText(App.getStr(R.string.admin_books_add_step_0_isbn, isbnDisplay));
+         activity.refreshGUI();
+      }
+   }
+
    /* ============================================================================================================== */
 
    @Override
    public void onResume() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onResume();
-         activity.refreshGUI();
+         group.clearCheck();
       }
    }
 
@@ -69,12 +87,15 @@ public final class AdminBooksAddStep0 extends StepFragment {
       }
    }
 
-  /* -------------------------------------------------------------------------------------------------------------- */
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    @Override
    void onBarcode(String barcode) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("barcode=" + barcode);
+      group.clearCheck();
+      if ((activity.isbn = ISBN.parse(barcode)) == null) {
+         activity.showErrorSnackbar(R.string.snackbar_error_not_a_isbn);
+      } else {
+         group.check(R.id.admin_books_add_step_0_isbn);
       }
    }
 
@@ -82,7 +103,7 @@ public final class AdminBooksAddStep0 extends StepFragment {
 
    @Override
    boolean isDoneEnabled() {
-      return true;
+      return activity.isbn != null || group.getCheckedRadioButtonId() == R.id.admin_books_add_step_0_no_isbn;
    }
 
    @Override

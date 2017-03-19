@@ -6,11 +6,12 @@
 
 package de.fahimu.schlib.app;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -257,10 +258,12 @@ public final class FirstRun4Activity extends SchlibActivity {
          if (book == null) {
             updateISBNLabel(item, isbn, null);
          } else {
-            showDialogAssigned(R.string.first_run_4_dialog_assigned_message_isbn, book, new ButtonListener() {
+            NoFocusDialog dialog = new NoFocusDialog(this, new OnCancelListener() {
                @Override
-               public void onClick() { bufferISBN(isbn); }
+               public void onCancel(DialogInterface dialog) { bufferISBN(isbn); }
             });
+            dialog.setTitle(R.string.first_run_4_dialog_assigned_title);
+            dialog.setMessage(R.string.first_run_4_dialog_assigned_message_isbn, book.getDisplay()).show();
          }
       }
    }
@@ -284,7 +287,9 @@ public final class FirstRun4Activity extends SchlibActivity {
          showErrorSnackbar(R.string.snackbar_error_not_a_label);
       } else if (label.isUsed()) {
          Book book = Book.getNonNull(label.getBid());
-         showDialogAssigned(R.string.first_run_4_dialog_assigned_message_label, book, NoFocusDialog.IGNORE_BUTTON);
+         NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.DEFAULT_CANCEL);
+         dialog.setTitle(R.string.first_run_4_dialog_assigned_title);
+         dialog.setMessage(R.string.first_run_4_dialog_assigned_message_label, book.getDisplay()).show(R.raw.horn);
       } else {
          if (label.isLost()) {
             label.setLost(false).update();       // Surprise! The label isn't lost, set this label to 'Stocked'.
@@ -301,13 +306,6 @@ public final class FirstRun4Activity extends SchlibActivity {
          }
       }
       bufferedISBN = null;
-   }
-
-   private void showDialogAssigned(@StringRes int messageId, Book book, ButtonListener buttonListener) {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      dialog.setTitle(R.string.first_run_4_dialog_assigned_title);
-      dialog.setMessage(messageId, book.getDisplay());
-      dialog.setPositiveButton(R.string.app_ok, buttonListener).show();
    }
 
    private void showDialogNoISBN(@NonNull final BookItem item, @NonNull final Label label) {

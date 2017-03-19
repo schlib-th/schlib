@@ -46,7 +46,11 @@ abstract class StepFragment extends Fragment {
    @StringRes
    abstract int getTabNameId();
 
-   boolean getOptional() { return false; }
+   boolean maybeOptional() { return false; }
+
+   boolean actualOptional() { return false; }
+
+   final boolean isOptional() { return maybeOptional() && actualOptional(); }
 
    /* ============================================================================================================== */
 

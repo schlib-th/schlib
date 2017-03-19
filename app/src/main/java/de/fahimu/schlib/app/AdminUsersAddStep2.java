@@ -104,30 +104,35 @@ public final class AdminUsersAddStep2 extends StepFragment {
    @Override
    void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         if (activity.getRemaining() == 0) { return; }
-         Idcard idcard = Idcard.getNullable(SerialNumber.parseCode128(barcode));
-         if (idcard == null) {
-            activity.showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
-         } else if (idcard.isUsed()) {
-            NoFocusDialog dialog = new NoFocusDialog(activity, NoFocusDialog.DEFAULT_CANCEL);
-            dialog.setPositiveButton(R.string.app_ok, NoFocusDialog.IGNORE_BUTTON);
-            dialog.setTitle(R.string.dialog_title_error);
-            dialog.setMessage(R.string.dialog_message_idcard_used, User.getNonNull(idcard.getUid()).getDisplay());
-            dialog.show();
-         } else if (activity.scanned.contains(idcard.getId())) {
-            activity.showErrorSnackbar(R.string.admin_users_add_step_2_snackbar_error_scanned);
+         if (activity.getRemaining() == 0) {
+            activity.showErrorSnackbar(R.string.admin_users_add_step_2_status_0);
          } else {
-            activity.scanned.add((lastScanned = idcard).getId());
-            if (idcard.isLost()) {
-               idcard.setLost(false).update();     // Surprise! The serial isn't lost, set this serial to 'Stocked'.
-               activity.showInfoSnackbar(R.string.snackbar_info_idcard_was_lost);
-            } else if (idcard.isPrinted()) {
-               // Promote all idcards from 'Printed' to 'Stocked' which are on the same page as the scanned idcard.
-               Idcard.setStocked(idcard);
-               activity.showInfoSnackbar(R.string.snackbar_info_idcard_registered);
+            Idcard idcard = Idcard.getNullable(SerialNumber.parseCode128(barcode));
+            if (idcard == null) {
+               activity.showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
+            } else if (idcard.isUsed()) {
+               NoFocusDialog dialog = new NoFocusDialog(activity, NoFocusDialog.DEFAULT_CANCEL);
+               dialog.setTitle(R.string.dialog_title_error);
+               dialog.setMessage(R.string.dialog_message_idcard_used, User.getNonNull(idcard.getUid()).getDisplay());
+               dialog.show(R.raw.horn);
+            } else if (activity.scanned.contains(idcard.getId())) {
+               activity.showInfoSnackbar(R.string.admin_users_add_step_2_snackbar_info_scanned);
+            } else {
+               activity.scanned.add((lastScanned = idcard).getId());
+               if (activity.getRemaining() == 0) {
+                  App.playSound(R.raw.bell);
+               }
+               if (idcard.isLost()) {
+                  idcard.setLost(false).update();     // Surprise! The serial isn't lost, set this serial to 'Stocked'.
+                  activity.showInfoSnackbar(R.string.snackbar_info_idcard_was_lost);
+               } else if (idcard.isPrinted()) {
+                  // Promote all idcards from 'Printed' to 'Stocked' which are on the same page as the scanned idcard.
+                  Idcard.setStocked(idcard);
+                  activity.showInfoSnackbar(R.string.snackbar_info_idcard_registered);
+               }
             }
+            setStatusIdcard();
          }
-         setStatusIdcard();
       }
    }
 

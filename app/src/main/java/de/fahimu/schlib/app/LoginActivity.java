@@ -280,7 +280,7 @@ public final class LoginActivity extends SchlibActivity {
    }
 
    private void setError(int resId1, int resId2) {
-      App.getSoundPlayer().play(R.raw.horn);
+      App.playSound(R.raw.horn);
       stopAnimator.start();
       message1.setText(resId1);
       message2.setText(resId2);
@@ -300,7 +300,7 @@ public final class LoginActivity extends SchlibActivity {
    }
 
    private void playSoundAndStartActivity(final Class<? extends Activity> activity) {
-      App.getSoundPlayer().play(R.raw.lock);
+      App.playSound(R.raw.lock);
       new DelayedTask(300) {
          @Override
          protected void executeDelayed(boolean cancelled) {

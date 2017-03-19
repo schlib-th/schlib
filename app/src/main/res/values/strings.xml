@@ -202,7 +202,7 @@
 
     <string name="register_prints_ok">Die Seite wurde registriert.</string>
     <string name="register_prints_error_invalid">Der gescannte Barcode ist ungültig!</string>
-    <string name="register_prints_error_not_printed">Der gescannte Barcode wurde bereits registriert!</string>
+    <string name="register_prints_info_not_printed">Der gescannte Barcode wurde bereits registriert.</string>
     <string name="register_prints_empty">Alle Ausdrucke sind registriert</string>
     <string name="register_prints_write_again">PDF-Dateien nochmals ins Austauschverzeichnis schreiben</string>
 
@@ -263,7 +263,7 @@
     <string name="first_run_4_dialog_assigned_message_isbn">
         Die ISBN identifiziert bereits das Buch
         \n%1$s.
-        \nBitte überkleben Sie jetzt die ISBN mit einem Klebeetikett und scannen dieses dann als ISBN-Ersatz.
+        \nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
     </string>
     <string name="first_run_4_dialog_assigned_message_label">
         Das Klebeetikett identifiziert bereits das Buch
@@ -346,7 +346,7 @@
 
     <string name="tutor_message_1_book_not_registered">Das gescannte Buch ist nicht im Bestand erfasst!</string>
     <string name="tutor_message_1_label_lost">Das gescannte Buch wurde aus dem Bestand genommen!</string>
-    <string name="tutor_message_1_label_not_used">Das gescannte Label ist keinem Buch zugewiesen!</string>
+    <string name="tutor_message_1_label_not_used">Das gescannte Klebeetikett ist keinem Buch zugewiesen!</string>
     <string name="tutor_message_2_please_return_book">Bitte geben Sie das Buch einem Bücherei-Verwalter.</string>
 
     <string name="tutor_message_1_expected_book">Vor dem Ausweis das Buch scannen!</string>
@@ -551,7 +551,7 @@
     <string name="admin_users_add_step_2_status_1">Noch 1 Ausweiskarte zu scannen …</string>
     <string name="admin_users_add_step_2_status_0">Alle Ausweiskarten gescannt.</string>
     <string name="admin_users_add_step_2_idcard">(zuletzt gescannt: %1$s)</string>
-    <string name="admin_users_add_step_2_snackbar_error_scanned">Dieser Ausweis wurde bereits gescannt!</string>
+    <string name="admin_users_add_step_2_snackbar_info_scanned">Dieser Ausweis wurde eben schon gescannt.</string>
 
     <!-- AdminUsersEditActivity -->
 
@@ -566,16 +566,32 @@
 
     <string name="admin_books_add_label">Neues Buch erfassen</string>
 
-    <string name="admin_books_add_step_0_label">ISBN/Label scannen</string>
+    <string name="admin_books_add_step_0_label">ISBN scannen</string>
     <string name="admin_books_add_step_0_explanation">
-        Bitte scannen Sie als Erstes die ISBN des Buchs:\n
-        \n• E.
+        Bitte scannen Sie als Erstes die ISBN des Buchs.
+    </string>
+    <string name="admin_books_add_step_0_isbn">ISBN: %1$s</string>
+    <string name="admin_books_add_step_0_no_isbn">Das Buch hat keine ISBN</string>
+
+    <string name="admin_books_add_step_1_label">Klebeetikett scannen</string>
+    <string name="admin_books_add_step_1_explanation_1">
+        Das Buch hat keine ISBN.
+        \nBitte kleben Sie jetzt ein Etikett auf das Buch und scannen dieses dann als ISBN-Ersatz.
+    </string>
+    <string name="admin_books_add_step_1_explanation_2">
+        Die ISBN identifiziert bereits das Buch
+        \n%1$s.
+        \nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
     </string>
 
-    <string name="admin_books_add_step_1_label">Ablageort festlegen</string>
-    <string name="admin_books_add_step_1_explanation">
-        Bitte legen Sie jetzt den Ablageort des Buchs fest:\n
-        \n• E.
+    <string name="admin_books_add_step_2_label">Ablageort festlegen</string>
+    <string name="admin_books_add_step_2_explanation">
+        Bitte legen Sie jetzt den Ablageort des Buchs fest.
+    </string>
+
+    <string name="admin_books_add_step_3_label">Buchdaten eingeben</string>
+    <string name="admin_books_add_step_3_explanation">
+        Bitte Buchdaten eingeben.
     </string>
 
     <!-- AdminBooksEditActivity -->

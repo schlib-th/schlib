@@ -1,5 +1,5 @@
 /*
- * AdminBooksAddStep1.java
+ * AdminBooksAddStep2.java
  *
  * Copyright 2017 by Thomas Hirsch, schlib@fahimu.de
  */
@@ -14,32 +14,26 @@ import android.widget.TextView;
 import de.fahimu.android.app.Log;
 
 /**
- * Step 1 of adding books to the database.
+ * Step 2 of adding books to the database.
  *
  * @author Thomas Hirsch, schlib@fahimu.de
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminBooksAddStep1 extends StepFragment {
+public final class AdminBooksAddStep2 extends StepFragment {
 
    @Override
    StepFragment getNext() { return nextFragment; }
 
-   private final AdminBooksAddStep2 nextFragment = new AdminBooksAddStep2();
+   private final AdminBooksAddStep3 nextFragment = new AdminBooksAddStep3();
 
    @Override
-   int getTabNameId() { return R.string.admin_books_add_step_1_label; }
-
-   @Override
-   boolean maybeOptional() { return true; }
-
-   @Override
-   boolean actualOptional() { return true; }    // TODO
+   int getTabNameId() { return R.string.admin_books_add_step_2_label; }
 
    /* ============================================================================================================== */
 
    @Override
-   int getContentViewId() { return R.layout.admin_books_add_step_1; }
+   int getContentViewId() { return R.layout.admin_books_add_step_2; }
 
    private TextView explanation;
 
@@ -48,7 +42,7 @@ public final class AdminBooksAddStep1 extends StepFragment {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onActivityCreated(savedInstanceState);
 
-         explanation = findView(TextView.class, R.id.admin_books_add_step_1_explanation);
+         explanation = findView(TextView.class, R.id.admin_books_add_step_2_explanation);
 
          activity = (AdminBooksAddActivity) stepperActivity;
       }
