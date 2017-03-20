@@ -73,6 +73,7 @@ public final class AdminBooksAddActivity extends StepperActivity {
       book.setStocked(SQLite.getDatetimeNow());  // set time to 8 AM UTC
 
       // TODO book.insert();
+      Log.d("book=" + book);
       finish();
    }
 

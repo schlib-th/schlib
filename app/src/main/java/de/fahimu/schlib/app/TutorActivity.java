@@ -407,7 +407,7 @@ public final class TutorActivity extends SchlibActivity {
    }
 
    private void onIsbnScanned(ISBN isbn) {
-      Book book = Book.getIdentifiedByISBN(isbn.getValue());
+      Book book = Book.getIdentifiedByISBN(isbn);
       if (book == null) {
          setError(R.string.tutor_message_1_book_not_registered, R.string.tutor_message_2_please_return_book);
       } else {

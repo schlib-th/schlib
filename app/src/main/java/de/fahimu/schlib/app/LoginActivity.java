@@ -267,10 +267,9 @@ public final class LoginActivity extends SchlibActivity {
                }
             }
          } else {
-            Label label = Label.getNullable(sn);
             ISBN isbn = ISBN.parse(barcode);
-            if (label != null && label.isUsed() ||
-                  isbn != null && Book.getIdentifiedByISBN(isbn.getValue()) != null) {
+            Label label = Label.getNullable(sn);
+            if (label != null && label.isUsed() || isbn != null && Book.getIdentifiedByISBN(isbn) != null) {
                setError(R.string.login_message_1_barcode_from_book, R.string.login_message_2_please_login_first);
             } else {
                setError(R.string.login_message_1_barcode_unknown, R.string.login_message_2_please_login_first);

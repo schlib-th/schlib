@@ -577,13 +577,14 @@
     <string name="admin_books_add_step_1_label">Klebeetikett scannen</string>
     <string name="admin_books_add_step_1_explanation_1">
         Das Buch hat keine ISBN.
-        \nBitte kleben Sie jetzt ein Etikett auf das Buch und scannen dieses dann als ISBN-Ersatz.
+        \n\nBitte kleben Sie jetzt ein Etikett auf das Buch und scannen dieses dann als ISBN-Ersatz.
     </string>
     <string name="admin_books_add_step_1_explanation_2">
         Die ISBN identifiziert bereits das Buch
-        \n%1$s.
-        \nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
+        \n\n%1$s.
+        \n\nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
     </string>
+    <string name="admin_books_add_step_1_display_label">Klebeetikett: %1$s</string>
 
     <string name="admin_books_add_step_2_label">Ablageort festlegen</string>
     <string name="admin_books_add_step_2_explanation">

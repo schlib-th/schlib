@@ -170,22 +170,14 @@ public final class Book extends Row {
    }
 
    @Nullable
-   public static Book getIdentifiedByISBN(long isbn) {
-      return Book.get(App.format("%s=? AND %s ISNULL", ISBN, LABEL), isbn);
+   public static Book getIdentifiedByISBN(ISBN isbn) {
+      return Book.get(App.format("%s=? AND %s ISNULL", ISBN, LABEL), isbn.getValue());
    }
 
    public static int countNoScanId() {
       // SELECT COUNT(*) FROM books WHERE isbn ISNULL AND label ISNULL ;
       String where = App.format("%s ISNULL AND %s ISNULL", ISBN, LABEL);
       return Integer.parseInt(SQLite.getFromQuery(TAB, "COUNT(*)", "0", where));
-   }
-
-   @NonNull
-   public static ArrayList<Book> getNoScanId() {
-      // SELECT <TAB_COLUMNS> FROM books WHERE isbn ISNULL AND label ISNULL ORDER BY shelf, number ;
-      String order = App.format("%s, %s", SHELF, NUMBER);
-      String where = App.format("%s ISNULL AND %s ISNULL", ISBN, LABEL);
-      return SQLite.get(Book.class, TAB, TAB_COLUMNS, null, order, where);
    }
 
    /**

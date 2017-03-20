@@ -254,7 +254,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       if (isbn == null) {
          showErrorSnackbar(R.string.snackbar_error_not_a_isbn);
       } else {
-         Book book = Book.getIdentifiedByISBN(isbn.getValue());
+         Book book = Book.getIdentifiedByISBN(isbn);
          if (book == null) {
             updateISBNLabel(item, isbn, null);
          } else {
