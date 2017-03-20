@@ -34,10 +34,9 @@ abstract class StepFragment extends Fragment {
 
    @Override
    public final void onAttach(Context context) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onAttach(context);
-         stepperActivity = (StepperActivity) getActivity();
-      }
+      super.onAttach(context);
+      Log.d(getClass().getCanonicalName());
+      stepperActivity = (StepperActivity) getActivity();
    }
 
    @Nullable
@@ -59,17 +58,15 @@ abstract class StepFragment extends Fragment {
 
    @Override
    public final View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return inflater.inflate(getContentViewId(), container, false);
-      }
+      Log.d(getClass().getCanonicalName());
+      return inflater.inflate(getContentViewId(), container, false);
    }
 
    @Override
    public final void onStart() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onStart();
-         stepperActivity.setCurrentFragment(this);
-      }
+      super.onStart();
+      Log.d(getClass().getCanonicalName());
+      stepperActivity.setCurrentFragment(this);
    }
 
    @NonNull
@@ -78,6 +75,24 @@ abstract class StepFragment extends Fragment {
       if (view == null) { throw new ClassCastException("Missing resource " + resId); }
       return type.cast(view);
    }
+
+   @Override
+   public final void onResume() {
+      super.onResume();
+      Log.d(getClass().getCanonicalName());
+      clearInput();
+   }
+
+   @Override
+   public final void onPause() {
+      super.onPause();
+      Log.d(getClass().getCanonicalName());
+   }
+
+   /**
+    * Sets all input elements to their state {@link #onResume()}.
+    */
+   abstract void clearInput();
 
    void onBarcode(@SuppressWarnings ("unused") String barcode) {
       // default implementation ignores scanned barcodes

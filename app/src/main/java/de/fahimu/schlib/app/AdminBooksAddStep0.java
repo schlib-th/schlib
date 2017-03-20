@@ -64,26 +64,22 @@ public final class AdminBooksAddStep0 extends StepFragment {
          if (checkedId != R.id.admin_books_add_step_0_isbn) {
             activity.isbn = null;
          }
-         String isbnDisplay = (activity.isbn == null) ? "" : activity.isbn.getDisplay();
-         isbn.setText(App.getStr(R.string.admin_books_add_step_0_isbn, isbnDisplay));
-         activity.refreshGUI();
+         displayIsbn();
       }
+   }
+
+   private void displayIsbn() {
+      String isbnDisplay = (activity.isbn == null) ? "" : activity.isbn.getDisplay();
+      isbn.setText(App.getStr(R.string.admin_books_add_step_0_isbn, isbnDisplay));
+      activity.refreshGUI();
    }
 
    /* ============================================================================================================== */
 
    @Override
-   public void onResume() {
+   void clearInput() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
          group.clearCheck();
-      }
-   }
-
-   @Override
-   public void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
       }
    }
 
@@ -91,11 +87,13 @@ public final class AdminBooksAddStep0 extends StepFragment {
 
    @Override
    void onBarcode(String barcode) {
-      group.clearCheck();
       if ((activity.isbn = ISBN.parse(barcode)) == null) {
+         group.clearCheck();
          activity.showErrorSnackbar(R.string.snackbar_error_not_a_isbn);
-      } else {
+      } else if (group.getCheckedRadioButtonId() != R.id.admin_books_add_step_0_isbn) {
          group.check(R.id.admin_books_add_step_0_isbn);
+      } else {
+         displayIsbn();       // ISBN changed
       }
    }
 

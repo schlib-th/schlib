@@ -64,10 +64,8 @@ public final class AdminUsersAddStep2 extends StepFragment {
    private Idcard lastScanned;
 
    @Override
-   public void onResume() {
+   void clearInput() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
-
          lastScanned = null;
          activity.scanned = new ArrayList<>();
 
@@ -90,13 +88,6 @@ public final class AdminUsersAddStep2 extends StepFragment {
       textIdcard.setText(lastScanned == null ? "" :
                          App.getStr(R.string.admin_users_add_step_2_idcard, lastScanned.getDisplayId()));
       activity.refreshGUI();
-   }
-
-   @Override
-   public void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
-      }
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */

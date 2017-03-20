@@ -75,17 +75,9 @@ public final class AdminUsersAddStep0 extends StepFragment {
    /* ============================================================================================================== */
 
    @Override
-   public void onResume() {
+   void clearInput() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
          group.clearCheck();
-      }
-   }
-
-   @Override
-   public void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
       }
    }
 

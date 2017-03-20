@@ -46,7 +46,19 @@
             android:onClick="onBackClicked"
             android:text="@string/app_back" />
 
-        <View
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClearInputClicked"
+            android:text="@string/app_step_tab_clear_input" />
+
+        <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />

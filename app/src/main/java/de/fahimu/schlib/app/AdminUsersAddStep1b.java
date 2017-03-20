@@ -176,9 +176,8 @@ public final class AdminUsersAddStep1b extends StepFragment {
    /* ============================================================================================================== */
 
    @Override
-   public void onResume() {
+   void clearInput() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
          name1.setText(""); name1.setError(null);
          // Get SQLite DATETIME('NOW') and set the previous and the next school year
          String now = SQLite.getDatetimeNow();
@@ -191,13 +190,6 @@ public final class AdminUsersAddStep1b extends StepFragment {
          name2Group.check(m <= 6 ? R.id.admin_users_add_step_1b_name2_year_0 :
                           R.id.admin_users_add_step_1b_name2_year_1);
          countSeek.setProgress(1);
-      }
-   }
-
-   @Override
-   public void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
       }
    }
 

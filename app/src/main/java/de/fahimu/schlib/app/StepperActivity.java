@@ -183,6 +183,12 @@ abstract class StepperActivity extends SchlibActivity {
       onBackPressed();
    }
 
+   public final void onClearInputClicked(View view) {
+      if (!finishingActivity) {
+         currentFragment.clearInput();             // forward to fragment
+      }
+   }
+
    public final void onDoneClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          if (!finishingActivity && currentFragment.isDone()) {

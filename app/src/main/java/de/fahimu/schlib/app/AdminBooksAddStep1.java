@@ -61,17 +61,9 @@ public final class AdminBooksAddStep1 extends StepFragment {
    /* ============================================================================================================== */
 
    @Override
-   public void onResume() {
+   void clearInput() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
          activity.refreshGUI();
-      }
-   }
-
-   @Override
-   public void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
       }
    }
 

@@ -78,20 +78,12 @@ public final class AdminUsersAddStep1a extends StepFragment {
    /* ============================================================================================================== */
 
    @Override
-   public void onResume() {
+   void clearInput() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
          String role = activity.role.getDisplay();
          explanation.setText(App.getStr(R.string.admin_users_add_step_1a_explanation, role));
          name1.setText(""); name1.setError(null);
          name2.setText(""); name2.setError(null);
-      }
-   }
-
-   @Override
-   public void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
       }
    }
 
