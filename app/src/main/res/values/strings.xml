@@ -576,19 +576,40 @@
 
     <string name="admin_books_add_step_1_label">Klebeetikett scannen</string>
     <string name="admin_books_add_step_1_explanation_1">
-        Das Buch hat keine ISBN.
-        \n\nBitte kleben Sie jetzt ein Etikett auf das Buch und scannen dieses dann als ISBN-Ersatz.
+        Das Buch hat keine ISBN.\n
+        \nBitte kleben Sie jetzt ein Etikett auf das Buch und scannen dieses dann als ISBN-Ersatz.
     </string>
     <string name="admin_books_add_step_1_explanation_2">
-        Die ISBN identifiziert bereits das Buch
-        \n\n%1$s.
-        \n\nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
+        Die ISBN identifiziert bereits das Buch\n
+        \n%1$s.\n
+        \nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
     </string>
     <string name="admin_books_add_step_1_display_label">Klebeetikett: %1$s</string>
 
     <string name="admin_books_add_step_2_label">Ablageort festlegen</string>
     <string name="admin_books_add_step_2_explanation">
         Bitte legen Sie jetzt den Ablageort des Buchs fest.
+    </string>
+    <string name="admin_books_add_step_2_shelf">Kategorie</string>
+    <string name="admin_books_add_step_2_number">Nummer</string>
+    <string name="admin_books_add_step_2_similar_name_dialog_title">Verwechslungsgefahr!</string>
+    <string name="admin_books_add_step_2_similar_name_dialog_message">
+        Die von Ihnen gewählte Kategorie \'%1$s\' kann leicht mit \'%2$s\' verwechselt werden.\n
+        \nBitte wählen Sie einen anderen Namen!
+    </string>
+    <string name="admin_books_add_step_2_new_shelf_dialog_title">Neue Kategorie?</string>
+    <string name="admin_books_add_step_2_new_shelf_dialog_message">
+        In der von Ihnen gewählten Kategorie \'%1$s\' gibt es noch keine Bücher.\n
+        \nMöchten Sie wirklich eine neue Kategorie \'%1$s\' einführen?
+    </string>
+    <string name="admin_books_add_step_2_gap_in_number_dialog_title">Lücke in den Nummern?</string>
+    <string name="admin_books_add_step_2_gap_in_number_dialog_message_1">
+        Das erste Buch in der neuen Kategorie \'%2$s\' bekommt die Nummer %1$s und nicht die Nummer 001.\n
+        \nMöchten Sie wirklich die Nummer %1$s verwenden?
+    </string>
+    <string name="admin_books_add_step_2_gap_in_number_dialog_message_2">
+        Zwischen der von Ihnen gewählten Nummer (%1$s) und der bisher höchsten Nummer (%2$s) entsteht eine Lücke.\n
+        \nMöchten Sie wirklich die Nummer %1$s verwenden?
     </string>
 
     <string name="admin_books_add_step_3_label">Buchdaten eingeben</string>

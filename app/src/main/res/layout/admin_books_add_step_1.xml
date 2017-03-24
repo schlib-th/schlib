@@ -11,7 +11,7 @@
 
     <TextView
         android:id="@+id/admin_books_add_step_1_explanation"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="12dp"
@@ -20,7 +20,7 @@
 
     <TextView
         android:id="@+id/admin_books_add_step_1_display_label"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="24dp"

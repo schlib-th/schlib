@@ -80,27 +80,32 @@ abstract class StepperActivity extends SchlibActivity {
 
    private Button back, done;
 
+   private StepFragment firstFragment;
+
    private final List<StepTab> stepTabs = new ArrayList<>();
 
    @Override
    protected final void onCreate(@Nullable Bundle savedInstanceState) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onCreate(savedInstanceState);
+      Log.d(getClass().getCanonicalName());
+      super.onCreate(savedInstanceState);
 
-         back = findView(Button.class, R.id.stepper_back);
-         done = findView(Button.class, R.id.stepper_done);
+      back = findView(Button.class, R.id.stepper_back);
+      done = findView(Button.class, R.id.stepper_done);
 
-         getSupportFragmentManager().beginTransaction().add(R.id.stepper_fragments, getFirstFragment()).commit();
+      firstFragment = createFirstFragment();
+      getSupportFragmentManager().beginTransaction().add(R.id.stepper_fragments, firstFragment).commit();
 
-         ViewGroup tabs = findView(ViewGroup.class, R.id.stepper_tabs);
-         for (StepFragment f = getFirstFragment(); f != null; f = f.getNext()) {
-            if (f != getFirstFragment()) { tabs.addView(buildGreyLine()); }
-            View stepTab = getLayoutInflater().inflate(R.layout.step_tab, tabs, false);
-            tabs.addView(stepTab);
-            stepTabs.add(new StepTab(1 + stepTabs.size(), stepTab));
-         }
+      ViewGroup tabs = findView(ViewGroup.class, R.id.stepper_tabs);
+      for (StepFragment f = firstFragment; f != null; f = f.getNext()) {
+         if (f != firstFragment) { tabs.addView(buildGreyLine()); }
+         View stepTab = getLayoutInflater().inflate(R.layout.step_tab, tabs, false);
+         tabs.addView(stepTab);
+         stepTabs.add(new StepTab(1 + stepTabs.size(), stepTab));
       }
    }
+
+   @NonNull
+   abstract StepFragment createFirstFragment();
 
    private View buildGreyLine() {
       LinearLayout line = new LinearLayout(this);
@@ -112,9 +117,6 @@ abstract class StepperActivity extends SchlibActivity {
       line.setBackgroundColor(App.getColorFromRes(R.color.color_google_material_grey_400));
       return line;
    }
-
-   @NonNull
-   abstract StepFragment getFirstFragment();
 
    private StepFragment currentFragment;
 
@@ -131,27 +133,33 @@ abstract class StepperActivity extends SchlibActivity {
    private boolean finishingActivity;
 
    @Override
-   protected void onResume() {
+   protected final void onResume() {
       super.onResume();
+      Log.d(getClass().getCanonicalName());
       finishingActivity = false;
       refreshGUI();
    }
 
-   final void refreshGUI() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         back.setEnabled(currentFragment != getFirstFragment());
-         done.setEnabled(currentFragment.isDoneEnabled());
-         done.setText(getNext() == null ? R.string.app_done : R.string.app_cont);
+   @Override
+   protected final void onPause() {
+      super.onPause();
+      Log.d(getClass().getCanonicalName());
+   }
 
-         int state = -1;      // <0: left of currentFragment, 0: currentFragment, >0: right of currentFragment
-         Iterator<StepTab> iterator = stepTabs.iterator();
-         for (StepFragment f = getFirstFragment(); f != null; f = f.getNext()) {
-            if (f == currentFragment) {
-               iterator.next().setAttributes(0, f);
-               state = 1;
-            } else {
-               iterator.next().setAttributes(state, f);
-            }
+   final void refreshGUI() {
+      Log.d(getClass().getCanonicalName());
+      back.setEnabled(currentFragment != firstFragment);
+      done.setEnabled(currentFragment.isDoneEnabled());
+      done.setText(getNext() == null ? R.string.app_done : R.string.app_cont);
+
+      int state = -1;      // <0: left of currentFragment, 0: currentFragment, >0: right of currentFragment
+      Iterator<StepTab> iterator = stepTabs.iterator();
+      for (StepFragment f = firstFragment; f != null; f = f.getNext()) {
+         if (f == currentFragment) {
+            iterator.next().setAttributes(0, f);
+            state = 1;
+         } else {
+            iterator.next().setAttributes(state, f);
          }
       }
    }
@@ -190,26 +198,25 @@ abstract class StepperActivity extends SchlibActivity {
    }
 
    public final void onDoneClicked(View view) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         if (!finishingActivity && currentFragment.isDone()) {
-            if (getNext() != null) {
-               FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-               transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
-               transaction.replace(R.id.stepper_fragments, getNext()).addToBackStack(null).commit();
-            } else {
-               finishingActivity = true;
-               // set HEAVY CHECK MARK on all tabs
-               Iterator<StepTab> iterator = stepTabs.iterator();
-               for (StepFragment f = getFirstFragment(); f != null; f = f.getNext()) {
-                  iterator.next().setAttributes(-1, f);
-               }
-               // disable all views
-               disable(contentView.getRootView());
-               new Handler().postDelayed(new Runnable() {
-                  @Override
-                  public void run() { finishActivity(); }
-               }, 250);
+      Log.d(getClass().getCanonicalName());
+      if (!finishingActivity && currentFragment.isDone()) {
+         if (getNext() != null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+            transaction.replace(R.id.stepper_fragments, getNext()).addToBackStack(null).commit();
+         } else {
+            finishingActivity = true;
+            // set HEAVY CHECK MARK on all tabs
+            Iterator<StepTab> iterator = stepTabs.iterator();
+            for (StepFragment f = firstFragment; f != null; f = f.getNext()) {
+               iterator.next().setAttributes(-1, f);
             }
+            // disable all views
+            disable(contentView.getRootView());
+            new Handler().postDelayed(new Runnable() {
+               @Override
+               public void run() { finishActivity(); }
+            }, 250);
          }
       }
    }

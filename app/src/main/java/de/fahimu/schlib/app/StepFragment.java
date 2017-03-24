@@ -6,7 +6,6 @@
 
 package de.fahimu.schlib.app;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
@@ -28,16 +27,19 @@ import de.fahimu.android.app.Log;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-abstract class StepFragment extends Fragment {
+abstract class StepFragment<SA extends StepperActivity> extends Fragment {
 
-   StepperActivity stepperActivity;
+   SA activity;
 
-   @Override
-   public final void onAttach(Context context) {
-      super.onAttach(context);
-      Log.d(getClass().getCanonicalName());
-      stepperActivity = (StepperActivity) getActivity();
+   final StepFragment setActivity(SA activity) {
+      this.activity = activity;
+      passActivityToNextFragments();
+      return this;
    }
+
+   abstract void passActivityToNextFragments();
+
+   /* ============================================================================================================== */
 
    @Nullable
    abstract StepFragment getNext();
@@ -66,7 +68,7 @@ abstract class StepFragment extends Fragment {
    public final void onStart() {
       super.onStart();
       Log.d(getClass().getCanonicalName());
-      stepperActivity.setCurrentFragment(this);
+      activity.setCurrentFragment(this);
    }
 
    @NonNull

@@ -23,7 +23,12 @@ import de.fahimu.schlib.anw.ISBN;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminBooksAddStep0 extends StepFragment {
+public final class AdminBooksAddStep0 extends StepFragment<AdminBooksAddActivity> {
+
+   @Override
+   void passActivityToNextFragments() {
+      nextFragment.setActivity(activity);
+   }
 
    @Override
    StepFragment getNext() { return nextFragment; }
@@ -47,14 +52,9 @@ public final class AdminBooksAddStep0 extends StepFragment {
          super.onActivityCreated(savedInstanceState);
          isbn = findView(RadioButton.class, R.id.admin_books_add_step_0_isbn);
          group = findView(RadioGroup.class, R.id.admin_books_add_step_0_group);
-
-         activity = (AdminBooksAddActivity) stepperActivity;
-
          group.setOnCheckedChangeListener(new RadioGroupListener());
       }
    }
-
-   private AdminBooksAddActivity activity;
 
    /* -------------------------------------------------------------------------------------------------------------- */
 

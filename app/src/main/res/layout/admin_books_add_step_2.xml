@@ -2,6 +2,7 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="24dp"
@@ -9,12 +10,52 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/admin_books_add_step_2_explanation"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:gravity="center"
+        android:paddingTop="24dp"
         android:text="@string/admin_books_add_step_2_explanation"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="48dp"
+            android:hint="@string/admin_books_add_step_2_shelf">
+
+            <de.fahimu.android.app.scanner.ScannerAwareEditText
+                android:id="@+id/admin_books_add_step_2_shelf"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ems="8"
+                android:gravity="center_vertical|start"
+                android:imeOptions="actionDone"
+                android:inputType="textNoSuggestions|textCapWords"
+                android:maxLines="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                tools:text="Orange-weiß" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:labelFor="@+id/admin_books_add_step_2_number_picker"
+            android:text="@string/admin_books_add_step_2_number" />
+
+        <de.fahimu.android.app.NumberPicker
+            android:id="@+id/admin_books_add_step_2_number_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>

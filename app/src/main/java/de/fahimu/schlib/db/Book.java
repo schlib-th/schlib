@@ -16,8 +16,8 @@ import android.widget.AutoCompleteTextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
+import de.fahimu.android.app.NumberPicker;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
@@ -25,6 +25,7 @@ import de.fahimu.android.db.Trigger;
 import de.fahimu.android.db.Values;
 import de.fahimu.schlib.anw.ISBN;
 import de.fahimu.schlib.anw.SerialNumber;
+import de.fahimu.schlib.app.AdminUsersAddStep2;
 import de.fahimu.schlib.app.App;
 
 /**
@@ -148,7 +149,7 @@ public final class Book extends Row {
     */
    @Nullable
    private static Book get(String where, Object... args) {
-      List<Book> list = SQLite.get(Book.class, TAB, TAB_COLUMNS, null, null, where, args);
+      ArrayList<Book> list = SQLite.get(Book.class, TAB, TAB_COLUMNS, null, null, where, args);
       return (list.size() == 0) ? null : list.get(0);
    }
 
@@ -188,7 +189,7 @@ public final class Book extends Row {
     * @return the books currently lent to the specified {@code user}.
     */
    @NonNull
-   public static ArrayList<Book> getLentTo(User user) {
+   public static ArrayList<Book> getLentTo(@NonNull User user) {
       String table = App.format("%s JOIN %s USING (%s)", TAB, Lending.TAB, BID);
       String where = App.format("%s=? AND %s ISNULL", Lending.UID, Lending.RETURN);
       return SQLite.get(Book.class, table, TAB_COLUMNS, null, null, where, user.getUid());
@@ -210,7 +211,7 @@ public final class Book extends Row {
     *       {@link #TITLE}, {@link #PUBLISHER}, {@link #AUTHOR}, {@link #KEYWORDS} or {@link #SHELF}.
     */
    @NonNull
-   public static ArrayList<Book> getColumnValues(String column, boolean history) {
+   public static ArrayList<Book> getColumnValues(@NonNull String column, boolean history) {
       if (!acceptedColumns.contains(column)) {
          throw new IllegalArgumentException(column + " not allowed");
       }
@@ -220,6 +221,27 @@ public final class Book extends Row {
 
    private static HashSet<String> acceptedColumns =
          new HashSet<>(Arrays.asList(TITLE, PUBLISHER, AUTHOR, KEYWORDS, SHELF));
+
+   /**
+    * Returns a ascending ordered list of all used numbers of books on the specified {@code shelf}.
+    * This method will be called by {@link AdminUsersAddStep2} to populate the {@link NumberPicker}.
+    *
+    * @param shelf
+    *       the shelf to search for.
+    * @return a ascending ordered list of all used numbers of books on the specified {@code shelf}.
+    */
+   @NonNull
+   public static ArrayList<Integer> getNumbers(@NonNull String shelf) {
+      // SELECT number FROM books WHERE shelf='$shelf' ORDER BY number ;
+      String where = App.format("%s=?", SHELF);
+      ArrayList<Book> books = SQLite.get(Book.class, TAB, new Values().add(NUMBER), null, NUMBER, where, shelf);
+
+      ArrayList<Integer> numbers = new ArrayList<>(books.size());
+      for (Book book : books) {
+         numbers.add(book.getNumber());
+      }
+      return numbers;
+   }
 
    /**
     * Returns a list of all books, ordered by {@code shelf} and {@code number}.

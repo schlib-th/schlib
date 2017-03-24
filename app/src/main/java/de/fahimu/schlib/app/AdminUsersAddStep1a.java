@@ -25,7 +25,12 @@ import de.fahimu.schlib.db.User;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminUsersAddStep1a extends StepFragment {
+public final class AdminUsersAddStep1a extends StepFragment<AdminUsersAddActivity> {
+
+   @Override
+   void passActivityToNextFragments() {
+      nextFragment.setActivity(activity);
+   }
 
    @Override
    StepFragment getNext() { return nextFragment; }
@@ -50,15 +55,10 @@ public final class AdminUsersAddStep1a extends StepFragment {
          explanation = findView(TextView.class, R.id.admin_users_add_step_1a_explanation);
          name1 = findView(ScannerAwareEditText.class, R.id.admin_users_add_step_1a_name1);
          name2 = findView(ScannerAwareEditText.class, R.id.admin_users_add_step_1a_name2);
-
-         activity = (AdminUsersAddActivity) stepperActivity;
-
          name1.addTextChangedListener(new TextChangedListener());
          name2.addTextChangedListener(new TextChangedListener());
       }
    }
-
-   private AdminUsersAddActivity activity;
 
    /* -------------------------------------------------------------------------------------------------------------- */
 

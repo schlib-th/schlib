@@ -38,26 +38,8 @@ public final class AdminBooksAddActivity extends StepperActivity {
 
    @NonNull
    @Override
-   StepFragment getFirstFragment() {
-      return firstFragment;
-   }
-
-   private final AdminBooksAddStep0 firstFragment = new AdminBooksAddStep0();
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   @Override
-   protected void onResume() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
-      }
-   }
-
-   @Override
-   protected void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
-      }
+   StepFragment createFirstFragment() {
+      return new AdminBooksAddStep0().setActivity(this);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
@@ -66,7 +48,7 @@ public final class AdminBooksAddActivity extends StepperActivity {
    void finishActivity() {
       Book book = new Book();
       book.setISBN(isbn).setLabel(label);
-      // TODO book.setShelf(shelf).setNumber(number);
+      book.setShelf(shelf).setNumber(number);
 
       // TODO book.setTitle() and so on
 

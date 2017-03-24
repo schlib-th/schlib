@@ -36,7 +36,12 @@ import de.fahimu.schlib.db.User;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminUsersAddStep1b extends StepFragment {
+public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivity> {
+
+   @Override
+   void passActivityToNextFragments() {
+      nextFragment.setActivity(activity);
+   }
 
    @Override
    StepFragment getNext() { return nextFragment; }
@@ -69,16 +74,12 @@ public final class AdminUsersAddStep1b extends StepFragment {
          countText = findView(TextView.class, R.id.admin_users_add_step_1b_count_text);
          countSeek = findView(SeekBar.class, R.id.admin_users_add_step_1b_count_seek);
 
-         activity = (AdminUsersAddActivity) stepperActivity;
-
          name1.addTextChangedListener(new TextChangedListener());
          name1.setColumnAdapter(new PupilName1Adapter());
          name2Group.setOnCheckedChangeListener(new RadioGroupListener());
          countSeek.setOnSeekBarChangeListener(new SeekBarListener());
       }
    }
-
-   private AdminUsersAddActivity activity;
 
    /* -------------------------------------------------------------------------------------------------------------- */
 

@@ -28,7 +28,10 @@ import de.fahimu.schlib.db.User.Role;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminUsersAddStep2 extends StepFragment {
+public final class AdminUsersAddStep2 extends StepFragment<AdminUsersAddActivity> {
+
+   @Override
+   void passActivityToNextFragments() { /* last fragment */ }
 
    @Override
    StepFragment getNext() { return null; }
@@ -47,17 +50,12 @@ public final class AdminUsersAddStep2 extends StepFragment {
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onActivityCreated(savedInstanceState);
-
          explanation = findView(TextView.class, R.id.admin_users_add_step_2_explanation);
          classListHint = findView(TextView.class, R.id.admin_users_add_step_2_class_list_hint);
          textStatus = findView(TextView.class, R.id.admin_users_add_step_2_status);
          textIdcard = findView(TextView.class, R.id.admin_users_add_step_2_idcard);
-
-         activity = (AdminUsersAddActivity) stepperActivity;
       }
    }
-
-   private AdminUsersAddActivity activity;
 
    /* ============================================================================================================== */
 
@@ -135,6 +133,8 @@ public final class AdminUsersAddStep2 extends StepFragment {
    }
 
    @Override
-   boolean isDone() { return true; }
+   boolean isDone() {
+      return true;
+   }
 
 }

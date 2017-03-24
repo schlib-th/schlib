@@ -48,26 +48,8 @@ public final class AdminUsersAddActivity extends StepperActivity {
 
    @NonNull
    @Override
-   StepFragment getFirstFragment() {
-      return firstFragment;
-   }
-
-   private final AdminUsersAddStep0 firstFragment = new AdminUsersAddStep0();
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   @Override
-   protected void onResume() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onResume();
-      }
-   }
-
-   @Override
-   protected void onPause() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onPause();
-      }
+   StepFragment createFirstFragment() {
+      return new AdminUsersAddStep0().setActivity(this);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */

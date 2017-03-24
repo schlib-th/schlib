@@ -24,7 +24,12 @@ import de.fahimu.schlib.db.Label;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminBooksAddStep1 extends StepFragment {
+public final class AdminBooksAddStep1 extends StepFragment<AdminBooksAddActivity> {
+
+   @Override
+   void passActivityToNextFragments() {
+      nextFragment.setActivity(activity);
+   }
 
    @Override
    StepFragment getNext() { return nextFragment; }
@@ -39,8 +44,7 @@ public final class AdminBooksAddStep1 extends StepFragment {
 
    @Override
    boolean actualOptional() {
-      AdminBooksAddActivity activity = (AdminBooksAddActivity) stepperActivity;
-      return activity != null && activity.isbn != null && Book.getIdentifiedByISBN(activity.isbn) == null;
+      return activity.isbn != null && Book.getIdentifiedByISBN(activity.isbn) == null;
    }
 
    /* ============================================================================================================== */
@@ -56,12 +60,8 @@ public final class AdminBooksAddStep1 extends StepFragment {
          super.onActivityCreated(savedInstanceState);
          explanation = findView(TextView.class, R.id.admin_books_add_step_1_explanation);
          displayLabel = findView(TextView.class, R.id.admin_books_add_step_1_display_label);
-
-         activity = (AdminBooksAddActivity) stepperActivity;
       }
    }
-
-   private AdminBooksAddActivity activity;
 
    /* ============================================================================================================== */
 

@@ -22,12 +22,17 @@ import de.fahimu.schlib.db.User.Role;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminUsersAddStep0 extends StepFragment {
+public final class AdminUsersAddStep0 extends StepFragment<AdminUsersAddActivity> {
+
+   @Override
+   void passActivityToNextFragments() {
+      nextFragmentA.setActivity(activity);
+      nextFragmentB.setActivity(activity);
+   }
 
    @Override
    StepFragment getNext() {
-      AdminUsersAddActivity activity = (AdminUsersAddActivity) stepperActivity;
-      return (activity == null || activity.role != Role.PUPIL) ? nextFragmentA : nextFragmentB;
+      return (activity.role != Role.PUPIL) ? nextFragmentA : nextFragmentB;
    }
 
    private final AdminUsersAddStep1a nextFragmentA = new AdminUsersAddStep1a();
@@ -48,14 +53,9 @@ public final class AdminUsersAddStep0 extends StepFragment {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onActivityCreated(savedInstanceState);
          group = findView(RadioGroup.class, R.id.admin_users_add_step_0_group);
-
-         activity = (AdminUsersAddActivity) stepperActivity;
-
          group.setOnCheckedChangeListener(new RadioGroupListener());
       }
    }
-
-   private AdminUsersAddActivity activity;
 
    /* -------------------------------------------------------------------------------------------------------------- */
 

@@ -19,7 +19,9 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.fahimu.android.app.scanner.ScannerAwareSearchView;
@@ -31,7 +33,7 @@ import de.fahimu.android.app.scanner.ScannerAwareSearchView;
  * @version 1.0, 01.09.2016
  * @since SchoolLibrary 1.0
  */
-public final class SearchString {
+public final class SearchString implements Comparable<SearchString> {
 
    private static final Map<Character,Character> normalized = new HashMap<>();
 
@@ -114,13 +116,13 @@ public final class SearchString {
     */
    @WorkerThread
    public boolean contains(String[] normalizedQueries) {
-      final int len = normalizedQueries.length;
-      if (len == 0) {
+      final int arraySize = 2 * normalizedQueries.length;
+      if (arraySize == 0) {
          tokensIndex = null;
          return true;
       } else {
          int index = -1, j = 0;
-         tokensIndex = new int[len + len];      // an array to store the query indices and query lengths
+         tokensIndex = new int[arraySize];      // an array to store the query indices and query lengths
          for (String normalizedQuery : normalizedQueries) {
             if ((index = tokens.indexOf(normalizedQuery, index + 1)) >= 0) {
                tokensIndex[j++] = index;
@@ -132,6 +134,20 @@ public final class SearchString {
          }
          return true;
       }
+   }
+
+   /**
+    * This method will only be used for {@link Collections#sort(List)},
+    * so there's no need to override {@link #equals(Object)} and {@link #hashCode()}.
+    */
+   @Override
+   public int compareTo(@NonNull SearchString another) {
+      final int[] ti1 = tokensIndex, ti2 = another.tokensIndex;
+      for (int i = 0; i < ti1.length; i += 2) {
+         final int cmp = ti1[i] - ti2[i];
+         if (cmp != 0) { return cmp; }
+      }
+      return 0;
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
@@ -209,8 +225,9 @@ public final class SearchString {
 
    /**
     * Returns an array of non-empty normalized strings build from the specified {@link CharSequence} {@code cs}.
-    * Latin lower case letters and arabic digits will be left unchanged, latin upper case letters will be
-    * replaced by their lower case version and diacritic characters by their lower case non-diacritic version.
+    * Latin lower case letters, arabic digits and German lower case diacritic characters (ä, ö, ü, ß) will be
+    * left unchanged, Latin upper case letters and German upper case diacritic characters (Ä, Ö, Ü) will be
+    * replaced by their lower case version and other diacritic characters by their lower case non-diacritic version.
     * All other characters are interpreted as limiters between the normalized strings. Non-empty normalized
     * strings will be added to the resulting array and returned.
     *
@@ -232,7 +249,6 @@ public final class SearchString {
       if (b.length() > 0) {
          list.add(b.toString());
       }
-      Log.d("normalizedQuery=" + list);
       return list.toArray(new String[0]);
    }
 

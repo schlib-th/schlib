@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.SearchString;
@@ -110,7 +111,7 @@ public final class ScannerAwareEditText extends AppCompatAutoCompleteTextView {
 
    /* ============================================================================================================== */
 
-   public static abstract class ColumnItem {
+   public static abstract class ColumnItem implements Comparable<ColumnItem> {
       final long         rid;       // cached row.getOid()
       final String       column;
       final SearchString searchString;
@@ -120,6 +121,13 @@ public final class ScannerAwareEditText extends AppCompatAutoCompleteTextView {
          this.rid = row.getOid();
          this.column = column;
          this.searchString = new SearchString.Builder(1).add(column).buildSearchString();
+      }
+
+      @Override
+      public final int compareTo(@NonNull ColumnItem another) {
+         int cmp = searchString.compareTo(another.searchString);
+         if (cmp != 0) { return cmp; }
+         return column.compareTo(another.column);
       }
    }
 
@@ -215,6 +223,7 @@ public final class ScannerAwareEditText extends AppCompatAutoCompleteTextView {
                      list.add(item);
                   }
                }
+               Collections.sort(list);
                results.values = list;
                results.count = list.size();
             }

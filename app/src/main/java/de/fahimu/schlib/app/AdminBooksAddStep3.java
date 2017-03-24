@@ -20,7 +20,10 @@ import de.fahimu.android.app.Log;
  * @version 1.0, 01.04.2017
  * @since SchoolLibrary 1.0
  */
-public final class AdminBooksAddStep3 extends StepFragment {
+public final class AdminBooksAddStep3 extends StepFragment<AdminBooksAddActivity> {
+
+   @Override
+   void passActivityToNextFragments() { /* last fragment */ }
 
    @Override
    StepFragment getNext() { return null; }
@@ -41,12 +44,8 @@ public final class AdminBooksAddStep3 extends StepFragment {
          super.onActivityCreated(savedInstanceState);
 
          explanation = findView(TextView.class, R.id.admin_books_add_step_3_explanation);
-
-         activity = (AdminBooksAddActivity) stepperActivity;
       }
    }
-
-   private AdminBooksAddActivity activity;
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
