@@ -24,6 +24,7 @@ import de.fahimu.android.app.scanner.ScannerAwareEditText;
 import de.fahimu.android.app.scanner.ScannerAwareEditText.AbstractTextWatcher;
 import de.fahimu.android.app.scanner.ScannerAwareEditText.ColumnAdapter;
 import de.fahimu.android.app.scanner.ScannerAwareEditText.ColumnItem;
+import de.fahimu.schlib.anw.StringType;
 import de.fahimu.schlib.db.Book;
 
 /**
@@ -70,16 +71,16 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   private final static class ShelfItem extends ColumnItem {
+   private static final class ShelfItem extends ColumnItem {
       ShelfItem(@NonNull Book book) {
          super(book, book.getShelf());
       }
    }
 
-   private final class ShelfAdapter extends ColumnAdapter<ShelfItem> {
+   private static final class ShelfAdapter extends ColumnAdapter<ShelfItem> {
       @Override
       protected void loadData(ArrayList<ShelfItem> data) {
-         for (Book book : Book.getColumnValues(Book.SHELF, false)) {
+         for (Book book : Book.getColumnValues(Book.SHELF)) {
             data.add(new ShelfItem(book));
          }
       }
@@ -158,14 +159,16 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
 
    @Override
    boolean isDoneEnabled() {
-      return activity.shelf != null && !activity.shelf.isEmpty();
+      return !activity.shelf.isEmpty();
    }
 
    @Override
    boolean isDone() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         if (!StringType.SHELF.matches(shelf, activity.shelf)) { return false; }
+
          final HashMap<String,String> shelfsMap = new HashMap<>();
-         for (Book book : Book.getColumnValues(Book.SHELF, false)) {
+         for (Book book : Book.getColumnValues(Book.SHELF)) {
             final String shelf = book.getShelf();
             shelfsMap.put(simplify(shelf), shelf);
          }

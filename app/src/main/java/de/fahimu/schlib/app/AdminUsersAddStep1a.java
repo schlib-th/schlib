@@ -96,24 +96,13 @@ public final class AdminUsersAddStep1a extends StepFragment<AdminUsersAddActivit
 
    @Override
    boolean isDone() {
-      if (!matches(StringType.NAME1, activity.name1, name1)) { return false; }
-      if (!matches(StringType.NAME2, activity.name2, name2)) { return false; }
+      if (!StringType.NAME1.matches(name1, activity.name1)) { return false; }
+      if (!StringType.NAME2.matches(name2, activity.name2)) { return false; }
       User user = User.get(activity.name1, activity.name2, 0);
       if (user != null) {
          activity.showErrorSnackbar(R.string.admin_users_add_step_1a_error_snackbar, user.getRole().getDisplay());
       }
       return user == null;
-   }
-
-   private boolean matches(StringType stringType, String text, TextView name) {
-      int failPosition = stringType.matches(text);
-      if (failPosition >= 0) {
-         String message = (failPosition >= text.length()) ?
-                          App.getStr(R.string.admin_users_add_step_1a_error_1) :
-                          App.getStr(R.string.admin_users_add_step_1a_error_2, text.charAt(failPosition));
-         name.requestFocus(); name.setError(message);
-      }
-      return failPosition < 0;
    }
 
 }

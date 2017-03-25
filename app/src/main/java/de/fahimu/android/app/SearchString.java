@@ -139,9 +139,12 @@ public final class SearchString implements Comparable<SearchString> {
    /**
     * This method will only be used for {@link Collections#sort(List)},
     * so there's no need to override {@link #equals(Object)} and {@link #hashCode()}.
+    * Precondition: if tokensIndex == null then another.tokensIndex == null;
+    * if tokensIndex != null then another.tokensIndex != null && tokensIndex.length == another.tokensIndex.length.
     */
    @Override
    public int compareTo(@NonNull SearchString another) {
+      if (tokensIndex == null) { return 0; }
       final int[] ti1 = tokensIndex, ti2 = another.tokensIndex;
       for (int i = 0; i < ti1.length; i += 2) {
          final int cmp = ti1[i] - ti2[i];

@@ -26,7 +26,7 @@
             android:layout_weight="382"
             android:gravity="center"
             android:text="@string/admin_users_explanation"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <de.fahimu.android.app.ListView
             android:id="@+id/admin_users_list"

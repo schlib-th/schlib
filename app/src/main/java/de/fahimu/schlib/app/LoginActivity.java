@@ -175,7 +175,7 @@ public final class LoginActivity extends SchlibActivity {
             public synchronized boolean onTouch(View v, MotionEvent event) {
                if (event.getEventTime() > lastTime + 3000) {     // ignore multi clicks
                   lastTime = event.getEventTime();
-                  Use.login(User.getNonNull(1));
+                  Use.login(User.getNonNull(2));
                   playSoundAndStartActivity(AdminActivity.class);
                }
                return true;

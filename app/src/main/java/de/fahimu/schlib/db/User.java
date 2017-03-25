@@ -252,17 +252,17 @@ public final class User extends Row {
    }
 
    /**
-    * Returns a list of pupils from the history table {@link #PREV} where values are only assigned
-    * for column {@code _id} and {@code name1}, grouped and ordered by column {@code name1}.
+    * Returns a list of pupils grouped and ordered by column {@code name1},
+    * where values are only assigned for column {@code _id} and {@code name1}.
     * This method will be called e. g. to populate lists in {@link ScannerAwareEditText}s.
     *
     * @return a list of pupils grouped and ordered by column {@code name1}.
     */
    @NonNull
    public static ArrayList<User> getPupilsName1() {
-      // SELECT _id, name1 FROM prev_users WHERE role='pupil' GROUP BY name1 ORDER BY name1 ;
+      // SELECT _id, name1 FROM users WHERE role='pupil' GROUP BY name1 ORDER BY name1 ;
       Values columns = new Values().add(OID).add(NAME1);
-      return SQLite.get(User.class, PREV, columns, NAME1, NAME1, App.format("%s=?", ROLE), PUPIL);
+      return SQLite.get(User.class, TAB, columns, NAME1, NAME1, App.format("%s=?", ROLE), PUPIL);
    }
 
    /**

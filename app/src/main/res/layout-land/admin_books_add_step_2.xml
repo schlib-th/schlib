@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="48dp"
-            android:hint="@string/admin_books_add_step_2_shelf">
+            android:hint="@string/book_shelf">
 
             <de.fahimu.android.app.scanner.ScannerAwareEditText
                 android:id="@+id/admin_books_add_step_2_shelf"
@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:labelFor="@+id/admin_books_add_step_2_number_picker"
-            android:text="@string/admin_books_add_step_2_number" />
+            android:text="@string/book_number" />
 
         <de.fahimu.android.app.NumberPicker
             android:id="@+id/admin_books_add_step_2_number_picker"

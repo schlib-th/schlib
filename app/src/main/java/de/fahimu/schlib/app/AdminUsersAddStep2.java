@@ -73,7 +73,7 @@ public final class AdminUsersAddStep2 extends StepFragment<AdminUsersAddActivity
          explanation.setText(App.getStr(resId,
                activity.count, activity.role.getDisplay(), activity.name1, activity.name2));
          classListHint.setText(activity.role != Role.PUPIL ? "" :
-                               App.getStr(R.string.admin_users_add_step_2_class_list_hint));
+                               App.getStr(R.string.admin_users_add_step_2_pupil_list_hint));
          setStatusIdcard();
       }
    }

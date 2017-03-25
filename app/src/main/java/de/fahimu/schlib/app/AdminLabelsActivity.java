@@ -87,7 +87,7 @@ public final class AdminLabelsActivity extends AdminSerialsActivity<Label> {
          return dialog.setMessage(R.string.admin_labels_dialog_message_printed);
       } else {      // isUsed() - see precondition
          return dialog.setMessage(R.string.admin_labels_dialog_message_used,
-               Book.getNonNull(label.getBid()).getDisplay(), App.getStr(R.string.admin_books_label));
+               Book.getNonNull(label.getBid()).getDisplay());
       }
    }
 

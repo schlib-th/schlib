@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
             android:layout_weight="1"
-            android:hint="@string/admin_users_add_step_1a_name1"
+            android:hint="@string/user_name1"
             tools:ignore="NestedWeights">
 
             <de.fahimu.android.app.scanner.ScannerAwareEditText
@@ -52,7 +52,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/admin_users_add_step_1a_name2">
+            android:hint="@string/user_name2">
 
             <de.fahimu.android.app.scanner.ScannerAwareEditText
                 android:id="@+id/admin_users_add_step_1a_name2"

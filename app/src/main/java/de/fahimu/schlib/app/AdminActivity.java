@@ -138,4 +138,20 @@ public final class AdminActivity extends SchlibActivity {
       }
    }
 
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   public void onReprintPupilListClicked(View view) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         scope.d("clicked");
+         // TODO startActivity(new Intent(this, ReprintPupilListActivity.class));
+      }
+   }
+
+   public void onPrintReminderClicked(View view) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         scope.d("clicked");
+         // TODO startActivity(new Intent(this, PrintReminderActivity.class));
+      }
+   }
+
 }

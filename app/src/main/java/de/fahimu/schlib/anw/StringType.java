@@ -6,10 +6,15 @@
 
 package de.fahimu.schlib.anw;
 
+import android.support.annotation.NonNull;
+
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.fahimu.android.app.scanner.ScannerAwareEditText;
 import de.fahimu.schlib.app.App;
+import de.fahimu.schlib.app.R;
 
 /**
  * An enumeration of types for strings, restricted by regular expressions.
@@ -100,22 +105,34 @@ public enum StringType {
 
    public String getName() { return name; }
 
-   public int matches(String s) {
+   public int matches(@NonNull String text) {
       int failPosition;
-      if (s.isEmpty()) {
+      if (text.isEmpty()) {
          failPosition = empty ? -1 : 0;
       } else {
-         Matcher m = pattern.matcher(s);
+         Matcher m = pattern.matcher(text);
          if (m.matches()) {
             failPosition = -1;
          } else {
-            for (failPosition = s.length(); failPosition >= 0; failPosition--) {
-               m = pattern.matcher(s.substring(0, failPosition));
+            for (failPosition = text.length(); failPosition >= 0; failPosition--) {
+               m = pattern.matcher(text.substring(0, failPosition));
                if (m.matches() || m.hitEnd()) { break; }
             }
          }
       }
       return failPosition;
+   }
+
+   public boolean matches(ScannerAwareEditText editText, @NonNull String text) {
+      final int failPosition = matches(text);
+      if (failPosition >= 0) {
+         final String message = (failPosition >= text.length()) ?
+                                App.getStr(R.string.string_type_error_1) :
+                                App.getStr(R.string.string_type_error_2, text.charAt(failPosition));
+         editText.requestFocus();
+         editText.setError(message);
+      }
+      return failPosition < 0;
    }
 
 }

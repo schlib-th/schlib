@@ -46,7 +46,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="@string/first_run_1_name1"
+                android:hint="@string/user_name1"
                 tools:ignore="NestedWeights">
 
                 <de.fahimu.android.app.scanner.ScannerAwareEditText
@@ -66,7 +66,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="@string/first_run_1_name2">
+                android:hint="@string/user_name2">
 
                 <de.fahimu.android.app.scanner.ScannerAwareEditText
                     android:id="@+id/first_run_1_name2"

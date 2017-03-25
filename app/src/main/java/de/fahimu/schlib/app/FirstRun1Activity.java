@@ -69,41 +69,26 @@ public final class FirstRun1Activity extends SchlibActivity {
 
    private boolean noInput = true;
 
-   private static String checkName(StringType stringType, String name) {
-      int failPosition = stringType.matches(name);
-      if (failPosition >= name.length()) {
-         return App.getStr(R.string.first_run_1_error_2);
-      } else {
-         return (failPosition < 0) ? null : App.getStr(R.string.first_run_1_error_3, name.charAt(failPosition));
-      }
-   }
-
    public void onDoneClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         final String name1 = this.name1.getText().toString().trim();
-         final String name2 = this.name2.getText().toString().trim();
-         String message;
+         final String name1Value = name1.getText().toString().trim();
+         final String name2Value = name2.getText().toString().trim();
 
-         if (name1.isEmpty() && name2.isEmpty() && noInput) {
-            this.name1.requestFocus();
-            this.name1.setError(getString(R.string.first_run_1_error_1));
-         } else if ((message = checkName(StringType.NAME1, name1)) != null) {
+         if (name1Value.isEmpty() && name2Value.isEmpty() && noInput) {
+            name1.requestFocus();
+            name1.setError(getString(R.string.first_run_1_error));
+         } else if (!StringType.NAME1.matches(name1, name1Value)) {
             noInput = false;
-            this.name1.requestFocus();
-            this.name1.setError(message);
-         } else if ((message = checkName(StringType.NAME2, name2)) != null) {
+         } else if (!StringType.NAME2.matches(name2, name2Value)) {
             noInput = false;
-            this.name2.requestFocus();
-            this.name2.setError(message);
          } else {
             NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
             dialog.setTitle(R.string.first_run_1_dialog_title);
             dialog.setMessage(R.string.first_run_1_dialog_message);
             dialog.setPositiveButton(R.string.app_cont, new ButtonListener() {
                @Override
-               public void onClick() { prepareDatabaseAndContinue(name1, name2); }
+               public void onClick() { prepareDatabaseAndContinue(name1Value, name2Value); }
             }).show();
-
          }
       }
    }

@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
-            android:hint="@string/admin_users_add_step_1b_name1">
+            android:hint="@string/user_pupil_name1">
 
             <de.fahimu.android.app.scanner.ScannerAwareEditText
                 android:id="@+id/admin_users_add_step_1b_name1"
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 android:gravity="center"
-                android:text="@string/admin_users_add_step_1b_name2"
+                android:text="@string/user_pupil_name2"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <RadioGroup

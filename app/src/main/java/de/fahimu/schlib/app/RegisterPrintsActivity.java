@@ -318,26 +318,30 @@ public final class RegisterPrintsActivity extends SchlibActivity {
    public void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          int number = SerialNumber.parseCode128(barcode);
-         if (!processSerial(Label.getNullable(number)) && !processSerial(Idcard.getNullable(number))) {
-            showErrorSnackbar(R.string.register_prints_error_invalid);
+         Label label = Label.getNullable(number);
+         if (label != null) {
+            processSerial(label);
+         } else {
+            Idcard idcard = Idcard.getNullable(number);
+            if (idcard != null) {
+               processSerial(idcard);
+            } else {
+               showErrorSnackbar(R.string.register_prints_error_invalid);
+            }
          }
       }
    }
 
-   private boolean processSerial(@Nullable Serial serial) {
-      if (serial == null) {
-         return false;
-      } else if (serial.isPrinted()) {
+   private void processSerial(@NonNull Serial serial) {
+      if (serial.isPrinted()) {
          Serial.setStocked(serial);
          showInfoSnackbar(R.string.register_prints_ok);
          pagesAdapter.updateAsync(Adapter.RELOAD_DATA);
-         return true;
       } else {
          if (serial.isLost()) {
             serial.setLost(false).update();     // Surprise! The serial isn't lost, set this serial to 'Stocked'.
          }
          showInfoSnackbar(R.string.register_prints_info_not_printed);
-         return true;
       }
    }
 

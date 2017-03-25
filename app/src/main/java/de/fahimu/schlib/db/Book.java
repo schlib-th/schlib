@@ -166,8 +166,8 @@ public final class Book extends Row {
    }
 
    @Nullable
-   public static Book get(String shelf, int number) {
-      return Book.get(App.format("%s=? AND %s=?", SHELF, NUMBER), shelf, number);
+   public static Book getByISBN(ISBN isbn) {
+      return Book.get(App.format("%s=?", ISBN), isbn.getValue());
    }
 
    @Nullable
@@ -196,14 +196,12 @@ public final class Book extends Row {
    }
 
    /**
-    * Returns a list of books where values are only assigned for column {@code _id}
-    * and the specified {@code column}, grouped and ordered by the specified {@code column}.
+    * Returns a list of books grouped and ordered by the specified {@code column},
+    * where values are only assigned for column {@code _id} and the specified {@code column}.
     * This method will be called e. g. to populate lists in {@link AutoCompleteTextView}s.
     *
     * @param column
     *       the requested column.
-    * @param history
-    *       if false search the main table {@code books}, otherwise the history table {@code prev_books}.
     * @return a list of books grouped and ordered by the specified {@code column}.
     *
     * @throws IllegalArgumentException
@@ -211,15 +209,15 @@ public final class Book extends Row {
     *       {@link #TITLE}, {@link #PUBLISHER}, {@link #AUTHOR}, {@link #KEYWORDS} or {@link #SHELF}.
     */
    @NonNull
-   public static ArrayList<Book> getColumnValues(@NonNull String column, boolean history) {
+   public static ArrayList<Book> getColumnValues(@NonNull String column) {
       if (!acceptedColumns.contains(column)) {
          throw new IllegalArgumentException(column + " not allowed");
       }
       Values columns = new Values().add(OID).add(column);
-      return SQLite.get(Book.class, history ? PREV : TAB, columns, column, column, null);
+      return SQLite.get(Book.class, TAB, columns, column, column, null);
    }
 
-   private static HashSet<String> acceptedColumns =
+   private static final HashSet<String> acceptedColumns =
          new HashSet<>(Arrays.asList(TITLE, PUBLISHER, AUTHOR, KEYWORDS, SHELF));
 
    /**

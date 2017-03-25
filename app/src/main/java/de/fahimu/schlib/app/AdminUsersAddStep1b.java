@@ -74,10 +74,28 @@ public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivit
          countText = findView(TextView.class, R.id.admin_users_add_step_1b_count_text);
          countSeek = findView(SeekBar.class, R.id.admin_users_add_step_1b_count_seek);
 
-         name1.addTextChangedListener(new TextChangedListener());
          name1.setColumnAdapter(new PupilName1Adapter());
+         name1.addTextChangedListener(new TextChangedListener());
          name2Group.setOnCheckedChangeListener(new RadioGroupListener());
          countSeek.setOnSeekBarChangeListener(new SeekBarListener());
+      }
+   }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   private static final class PupilName1Item extends ColumnItem {
+      PupilName1Item(@NonNull User user) {
+         super(user, user.getName1());
+      }
+   }
+
+   private static final class PupilName1Adapter extends ColumnAdapter<PupilName1Item> {
+      @Override
+      protected void loadData(ArrayList<PupilName1Item> data) {
+         ArrayList<User> users = User.getPupilsName1();
+         for (User user : users) {
+            data.add(new PupilName1Item(user));
+         }
       }
    }
 
@@ -90,26 +108,7 @@ public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivit
          // prevent entering of leading blanks (just because it doesn't make sense)
          if (!text.isEmpty() && text.trim().isEmpty()) { editable.clear(); }
          activity.name1 = name1.getText().toString().trim();
-         Log.d("name1=" + activity.name1);
          updateCountMaxAndText();
-      }
-   }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   private final static class PupilName1Item extends ColumnItem {
-      PupilName1Item(@NonNull User user) {
-         super(user, user.getName1());
-      }
-   }
-
-   private final class PupilName1Adapter extends ColumnAdapter<PupilName1Item> {
-      @Override
-      protected void loadData(ArrayList<PupilName1Item> data) {
-         ArrayList<User> users = User.getPupilsName1();
-         for (User user : users) {
-            data.add(new PupilName1Item(user));
-         }
       }
    }
 
@@ -120,7 +119,6 @@ public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivit
       public void onCheckedChanged(RadioGroup group, int checkedId) {
          RadioButton button = (checkedId == R.id.admin_users_add_step_1b_name2_year_0 ? name2Year0 : name2Year1);
          activity.name2 = button.getText().toString();
-         Log.d("name2=" + activity.name2);
          updateCountMaxAndText();
       }
    }
@@ -139,7 +137,6 @@ public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivit
    private void updateCountText() {
       final String text;
       final int newCount = activity.count;
-      Log.d("oldCount=" + oldCount + ", newCount=" + newCount);
       if (newCount == 0) {
          text = App.getStr(R.string.admin_users_add_step_1b_count_error);
          activity.showErrorSnackbar(R.string.admin_users_add_step_1b_count_error);
@@ -203,13 +200,7 @@ public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivit
 
    @Override
    boolean isDone() {
-      int failPosition = StringType.CLASS.matches(activity.name1);
-      if (failPosition >= 0) {
-         name1.requestFocus();
-         char illegalChar = activity.name1.charAt(failPosition);
-         name1.setError(App.getStr(R.string.admin_users_add_step_1b_name1_error, illegalChar));
-      }
-      return failPosition < 0;
+      return StringType.CLASS.matches(name1, activity.name1);
    }
 
 }
