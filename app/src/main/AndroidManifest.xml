@@ -159,6 +159,12 @@
             android:parentActivityName=".AdminActivity"
             android:screenOrientation="userLandscape">
         </activity>
+        <activity
+            android:name=".StocktakingUsersActivity"
+            android:label="@string/stocktaking_users_label"
+            android:parentActivityName=".AdminActivity"
+            android:screenOrientation="userLandscape">
+        </activity>
     </application>
 
 </manifest>

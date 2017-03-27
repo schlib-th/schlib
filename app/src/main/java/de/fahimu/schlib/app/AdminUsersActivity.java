@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 
@@ -25,7 +26,7 @@ import java.util.List;
 
 import de.fahimu.android.app.ListView.Adapter;
 import de.fahimu.android.app.ListView.Filter;
-import de.fahimu.android.app.ListView.Item;
+import de.fahimu.android.app.ListView.SearchableItem;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.SearchString;
@@ -35,7 +36,7 @@ import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.User;
 
 /**
- * An activity for administrating users.
+ * Activity for administrating users.
  *
  * @author Thomas Hirsch, schlib@fahimu.de
  * @version 1.0, 01.04.2017
@@ -43,37 +44,40 @@ import de.fahimu.schlib.db.User;
  */
 public final class AdminUsersActivity extends SchlibActivity {
 
-   private final class UserItem extends Item<User> {
+   private final class UserItem extends SearchableItem<User> {
       UserItem(@NonNull User user) {
          super(user, user.getDisplay(), new SerialNumber(user.getIdcard()).getDisplay());
       }
    }
 
    private final class UserViewHolder extends ViewHolder<UserItem> {
-      private final TextView roleName, idcards;
+      private final TextView roleName, idcard;
 
       UserViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         super(inflater, parent, R.layout.admin_users_row);
-         roleName = App.findView(itemView, TextView.class, R.id.admin_users_row_role_name);
-         idcards = App.findView(itemView, TextView.class, R.id.admin_users_row_idcards);
+         super(inflater, parent, R.layout.row_user);
+         roleName = App.findView(itemView, TextView.class, R.id.row_user_role_name);
+         idcard = App.findView(itemView, TextView.class, R.id.row_user_idcard);
+
+         final ImageButton action = App.findView(itemView, ImageButton.class, R.id.row_user_action);
+         action.setImageResource(R.drawable.ic_info_black_24dp);
+         action.setContentDescription(App.getStr(R.string.row_user_action_info));
       }
 
       protected void bind(UserItem item) {
-         User user = item.row;
-         item.searchString.setText(0, roleName, user.getDisplay());
-         item.searchString.setText(1, idcards, new SerialNumber(user.getIdcard()).getDisplay());
+         item.setText(0, roleName);
+         item.setText(1, idcard);
       }
    }
 
-   private final class UsersAdapter extends Adapter<User,UserItem,AdminUsersActivity.UserViewHolder> {
+   private final class UsersAdapter extends Adapter<User,UserItem,UserViewHolder> {
 
       UsersAdapter() {
          super(AdminUsersActivity.this, R.id.admin_users_list, R.string.admin_users_empty);
       }
 
       @Override
-      protected AdminUsersActivity.UserViewHolder createViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         return new AdminUsersActivity.UserViewHolder(inflater, parent);
+      protected UserViewHolder createViewHolder(LayoutInflater inflater, ViewGroup parent) {
+         return new UserViewHolder(inflater, parent);
       }
 
       @Override
@@ -108,7 +112,7 @@ public final class AdminUsersActivity extends SchlibActivity {
 
       @Override
       public boolean matches(UserItem item) {
-         return item.searchString.contains(normalizedQueries);
+         return item.contains(normalizedQueries);
       }
    }
 

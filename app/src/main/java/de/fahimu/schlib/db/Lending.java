@@ -12,9 +12,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 
-import java.util.List;
+import java.util.ArrayList;
 
-import de.fahimu.android.app.Log;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
@@ -63,24 +62,38 @@ public final class Lending extends Row {
     *       the user id.
     */
    public static void issueBook(long bid, long uid) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         SQLite.insert(TAB, new Values().add(BID, bid).add(UID, uid));
-      }
+      SQLite.insert(TAB, new Values().add(BID, bid).add(UID, uid));
+   }
+
+   private static String whereClause(String column, boolean issuedOnly) {
+      return issuedOnly ? App.format("%s=? AND %s ISNULL", column, RETURN) : App.format("%s=?", column);
    }
 
    /**
-    * Returns the pending {@code Lending} or {@code null} if the book is currently not issued.
+    * Returns the {@link Lending}s of the specified book.
     *
     * @param bid
     *       the book id.
-    * @return the pending {@code Lending} or {@code null} if the book is currently not issued.
+    * @param issuedOnly
+    *       if {@code true}, the result list will either be empty (book is returned)
+    *       or have exactly one element (book is currently issued).
+    * @return the {@link Lending}s of the specified book.
     */
-   public static Lending getPendingLending(long bid) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         String where = App.format("%s=? AND %s ISNULL", BID, RETURN);
-         List<Lending> list = SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, null, where, bid);
-         return (list.size() == 0) ? null : list.get(0);
-      }
+   public static ArrayList<Lending> getBooksLendings(long bid, boolean issuedOnly) {
+      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(BID, issuedOnly), bid);
+   }
+
+   /**
+    * Returns the {@link Lending}s of the specified user.
+    *
+    * @param uid
+    *       the user id.
+    * @param issuedOnly
+    *       if {@code true}, only lendings will be returned where the books are currently issued.
+    * @return the {@link Lending}s of the specified user.
+    */
+   public static ArrayList<Lending> getUsersLendings(long uid, boolean issuedOnly) {
+      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(UID, issuedOnly), uid);
    }
 
    /* ============================================================================================================== */
@@ -134,11 +147,9 @@ public final class Lending extends Row {
     * @return the number of days between {@code issue} and {@code return} as an {@code int}.
     */
    public int returnBook() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         setNonNull(RETURN, SQLite.getDatetimeNow()).update();
-         String days = SQLite.getFromRawQuery("SELECT JULIANDAY(?) - JULIANDAY(?)", getReturn(), getIssue());
-         return (int) Double.parseDouble(days);     // days is formatted as a double from SQLITE
-      }
+      setNonNull(RETURN, SQLite.getDatetimeNow()).update();
+      String days = SQLite.getFromRawQuery("SELECT JULIANDAY(?) - JULIANDAY(?)", getReturn(), getIssue());
+      return (int) Double.parseDouble(days);     // days is formatted as a double from SQLITE
    }
 
 }

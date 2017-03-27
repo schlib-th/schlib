@@ -25,7 +25,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/admin_books_row_shelf"
+            android:id="@+id/row_book_shelf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -36,7 +36,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
-            android:id="@+id/admin_books_row_number"
+            android:id="@+id/row_book_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -58,7 +58,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/admin_books_row_title"
+            android:id="@+id/row_book_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -76,7 +76,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/admin_books_row_author"
+                android:id="@+id/row_book_author"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -87,7 +87,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
-                android:id="@+id/admin_books_row_keywords"
+                android:id="@+id/row_book_keywords"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -98,7 +98,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
-                android:id="@+id/admin_books_row_publisher"
+                android:id="@+id/row_book_publisher"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -113,7 +113,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/admin_books_row_isbn_label"
+        android:id="@+id/row_book_isbn_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -125,11 +125,12 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <ImageButton
+        android:id="@+id/row_book_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginEnd="4dp"
-        android:contentDescription="@string/admin_books_edit_label"
+        android:contentDescription="@string/row_book_action_info"
         android:onClick="onListItemClicked"
         android:scaleType="fitXY"
         android:src="@drawable/ic_info_black_24dp" />

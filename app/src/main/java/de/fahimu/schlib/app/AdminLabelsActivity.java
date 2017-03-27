@@ -8,7 +8,6 @@ package de.fahimu.schlib.app;
 
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 
@@ -16,7 +15,6 @@ import android.support.annotation.WorkerThread;
 import java.util.ArrayList;
 
 import de.fahimu.android.app.scanner.NoFocusDialog;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Label;
 
@@ -79,16 +77,16 @@ public final class AdminLabelsActivity extends AdminSerialsActivity<Label> {
    int[] getSnackbarIds() { return SNACKBAR_IDS; }
 
    /** {@inheritDoc} */
-   @NonNull
    @Override
-   NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Label label) {
-      dialog.setTitle(R.string.admin_labels_dialog_title, new SerialNumber(label.getId()).getDecimal());
+   void showErrorDialog(Label label) {
+      NoFocusDialog dialog = new NoFocusDialog(this);
       if (label.isPrinted()) {
-         return dialog.setMessage(R.string.admin_labels_dialog_message_printed);
-      } else {      // isUsed() - see precondition
-         return dialog.setMessage(R.string.admin_labels_dialog_message_used,
+         dialog.setMessage(R.string.dialog_message_admin_labels_printed, label.getDisplayId());
+      } else {
+         dialog.setMessage(R.string.dialog_message_admin_labels_used, label.getDisplayId(),
                Book.getNonNull(label.getBid()).getDisplay());
       }
+      dialog.show();
    }
 
 }

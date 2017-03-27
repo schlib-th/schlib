@@ -431,14 +431,14 @@ public final class TutorActivity extends SchlibActivity {
       if (scannedBook != null) {
          setError(R.string.tutor_message_1_expected_user, R.string.tutor_message_2_book_before_user);
       } else {
-         Lending lending = Lending.getPendingLending(book.getBid());
-         if (lending == null) {
+         ArrayList<Lending> lendings = Lending.getBooksLendings(book.getBid(), true);
+         if (lendings.isEmpty()) {
             App.playSound(R.raw.bell);
             setDisplay(2, 0, R.string.tutor_progress_issue_init, book.getDisplay());
             scannedBook = book;
          } else {
-            int days = lending.returnBook() - book.getPeriod();
-            User user = User.getNonNull(lending.getUid());
+            int days = lendings.get(0).returnBook() - book.getPeriod();
+            User user = User.getNonNull(lendings.get(0).getUid());
             if (days < 2) {
                App.playSound(R.raw.bell_return);
                setDisplay(0, 1, R.string.tutor_progress_return_in_time, book.getDisplay(), user.getDisplay());

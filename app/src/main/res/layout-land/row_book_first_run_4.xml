@@ -25,7 +25,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/first_run_4_row_shelf"
+            android:id="@+id/row_book_first_run_4_shelf"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
@@ -35,7 +35,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
-            android:id="@+id/first_run_4_row_number"
+            android:id="@+id/row_book_first_run_4_number"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
@@ -47,7 +47,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/first_run_4_row_title"
+        android:id="@+id/row_book_first_run_4_title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
@@ -65,35 +65,35 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/first_run_4_row_isbn"
+            android:id="@+id/row_book_first_run_4_isbn"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:ems="7"
             android:gravity="center_vertical"
-            android:hint="@string/first_run_4_row_isbn"
+            android:hint="@string/book_isbn"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
-            android:id="@+id/first_run_4_row_label"
+            android:id="@+id/row_book_first_run_4_label"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:ems="5"
             android:gravity="center_vertical"
-            android:hint="@string/first_run_4_row_label"
+            android:hint="@string/book_label"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/first_run_4_row_action"
+        android:id="@+id/row_book_first_run_4_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:contentDescription="@string/first_run_4_row_action_delete"
+        android:contentDescription="@string/row_book_first_run_4_action_delete"
         android:onClick="onListItemClicked"
         android:scaleType="fitXY"
         android:src="@drawable/ic_delete_black_24dp" />

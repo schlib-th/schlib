@@ -82,10 +82,9 @@ public final class FirstRun1Activity extends SchlibActivity {
          } else if (!StringType.NAME2.matches(name2, name2Value)) {
             noInput = false;
          } else {
-            NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-            dialog.setTitle(R.string.first_run_1_dialog_title);
-            dialog.setMessage(R.string.first_run_1_dialog_message);
-            dialog.setPositiveButton(R.string.app_cont, new ButtonListener() {
+            NoFocusDialog dialog = new NoFocusDialog(this);
+            dialog.setMessage(R.string.dialog_message_first_run_1);
+            dialog.setButton1(R.string.app_cont, new ButtonListener() {
                @Override
                public void onClick() { prepareDatabaseAndContinue(name1Value, name2Value); }
             }).show();

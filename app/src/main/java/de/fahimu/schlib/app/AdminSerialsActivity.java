@@ -29,10 +29,10 @@ import java.util.List;
 
 import de.fahimu.android.app.ListView.Adapter;
 import de.fahimu.android.app.ListView.Filter;
-import de.fahimu.android.app.ListView.Item;
+import de.fahimu.android.app.ListView.SearchableItem;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
-import de.fahimu.android.app.scanner.NoFocusDialog;
+import de.fahimu.android.app.SearchString;
 import de.fahimu.android.app.scanner.ScannerAwareSearchView;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Serial;
@@ -46,14 +46,9 @@ import de.fahimu.schlib.db.Serial;
  */
 abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
-   private final class SerialItem extends Item<S> {
-      final String key, info;
-
-      @WorkerThread
+   private final class SerialItem extends SearchableItem<S> {
       SerialItem(@NonNull S serial) {
-         super(serial);
-         key = serial.getDisplayId();
-         info = serial.getDisplay();
+         super(serial, serial.getDisplayId(), serial.getDisplay());
       }
    }
 
@@ -62,24 +57,24 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
       private final ImageButton action;
 
       SerialItemViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         super(inflater, parent, R.layout.admin_serials_row);
-         key = App.findView(itemView, TextView.class, R.id.admin_serials_row_key);
-         info = App.findView(itemView, TextView.class, R.id.admin_serials_row_info);
-         action = App.findView(itemView, ImageButton.class, R.id.admin_serials_row_action);
+         super(inflater, parent, R.layout.row_serial);
+         key = App.findView(itemView, TextView.class, R.id.row_serial_key);
+         info = App.findView(itemView, TextView.class, R.id.row_serial_info);
+         action = App.findView(itemView, ImageButton.class, R.id.row_serial_action);
       }
 
       protected void bind(SerialItem item) {
-         key.setText(item.key);
-         info.setText(item.info);
+         item.setText(0, key);
+         item.setText(1, info);
          if (item.row.isLost()) {
             action.setImageResource(R.drawable.ic_restore_black_24dp);
-            action.setContentDescription(App.getStr(R.string.admin_serials_row_action_restore));
+            action.setContentDescription(App.getStr(R.string.row_serial_action_restore));
          } else if (item.row.isStocked()) {
             action.setImageResource(R.drawable.ic_delete_black_24dp);
-            action.setContentDescription(App.getStr(R.string.admin_serials_row_action_delete));
+            action.setContentDescription(App.getStr(R.string.row_serial_action_delete));
          } else {
             action.setImageResource(R.drawable.ic_info_black_24dp);
-            action.setContentDescription(App.getStr(R.string.admin_serials_row_action_info));
+            action.setContentDescription(App.getStr(R.string.row_serial_action_info));
          }
       }
    }
@@ -160,8 +155,9 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
     * Filters the serial lists depending on the currently displayed queryText and the filter menu.
     */
    private final class SerialItemFilter implements Filter<SerialItem> {
+      @NonNull
+      private final String[] normalizedQueries = SearchString.getNormalizedQueries(searchView);
 
-      private String queryText = "";
       private boolean isFilterPrintedChecked;
       private boolean isFilterStockedChecked;
       private boolean isFilterUsedChecked;
@@ -169,7 +165,6 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
       SerialItemFilter() {
          if (searchView != null) {          // safety net if updateMenuItems is called before onCreateOptionsMenu
-            this.queryText = searchView.getQuery();
             this.isFilterPrintedChecked = filterPrinted.isChecked();
             this.isFilterStockedChecked = filterStocked.isChecked();
             this.isFilterUsedChecked = filterUsed.isChecked();
@@ -179,15 +174,15 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
       @Override
       public boolean matches(SerialItem item) {
-         if (!queryText.isEmpty()) {
-            return item.key.contains(queryText);
+         if (normalizedQueries.length > 0) {
+            return item.contains(normalizedQueries);
          } else if (item.row.isPrinted()) {
             return isFilterPrintedChecked;
          } else if (item.row.isLost()) {
             return isFilterLostChecked;
          } else if (item.row.isUsed()) {
             return isFilterUsedChecked;
-         } else {        // listItem.serial.isStocked()
+         } else {
             return isFilterStockedChecked;
          }
       }
@@ -344,11 +339,10 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
    public final void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          SerialItem item = serialsAdapter.getItemByView(view);
-         S serial = item.row;
-         if (serial.isUsed() || serial.isPrinted()) {
-            configInfoDialog(new NoFocusDialog(this, NoFocusDialog.DEFAULT_CANCEL), serial).show();
+         if (item.row.isUsed() || item.row.isPrinted()) {
+            showErrorDialog(item.row);
          } else {
-            serial.setLost(!serial.isLost()).update();           // toggle lost <-> stocked
+            item.row.setLost(!item.row.isLost()).update();           // toggle lost <-> stocked
             serialsAdapter.setData(item);
             serialsAdapter.updateAsync(DATA_WAS_CHANGED, new SerialItemFilter());
          }
@@ -356,17 +350,12 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
    }
 
    /**
-    * Sets the {@link NoFocusDialog#setTitle(int, Object...) title} and
-    * {@link NoFocusDialog#setMessage(int, Object...) message} of the InfoDialog.
+    * Shows the ErrorDialog.
     * <p> Precondition: {@code serial.isUsed() || serial.isPrinted()}. </p>
     *
-    * @param dialog
-    *       the dialog to configure.
     * @param serial
     *       the serial.
-    * @return the specified {@code dialog}.
     */
-   @NonNull
-   abstract NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, S serial);
+   abstract void showErrorDialog(S serial);
 
 }

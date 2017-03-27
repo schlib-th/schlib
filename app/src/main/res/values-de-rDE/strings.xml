@@ -53,6 +53,8 @@
     <string name="book_keywords">Schlagwörter</string>
     <string name="book_shelf">Kategorie</string>
     <string name="book_number">Nummer</string>
+    <string name="book_isbn">ISBN</string>
+    <string name="book_label">Klebeetikett</string>
     <string name="book_period">Leihfrist</string>
 
     <!-- PDF documents -->
@@ -104,19 +106,6 @@
     <string name="external_file_prints">Ausdrucke</string>
     <string name="external_file_import">Bücherbestand übernehmen</string>
 
-    <!-- SchlibActivity -->
-
-    <string name="schlib_rationale_dialog_title">Berechtigung fehlt!</string>
-    <string name="schlib_rationale_dialog_message">
-        Die Bücherei-Verwaltung muss u. a. Klebeetiketten und Ausweiskarten als PDF-Dateien ins Austauschverzeichnis
-        schreiben können. Die Berechtigung dazu fehlt im Augenblick und muss von Ihnen explizit erteilt werden.
-    </string>
-    <string name="schlib_fatal_dialog_title">Berechtigung wurde verwehrt!</string>
-    <string name="schlib_fatal_dialog_message">
-        Wenn ins Austauschverzeichnis keine PDF-Dateien geschrieben werden können,
-        ist die Bücherei-Verwaltung nicht funktionsfähig. Bitte beenden Sie die App.
-    </string>
-
     <!-- Menu Items -->
 
     <string name="action_help">Hilfe</string>
@@ -147,20 +136,169 @@
 
     <!-- Dialog -->
 
-    <string name="dialog_title_error">Fehler!</string>
     <string name="dialog_message_idcard_used">
-        Dieser Ausweis ist dem %1$s zugewiesen.\n
-        \nBitte nur Ausweiskarten scannen, die sich im Bestand befinden und keinem Nutzer zugewiesen sind.
+        Fehler!
+        \nDieser Ausweis ist dem %1$s zugewiesen.\n
+        \nBitte nur Ausweiskarten scannen, die sich im Vorrat befinden und keinem Nutzer zugewiesen sind.
     </string>
     <string name="dialog_message_label_used">
-        Dieses Etikett identifiziert das Buch %1$s.\n
-        \nBitte nur Klebeetiketten scannen, die sich im Bestand befinden und auf keinem Buch aufgeklebt sind.
+        Fehler!
+        \nDieses Etikett identifiziert das Buch %1$s.\n
+        \nBitte nur Klebeetiketten scannen, die sich im Vorrat befinden und auf keinem Buch aufgeklebt sind.
+    </string>
+
+    <string name="dialog_message_schlib_no_permission">
+        Berechtigung fehlt
+        \nDie Bücherei-Verwaltung muss u. a. Klebeetiketten und Ausweiskarten als PDF-Dateien ins Austauschverzeichnis
+        schreiben können. Die Berechtigung dazu fehlt im Augenblick und muss von Ihnen explizit erteilt werden.
+    </string>
+    <string name="dialog_message_schlib_permission_not_granted">
+        Berechtigung wurde verwehrt!
+        \nWenn ins Austauschverzeichnis keine PDF-Dateien geschrieben werden können,
+        ist die Bücherei-Verwaltung nicht funktionsfähig. Bitte beenden Sie die App.
+    </string>
+
+    <string name="dialog_message_first_run_1">
+        Klebeetiketten und Ausweiskarten erstellen
+        \nAls nächstes benötigen Sie Klebeetiketten für Ihre Bücher und Ausweiskarten für sich und andere Nutzer.\n
+        \nDazu werden jetzt PDF-Dateien ins Austauschverzeichnis des Tablets geschrieben, die Sie dann
+        auf geeigneten Medien ausdrucken und anschließend registrieren müssen.
+    </string>
+
+    <string name="dialog_message_first_run_3_no_csv_files">
+        Fehler!
+        \nKeine CSV-Dateien im Verzeichnis \"%1$s\" gefunden.
+    </string>
+    <string name="dialog_message_first_run_3_file_corrupted">
+        Fehler!
+        \nDie Datei \"%2$s\" konnte nicht vollständig gelesen werden.
+        Nähere Angaben zur Fehlerursache finden Sie in der Datei \"%3$s\" im Verzeichnis \"%1$s\".
+    </string>
+    <string name="dialog_message_first_run_3_continue_with_login">
+        Weiter zur Anmeldung?
+        \nEine Übernahme Ihres Bücherbestands aus CSV-Dateien ist zu einem späteren Zeitpunkt nicht mehr möglich.
+        Wollen Sie jetzt weiter zur Anmeldung?
+    </string>
+
+    <string name="dialog_message_first_run_4_delete_book">
+        Buch löschen?
+        \nWollen Sie wirklich das Buch
+        \n%1$s
+        \naus dem Bestand löschen? Sie können diese Aktion nicht widerrufen.
+    </string>
+    <string name="dialog_button0_first_run_4_delete_book">Nein, bitte nicht löschen</string>
+    <string name="dialog_button1_first_run_4_delete_book">Buch löschen</string>
+    <string name="dialog_message_first_run_4_isbn_used">
+        Barcode nicht eindeutig!
+        \nDie ISBN identifiziert bereits das Buch
+        \n%1$s.
+        \nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
+    </string>
+    <string name="dialog_message_first_run_4_label_used">
+        Barcode nicht eindeutig!
+        \nDas Klebeetikett identifiziert bereits das Buch
+        \n%1$s.
+    </string>
+    <string name="dialog_message_first_run_4_no_isbn">
+        Dem Buch wurde keine ISBN zugewiesen!
+        \nWenn Sie mehrere Exemplare des gleichen Buchs haben,
+        und die Bücher eine ISBN besitzen, muss vor dem Klebeetikett die ISBN gescannt werden.
+    </string>
+    <string name="dialog_button0_first_run_4_no_isbn">Ich habe vergessen, die ISBN zu scannen</string>
+    <string name="dialog_button1_first_run_4_no_isbn">Das Buch hat keine ISBN</string>
+
+    <string name="dialog_message_login">
+        Ausleihe oder Verwaltung?
+        \nWollen Sie Bücher ausleihen und zurücknehmen,
+        \noder wollen Sie den Bücherbestand und die Nutzerkonten verwalten?
+    </string>
+    <string name="dialog_button0_login">Ausleihe</string>
+    <string name="dialog_button1_login">Verwaltung</string>
+
+    <string name="dialog_message_admin_idcards_printed">
+        Ausweiskarte %1$s
+        \nDieser Ausweis wurde erstellt, der Ausdruck aber noch nicht registriert.\n
+        \nWenn Sie zu viele Ausweiskarten erstellt haben, können
+        Sie diese mit dem Papierkorb aus der Werkzeugleiste wieder verwerfen.
+    </string>
+    <string name="dialog_message_admin_idcards_used">
+        Ausweiskarte %1$s
+        \nDieser Ausweis ist dem %2$s zugewiesen.\n
+        \nWenn sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen
+        oder das Nutzerkonto löschen.\n
+        \nBitte wechseln Sie dazu in den Bereich \"Nutzerkonten verwalten\".
+    </string>
+
+    <string name="dialog_message_admin_labels_printed">
+        Klebeetikett %1$s
+        \nDieses Etikett wurde erstellt, der Ausdruck aber noch nicht registriert.\n
+        \nWenn Sie zu viele Klebeetiketten erstellt haben, können
+        Sie diese mit dem Papierkorb in der Werkzeugleiste wieder verwerfen.
+    </string>
+    <string name="dialog_message_admin_labels_used">
+        Klebeetikett %1$s
+        \nDieses Etikett identifiziert das Buch %2$s.\n
+        \nWenn sie das Etikett aussondern wollen, müssen Sie dem Buch zuerst ein neues Klebeetikett zuweisen,
+        bzw. das Buch aus dem Bestand nehmen.\n
+        \nBitte wechseln Sie dazu in den Bereich \"Bücherbestand verwalten\".
+    </string>
+
+    <string name="dialog_message_admin_books_add_step_2_similar_name">
+        Verwechslungsgefahr!
+        \nDie von Ihnen gewählte Kategorie \"%1$s\" kann leicht mit \"%2$s\" verwechselt werden.\n
+        \nBitte wählen Sie einen anderen Namen!
+    </string>
+    <string name="dialog_message_admin_books_add_step_2_new_shelf">
+        Neue Kategorie?
+        \nIn der von Ihnen gewählten Kategorie \"%1$s\" gibt es noch keine Bücher.\n
+        \nMöchten Sie wirklich eine neue Kategorie \"%1$s\" einführen?
+    </string>
+    <string name="dialog_message_admin_books_add_step_2_gap_in_number_1">
+        Lücke in den Nummern?
+        \nDas erste Buch in der neuen Kategorie \"%2$s\" bekommt die Nummer %1$s und nicht die Nummer 001.\n
+        \nMöchten Sie wirklich die Nummer %1$s verwenden?
+    </string>
+    <string name="dialog_message_admin_books_add_step_2_gap_in_number_2">
+        Lücke in den Nummern?
+        \nZwischen der von Ihnen gewählten Nummer (%1$s) und der bisher höchsten Nummer (%2$s) entsteht eine Lücke.\n
+        \nMöchten Sie wirklich die Nummer %1$s verwenden?
+    </string>
+
+    <string name="dialog_message_stocktaking_users_book_issued">
+        Konto kann nicht gelöscht werden!
+        \n%1$s hat das Buch %2$s noch nicht zurückgegeben.\n
+        \nDas Konto kann erst gelöscht werden, nachdem alle Bücher zurückgegeben wurden.
+    </string>
+    <string name="dialog_message_stocktaking_users_books_issued">
+        Konto kann nicht gelöscht werden!
+        \n%1$s hat noch %3$d Bücher ausgeliehen, u. a. %2$s.\n
+        \nDas Konto kann erst gelöscht werden, nachdem alle Bücher zurückgegeben wurden.
     </string>
 
     <!-- StringType -->
 
     <string name="string_type_error_1">Der Name ist zu kurz.</string>
     <string name="string_type_error_2">Zeichen \'%1$c\' nicht zulässig.</string>
+
+    <!-- ======================================================================================================== -->
+
+    <!-- Strings for row layouts -->
+
+    <string name="row_book_action_info">Informationen</string>
+
+    <string name="row_book_first_run_4_action_undo">Widerrufen</string>
+    <string name="row_book_first_run_4_action_delete">Buch löschen</string>
+
+    <string name="row_page_text">"%1$s - Seite %2$d"</string>
+
+    <string name="row_serial_action_info">Informationen</string>
+    <string name="row_serial_action_delete">Aussondern</string>
+    <string name="row_serial_action_restore">Aussondern widerrufen</string>
+
+    <string name="row_user_action_info">Informationen</string>
+    <string name="row_user_action_delete">Konto löschen</string>
+
+    <!-- ======================================================================================================== -->
 
     <!-- MainActivity -->
 
@@ -180,13 +318,6 @@
     </string>
     <string name="first_run_1_error">
         Berühren Sie das Feld für den Vornamen und geben Sie ihn dann mit Hilfe der eingeblendeten Tastatur ein.
-    </string>
-
-    <string name="first_run_1_dialog_title">Klebeetiketten und Ausweiskarten erstellen</string>
-    <string name="first_run_1_dialog_message">
-        Als nächstes benötigen Sie Klebeetiketten für Ihre Bücher und Ausweiskarten für sich und andere Nutzer.\n
-        \nDazu werden jetzt PDF-Dateien ins Austauschverzeichnis des Tablets geschrieben, die Sie dann
-        auf geeigneten Medien ausdrucken und anschließend registrieren müssen.
     </string>
 
     <!-- RegisterPrintsActivity -->
@@ -231,17 +362,7 @@
         zu übernehmen.
     </string>
     <string name="first_run_3_importCSV">Bücherbestand übernehmen</string>
-    <string name="first_run_3_importCSV_dialog_no_files">Keine CSV-Dateien im Verzeichnis \"%1$s\" gefunden.</string>
-    <string name="first_run_3_importCSV_dialog_file_corrupted">
-        Die Datei \"%2$s\" konnte nicht vollständig gelesen werden.
-        Nähere Angaben zur Fehlerursache finden Sie in der Datei \"%3$s\" im Verzeichnis \"%1$s\".
-    </string>
     <string name="first_run_3_gotoLogin">Weiter zur Anmeldung</string>
-    <string name="first_run_3_gotoLogin_dialog_title">Weiter zur Anmeldung?</string>
-    <string name="first_run_3_gotoLogin_dialog_message">
-        Eine Übernahme Ihres Bücherbestands aus CSV-Dateien ist zu einem späteren Zeitpunkt nicht mehr möglich.
-        Wollen Sie jetzt weiter zur Anmeldung?
-    </string>
     <string name="first_run_3_copy_csv_files">CSV-Dateien in dieses Verzeichnis kopieren</string>
 
     <!-- FirstRun4Activity -->
@@ -254,42 +375,10 @@
         auf das Buch geklebt und anschließend gescannt werden.
     </string>
     <string name="first_run_4_empty">Allen Büchern wurde eine eindeutige Nummer zugewiesen</string>
-    <string name="first_run_4_row_isbn">ISBN</string>
-    <string name="first_run_4_row_label">Klebeetikett</string>
-    <string name="first_run_4_row_action_undo">Widerrufen</string>
-    <string name="first_run_4_row_action_delete">Buch löschen</string>
 
-    <string name="first_run_4_dialog_delete_title">Buch löschen?</string>
-    <string name="first_run_4_dialog_delete_message">
-        Wollen Sie wirklich das Buch
-        \n%1$s
-        \naus dem Bestand löschen? Sie können diese Aktion nicht widerrufen.
-    </string>
-    <string name="first_run_4_dialog_delete_do_not_delete">Nein, bitte nicht löschen</string>
-    <string name="first_run_4_dialog_delete_please_delete">Buch löschen</string>
-
-    <string name="first_run_4_dialog_assigned_title">Barcode nicht eindeutig!</string>
-    <string name="first_run_4_dialog_assigned_message_isbn">
-        Die ISBN identifiziert bereits das Buch
-        \n%1$s.
-        \nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
-    </string>
-    <string name="first_run_4_dialog_assigned_message_label">
-        Das Klebeetikett identifiziert bereits das Buch
-        \n%1$s.
-    </string>
-
-    <string name="first_run_4_dialog_no_isbn_title">Dem Buch wurde keine ISBN zugewiesen!</string>
-    <string name="first_run_4_dialog_no_isbn_message">
-        Wenn Sie mehrere Exemplare des gleichen Buchs haben,
-        und die Bücher eine ISBN besitzen, muss vor dem Klebeetikett die ISBN gescannt werden.
-    </string>
-    <string name="first_run_4_dialog_no_isbn_forgot_scan">Ich habe vergessen, die ISBN zu scannen</string>
-    <string name="first_run_4_dialog_no_isbn_has_no_isbn">Das Buch hat keine ISBN</string>
-
-    <string name="first_run_4_snackbar_isbn_buffered">ISBN %1$s gemerkt.</string>
-    <string name="first_run_4_snackbar_isbn_action_discard">Verwerfen</string>
-    <string name="first_run_4_snackbar_isbn_discarded">ISBN verworfen.</string>
+    <string name="first_run_4_snackbar_undo_isbn_buffered">ISBN %1$s gemerkt.</string>
+    <string name="first_run_4_snackbar_undo_isbn_action_discard">Verwerfen</string>
+    <string name="first_run_4_snackbar_info_isbn_discarded">ISBN verworfen.</string>
 
     <!-- LoginActivity -->
 
@@ -315,14 +404,6 @@
     <string name="login_message_2_idcard_from_pupil">
         Eine Anmeldung zur Ausleihe oder Verwaltung ist mit einem Schülerausweis nicht möglich.
     </string>
-
-    <string name="login_dialog_title">Ausleihe oder Verwaltung?</string>
-    <string name="login_dialog_message">
-        Wollen Sie Bücher ausleihen und zurücknehmen,
-        \noder wollen Sie den Bücherbestand und die Nutzerkonten verwalten?
-    </string>
-    <string name="login_dialog_tutor">Ausleihe</string>
-    <string name="login_dialog_admin">Verwaltung</string>
 
     <!-- TutorActivity -->
 
@@ -378,12 +459,6 @@
 
     <!-- ======================================================================================================== -->
 
-    <!-- admin_serials_row -->
-
-    <string name="admin_serials_row_action_info">Informationen</string>
-    <string name="admin_serials_row_action_delete">Aussondern</string>
-    <string name="admin_serials_row_action_restore">Aussondern widerrufen</string>
-
     <!-- AdminIdcardsActivity -->
 
     <string name="admin_idcards_label">Ausweiskarten verwalten</string>
@@ -414,19 +489,6 @@
 
     <string name="admin_idcards_empty">Keine Ausweiskarte</string>
 
-    <string name="admin_idcards_dialog_title">Ausweiskarte %1$s</string>
-    <string name="admin_idcards_dialog_message_printed">
-        Dieser Ausweis wurde erstellt, der Ausdruck aber noch nicht registriert.\n
-        \nWenn Sie zu viele Ausweiskarten erstellt haben, können
-        Sie diese mit dem Papierkorb aus der Werkzeugleiste wieder verwerfen.
-    </string>
-    <string name="admin_idcards_dialog_message_used">
-        Dieser Ausweis ist dem %1$s zugewiesen.\n
-        \nWenn sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen
-        oder das Nutzerkonto löschen.\n
-        \nBitte wechseln Sie dazu in den Bereich \"Nutzerkonten verwalten\".
-    </string>
-
     <!-- AdminLabelsActivity -->
 
     <string name="admin_labels_label">Klebeetiketten verwalten</string>
@@ -456,19 +518,6 @@
     <string name="admin_labels_action_create">Neue Etiketten erstellen</string>
 
     <string name="admin_labels_empty">Kein Klebeetikett</string>
-
-    <string name="admin_labels_dialog_title">Klebeetikett %1$s</string>
-    <string name="admin_labels_dialog_message_printed">
-        Dieses Etikett wurde erstellt, der Ausdruck aber noch nicht registriert.\n
-        \nWenn Sie zu viele Klebeetiketten erstellt haben, können
-        Sie diese mit dem Papierkorb in der Werkzeugleiste wieder verwerfen.
-    </string>
-    <string name="admin_labels_dialog_message_used">
-        Dieses Etikett identifiziert das Buch %1$s.\n
-        \nWenn sie das Etikett aussondern wollen, müssen Sie dem Buch zuerst ein neues Klebeetikett zuweisen,
-        bzw. das Buch aus dem Bestand nehmen.\n
-        \nBitte wechseln Sie dazu in den Bereich \"Bücherbestand verwalten\".
-    </string>
 
     <!-- AdminUsersActivity -->
 
@@ -504,7 +553,7 @@
     <string name="admin_users_add_step_1a_explanation">
         Bitte geben Sie jetzt den Vor- und Nachnamen des %1$ss ein:
     </string>
-    <string name="admin_users_add_step_1a_error_snackbar">Es gibt bereits einen %1$s mit diesem Namen!</string>
+    <string name="admin_users_add_step_1a_snackbar_error">Es gibt bereits einen %1$s mit diesem Namen!</string>
 
     <string name="admin_users_add_step_1b_label">Klasse und Schuljahr festlegen</string>
     <string name="admin_users_add_step_1b_explanation">
@@ -524,20 +573,20 @@
     <string name="admin_users_add_step_2_label">Ausweiskarten zuteilen</string>
     <string name="admin_users_add_step_2_explanation">
         Zum Einrichten des neuen Kontos müssen Sie abschließend dem %2$s einen Ausweis zuteilen.\n
-        \n• Nehmen Sie 1 Ausweiskarte aus dem Bestand und scannen Sie diese.
+        \n• Nehmen Sie 1 Ausweiskarte aus dem Vorrat und scannen Sie diese.
         \n• Drücken Sie \"FERTIG\", um das Nutzerkonto einzurichten.
         \n• Geben Sie den Ausweis dem %2$s \"%3$s %4$s\".
     </string>
     <string name="admin_users_add_step_2_explanation_pupil_1">
         Zum Einrichten des neuen Kontos müssen Sie abschließend dem Schüler einen Ausweis zuteilen.\n
-        \n• Nehmen Sie 1 Ausweiskarte aus dem Bestand und scannen Sie diese.
+        \n• Nehmen Sie 1 Ausweiskarte aus dem Vorrat und scannen Sie diese.
         \n• Drücken Sie \"FERTIG\", um das Nutzerkonto einzurichten.
         \n• Geben Sie den Ausweis zusammen mit der ausgedruckten Schülerliste der
         \nLehrkraft der Klasse %3$s (%4$s).
     </string>
     <string name="admin_users_add_step_2_explanation_pupil_2">
         Zum Einrichten der neuen Konten müssen Sie abschließend den %1$d Schülern Ausweise zuteilen.\n
-        \n• Nehmen Sie %1$d Ausweiskarten aus dem Bestand und scannen Sie diese.
+        \n• Nehmen Sie %1$d Ausweiskarten aus dem Vorrat und scannen Sie diese.
         \n• Drücken Sie \"FERTIG\", um die Nutzerkonten einzurichten.
         \n• Geben Sie die Ausweise zusammen mit der ausgedruckten Schülerliste der
         \nLehrkraft der Klasse %3$s (%4$s).
@@ -590,25 +639,6 @@
     <string name="admin_books_add_step_2_explanation">
         Bitte legen Sie jetzt den Ablageort des Buchs fest.
     </string>
-    <string name="admin_books_add_step_2_similar_name_dialog_title">Verwechslungsgefahr!</string>
-    <string name="admin_books_add_step_2_similar_name_dialog_message">
-        Die von Ihnen gewählte Kategorie \'%1$s\' kann leicht mit \'%2$s\' verwechselt werden.\n
-        \nBitte wählen Sie einen anderen Namen!
-    </string>
-    <string name="admin_books_add_step_2_new_shelf_dialog_title">Neue Kategorie?</string>
-    <string name="admin_books_add_step_2_new_shelf_dialog_message">
-        In der von Ihnen gewählten Kategorie \'%1$s\' gibt es noch keine Bücher.\n
-        \nMöchten Sie wirklich eine neue Kategorie \'%1$s\' einführen?
-    </string>
-    <string name="admin_books_add_step_2_gap_in_number_dialog_title">Lücke in den Nummern?</string>
-    <string name="admin_books_add_step_2_gap_in_number_dialog_message_1">
-        Das erste Buch in der neuen Kategorie \'%2$s\' bekommt die Nummer %1$s und nicht die Nummer 001.\n
-        \nMöchten Sie wirklich die Nummer %1$s verwenden?
-    </string>
-    <string name="admin_books_add_step_2_gap_in_number_dialog_message_2">
-        Zwischen der von Ihnen gewählten Nummer (%1$s) und der bisher höchsten Nummer (%2$s) entsteht eine Lücke.\n
-        \nMöchten Sie wirklich die Nummer %1$s verwenden?
-    </string>
 
     <string name="admin_books_add_step_3_label">Buchdaten eingeben</string>
     <string name="admin_books_add_step_3_explanation_1">
@@ -631,7 +661,7 @@
 
     <string name="stocktaking_idcards_label">Ausweiskarten-Inventur</string>
     <string name="stocktaking_idcards_explanation">
-        Sie können jetzt überprüfen, ob Ihr Bestand an Ausweiskarten
+        Sie können jetzt überprüfen, ob Ihr Vorrat an Ausweiskarten
         mit den Angaben in der Bücherei-Verwaltung übereinstimmt.\n
         \nScannen Sie dazu alle Ausweiskarten, die keinem Nutzer zugewiesen sind,
         der Reihe nach ein. Jeder erfasste Ausweis wird aus der Liste rechts gelöscht.\n
@@ -644,7 +674,7 @@
 
     <string name="stocktaking_labels_label">Klebeetiketten-Inventur</string>
     <string name="stocktaking_labels_explanation">
-        Sie können jetzt überprüfen, ob Ihr Bestand an Klebeetiketten
+        Sie können jetzt überprüfen, ob Ihr Vorrat an Klebeetiketten
         mit den Angaben in der Bücherei-Verwaltung übereinstimmt.\n
         \nScannen Sie dazu alle Klebeetiketten, die nicht auf einem Buch aufgeklebt sind,
         der Reihe nach ein. Jedes erfasste Etikett wird aus der Liste rechts gelöscht.\n
@@ -656,6 +686,20 @@
     <!-- StocktakingUsersActivity -->
 
     <string name="stocktaking_users_label">Schülerkonten löschen</string>
+    <string name="stocktaking_users_explanation">
+        Sie können jetzt einfach und schnell viele Schülerkonten löschen,
+        z. B. am Ende des Schuljahres nach dem Einsammeln der Ausweiskarten.\n
+        \nScannen Sie dazu die Ausweiskarten der Reihe nach ein. Das zugehörige Konto
+        wird ohne Rückfrage gelöscht und der Ausweis wieder als im Vorrat befindlich markiert.\n
+        \nNachdem am Ende des Schuljahres alle Ausweiskarten gescannt wurden, sollte die Liste rechts leer sein.\n
+        \nAndernfalls können Sie die verbliebenen Konten mit dem Papierkorb löschen,
+        der zugehörige verloren gegangene Ausweis wird dann als ausgesondert markiert.
+    </string>
+    <string name="stocktaking_users_empty">Alle Schülerkonten gelöscht</string>
+    <string name="stocktaking_users_snackbar_error_no_pupil">Dieser Ausweis ist dem %1$s zugewiesen!</string>
+    <string name="stocktaking_users_snackbar_info_deleted">Konto von %1$s gelöscht.</string>
+    <string name="stocktaking_users_snackbar_info_stocked">Dieser Ausweis war bereits im Vorrat.</string>
+    <string name="stocktaking_users_snackbar_info_deleted_lost">Konto gelöscht, Ausweis ausgesondert.</string>
 
     <!-- StocktakingBooksActivity -->
 

@@ -197,10 +197,9 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
       if (similarShelf == null || similarShelf.equals(activity.shelf)) {
          return true;
       } else {
-         NoFocusDialog dialog = new NoFocusDialog(activity, NoFocusDialog.DEFAULT_CANCEL);
-         dialog.setTitle(R.string.admin_books_add_step_2_similar_name_dialog_title);
-         dialog.setMessage(R.string.admin_books_add_step_2_similar_name_dialog_message,
-               activity.shelf, similarShelf).show(R.raw.horn);
+         NoFocusDialog dialog = new NoFocusDialog(activity);
+         dialog.setMessage(R.string.dialog_message_admin_books_add_step_2_similar_name, activity.shelf, similarShelf);
+         dialog.show(R.raw.horn);
          return false;
       }
    }
@@ -209,14 +208,13 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
       if (activity.shelf.equals(confirmedShelf) || shelfs.containsValue(activity.shelf)) {
          return true;
       } else {
-         NoFocusDialog dialog = new NoFocusDialog(activity, NoFocusDialog.IGNORE_CANCEL);
-         dialog.setTitle(R.string.admin_books_add_step_2_new_shelf_dialog_title);
-         dialog.setMessage(R.string.admin_books_add_step_2_new_shelf_dialog_message, activity.shelf);
-         dialog.setPositiveButton(R.string.app_yes, new ButtonListener() {
+         NoFocusDialog dialog = new NoFocusDialog(activity);
+         dialog.setMessage(R.string.dialog_message_admin_books_add_step_2_new_shelf, activity.shelf);
+         dialog.setButton0(R.string.app_no, null);
+         dialog.setButton1(R.string.app_yes, new ButtonListener() {
             @Override
             public void onClick() { confirmedShelf = activity.shelf; }
-         });
-         dialog.setNegativeButton(R.string.app_no, NoFocusDialog.IGNORE_BUTTON).show();
+         }).show();
          return false;
       }
    }
@@ -227,20 +225,19 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
       if (activity.number == confirmedNumber || activity.number <= lastUsedNumber + 1) {
          return true;
       } else {
-         NoFocusDialog dialog = new NoFocusDialog(activity, NoFocusDialog.IGNORE_CANCEL);
-         dialog.setTitle(R.string.admin_books_add_step_2_gap_in_number_dialog_title);
+         NoFocusDialog dialog = new NoFocusDialog(activity);
          if (lastUsedNumber == 0) {
-            dialog.setMessage(R.string.admin_books_add_step_2_gap_in_number_dialog_message_1,
+            dialog.setMessage(R.string.dialog_message_admin_books_add_step_2_gap_in_number_1,
                   displayedValue, activity.shelf);
          } else {
-            dialog.setMessage(R.string.admin_books_add_step_2_gap_in_number_dialog_message_2,
+            dialog.setMessage(R.string.dialog_message_admin_books_add_step_2_gap_in_number_2,
                   displayedValue, App.format("%03d", lastUsedNumber));
          }
-         dialog.setPositiveButton(R.string.app_yes, new ButtonListener() {
+         dialog.setButton0(R.string.app_no, null);
+         dialog.setButton1(R.string.app_yes, new ButtonListener() {
             @Override
             public void onClick() { confirmedNumber = activity.number; }
-         });
-         dialog.setNegativeButton(R.string.app_no, NoFocusDialog.IGNORE_BUTTON).show();
+         }).show();
          return false;
       }
    }

@@ -14,6 +14,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
 import android.support.annotation.StringRes;
 import android.view.ViewGroup;
@@ -30,19 +31,28 @@ import de.fahimu.android.app.App;
  */
 public final class NoFocusDialog {
 
-   /**
-    * Will never be called.
-    * Its only purpose is to signal the constructor to make the AlertDialog non cancelable.
-    */
-   public static final OnCancelListener IGNORE_CANCEL = new OnCancelListener() {
-      @Override
-      public void onCancel(DialogInterface dialog) { /* ignore */ }
-   };
+   @NonNull
+   private final Builder builder;
 
-   public static final OnCancelListener DEFAULT_CANCEL = new OnCancelListener() {
-      @Override
-      public void onCancel(DialogInterface dialog) { /* ignore */ }
-   };
+   private volatile AlertDialog alertDialog = null;
+
+   public NoFocusDialog(@NonNull Context context) {
+      builder = new Builder(context).setCancelable(true);
+   }
+
+   @NonNull
+   public NoFocusDialog setMessage(@StringRes int resId, Object... args) {
+      String text = App.getStr(resId, args);
+      int newline = text.indexOf('\n');
+      builder.setTitle(text.substring(0, newline)).setMessage(text.substring(newline + 1));
+      return this;
+   }
+
+   @NonNull
+   public NoFocusDialog setOnCancelListener(OnCancelListener listener) {
+      builder.setCancelable(listener != null).setOnCancelListener(listener);
+      return this;
+   }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -50,42 +60,18 @@ public final class NoFocusDialog {
       void onClick();
    }
 
-   public static final ButtonListener IGNORE_BUTTON = new ButtonListener() {
+   private static final ButtonListener IGNORE_BUTTON = new ButtonListener() {
       @Override
       public void onClick() { /* ignore */ }
    };
-
-   /* -------------------------------------------------------------------------------------------------------------- */
-
-   @NonNull
-   private final Builder builder;
-
-   private volatile AlertDialog alertDialog = null;
-
-   public NoFocusDialog(@NonNull Context context, @NonNull OnCancelListener onCancelListener) {
-      this.builder = new Builder(context);
-      this.builder.setCancelable(onCancelListener != IGNORE_CANCEL).setOnCancelListener(onCancelListener);
-   }
-
-   @NonNull
-   public NoFocusDialog setTitle(@StringRes int resId, Object... args) {
-      builder.setTitle(App.getStr(resId, args));
-      return this;
-   }
-
-   @NonNull
-   public NoFocusDialog setMessage(@StringRes int resId, Object... args) {
-      builder.setMessage(App.getStr(resId, args));
-      return this;
-   }
-
-   /* -------------------------------------------------------------------------------------------------------------- */
 
    private final class OnButtonClickListener implements OnClickListener {
       @NonNull
       private final ButtonListener listener;
 
-      OnButtonClickListener(@NonNull ButtonListener listener) { this.listener = listener; }
+      OnButtonClickListener(@Nullable ButtonListener listener) {
+         this.listener = (listener == null) ? IGNORE_BUTTON : listener;
+      }
 
       @Override
       public void onClick(DialogInterface dialog, int which) {
@@ -95,13 +81,15 @@ public final class NoFocusDialog {
    }
 
    @NonNull
-   public NoFocusDialog setNegativeButton(@StringRes int resId, @NonNull ButtonListener listener) {
-      builder.setNegativeButton(App.getStr(resId), new OnButtonClickListener(listener)); return this;
+   public NoFocusDialog setButton0(@StringRes int resId, @Nullable ButtonListener listener) {
+      builder.setNegativeButton(App.getStr(resId), new OnButtonClickListener(listener)).setCancelable(false);
+      return this;
    }
 
    @NonNull
-   public NoFocusDialog setPositiveButton(@StringRes int resId, @NonNull ButtonListener listener) {
-      builder.setPositiveButton(App.getStr(resId), new OnButtonClickListener(listener)); return this;
+   public NoFocusDialog setButton1(@StringRes int resId, @Nullable ButtonListener listener) {
+      builder.setPositiveButton(App.getStr(resId), new OnButtonClickListener(listener)).setCancelable(false);
+      return this;
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */

@@ -100,7 +100,7 @@ public final class AdminUsersAddStep1a extends StepFragment<AdminUsersAddActivit
       if (!StringType.NAME2.matches(name2, activity.name2)) { return false; }
       User user = User.get(activity.name1, activity.name2, 0);
       if (user != null) {
-         activity.showErrorSnackbar(R.string.admin_users_add_step_1a_error_snackbar, user.getRole().getDisplay());
+         activity.showErrorSnackbar(R.string.admin_users_add_step_1a_snackbar_error, user.getRole().getDisplay());
       }
       return user == null;
    }

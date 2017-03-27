@@ -238,17 +238,31 @@ public final class User extends Row {
       return User.get(where, name1, name2, serial);
    }
 
+   /* -------------------------------------------------------------------------------------------------------------- */
+
    /**
-    * Returns a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
+    * Returns a list of all users, ordered by {@code role}, {@code name2}, {@code name1} and {@code serial}.
     * The ordering of the roles is 'admin', 'tutor' and 'pupil' (not alphabetically).
     *
-    * @return a list of all users, ordered by {@code role}, {@code name2} and {@code name1}.
+    * @return a list of all users, ordered by {@code role}, {@code name2}, {@code name1} and {@code serial}.
     */
    @NonNull
    public static ArrayList<User> get() {
       String order = App.format("(CASE %s WHEN '%s' THEN 0 WHEN '%s' THEN 1 ELSE 2 END), %s, %s, %s",
             ROLE, ADMIN, TUTOR, NAME2, NAME1, SERIAL);
       return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, null);
+   }
+
+   /**
+    * Returns a list of all pupils, ordered by {@code name2}, {@code name1} and {@code serial}.
+    *
+    * @return a list of all pupils, ordered by {@code name2}, {@code name1} and {@code serial}.
+    */
+   @NonNull
+   public static ArrayList<User> getPupils() {
+      // SELECT <TAB_COLUMNS> FROM users WHERE role='pupil' ORDER BY name2, name1, serial ;
+      String order = App.format("%s, %s, %s", NAME2, NAME1, SERIAL);
+      return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, App.format("%s=?", ROLE), PUPIL);
    }
 
    /**
@@ -287,6 +301,8 @@ public final class User extends Row {
       String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
       return 1 + Integer.parseInt(SQLite.getFromQuery(PREV, column, "0", where, name1, name2, PUPIL));
    }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
     * Subquery that selects the oldest row of every pupil in prev_users.

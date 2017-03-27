@@ -8,7 +8,6 @@ package de.fahimu.schlib.app;
 
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 
@@ -16,7 +15,6 @@ import android.support.annotation.WorkerThread;
 import java.util.ArrayList;
 
 import de.fahimu.android.app.scanner.NoFocusDialog;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.User;
 
@@ -79,16 +77,16 @@ public final class AdminIdcardsActivity extends AdminSerialsActivity<Idcard> {
    int[] getSnackbarIds() { return SNACKBAR_IDS; }
 
    /** {@inheritDoc} */
-   @NonNull
    @Override
-   NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Idcard idcard) {
-      dialog.setTitle(R.string.admin_idcards_dialog_title, new SerialNumber(idcard.getId()).getDecimal());
+   void showErrorDialog(Idcard idcard) {
+      NoFocusDialog dialog = new NoFocusDialog(this);
       if (idcard.isPrinted()) {
-         return dialog.setMessage(R.string.admin_idcards_dialog_message_printed);
-      } else {      // isUsed() - see precondition
-         return dialog.setMessage(R.string.admin_idcards_dialog_message_used,
+         dialog.setMessage(R.string.dialog_message_admin_idcards_printed, idcard.getDisplayId());
+      } else {
+         dialog.setMessage(R.string.dialog_message_admin_idcards_used, idcard.getDisplayId(),
                User.getNonNull(idcard.getUid()).getDisplay());
       }
+      dialog.show();
    }
 
 }

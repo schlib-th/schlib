@@ -30,7 +30,6 @@ import de.fahimu.android.app.ListView.Filter;
 import de.fahimu.android.app.ListView.Item;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
-import de.fahimu.android.app.scanner.NoFocusDialog;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Serial;
 
@@ -44,13 +43,8 @@ import de.fahimu.schlib.db.Serial;
 abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivity {
 
    private final class SerialItem extends Item<S> {
-      final String key, info;
-
-      @WorkerThread
       SerialItem(@NonNull S serial) {
-         super(serial);
-         key = serial.getDisplayId();
-         info = serial.getDisplay();
+         super(serial, serial.getDisplayId(), serial.getDisplay());
       }
    }
 
@@ -59,21 +53,21 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       private final ImageButton action;
 
       SerialItemViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         super(inflater, parent, R.layout.stocktaking_serials_row);
-         key = App.findView(itemView, TextView.class, R.id.stocktaking_serials_row_key);
-         info = App.findView(itemView, TextView.class, R.id.stocktaking_serials_row_info);
-         action = App.findView(itemView, ImageButton.class, R.id.stocktaking_serials_row_action);
+         super(inflater, parent, R.layout.row_serial);
+         key = App.findView(itemView, TextView.class, R.id.row_serial_key);
+         info = App.findView(itemView, TextView.class, R.id.row_serial_info);
+         action = App.findView(itemView, ImageButton.class, R.id.row_serial_action);
       }
 
       protected void bind(SerialItem item) {
-         key.setText(item.key);
-         info.setText(item.info);
+         key.setText(item.getText(0));
+         info.setText(item.getText(1));
          if (item.row.isLost()) {
             action.setImageResource(R.drawable.ic_restore_black_24dp);
-            action.setContentDescription(App.getStr(R.string.admin_serials_row_action_restore));
+            action.setContentDescription(App.getStr(R.string.row_serial_action_restore));
          } else {       // item.row.isStocked()
             action.setImageResource(R.drawable.ic_delete_black_24dp);
-            action.setContentDescription(App.getStr(R.string.admin_serials_row_action_delete));
+            action.setContentDescription(App.getStr(R.string.row_serial_action_delete));
          }
       }
    }
@@ -183,13 +177,11 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
 
    @Override
    public final void onBarcode(String barcode) {
-      int number = SerialNumber.parseCode128(barcode);
-      S serial = getSerial(number);
+      S serial = getSerial(SerialNumber.parseCode128(barcode));
       if (serial == null) {
          showErrorSnackbar(getSnackbarIds()[0]);
       } else if (serial.isUsed()) {
-         NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.DEFAULT_CANCEL);
-         configInfoDialog(dialog, serial).show(R.raw.horn);
+         showErrorDialog(serial);
       } else {
          hiddenSerials.add(serial.getId());
          if (serial.isLost()) {
@@ -214,18 +206,13 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    abstract int[] getSnackbarIds();
 
    /**
-    * Sets the {@link NoFocusDialog#setTitle(int, Object...) title} and
-    * {@link NoFocusDialog#setMessage(int, Object...) message} of the ErrorDialog.
+    * Shows the ErrorDialog.
     * <p> Precondition: {@code serial.isUsed()}. </p>
     *
-    * @param dialog
-    *       the dialog to configure.
     * @param serial
     *       the serial.
-    * @return the specified {@code dialog}.
     */
-   @NonNull
-   abstract NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, S serial);
+   abstract void showErrorDialog(S serial);
 
    /* -------------------------------------------------------------------------------------------------------------- */
 

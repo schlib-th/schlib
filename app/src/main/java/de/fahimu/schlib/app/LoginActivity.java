@@ -114,14 +114,13 @@ public final class LoginActivity extends SchlibActivity {
    }
 
    private void createAdminOrTutorDialog() {
-      adminOrTutorDialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      adminOrTutorDialog.setTitle(R.string.login_dialog_title);
-      adminOrTutorDialog.setMessage(R.string.login_dialog_message);
-      adminOrTutorDialog.setNegativeButton(R.string.login_dialog_tutor, new ButtonListener() {
+      adminOrTutorDialog = new NoFocusDialog(this);
+      adminOrTutorDialog.setMessage(R.string.dialog_message_login);
+      adminOrTutorDialog.setButton0(R.string.dialog_button0_login, new ButtonListener() {
          @Override
          public void onClick() { playSoundAndStartActivity(TutorActivity.class); }
       });
-      adminOrTutorDialog.setPositiveButton(R.string.login_dialog_admin, new ButtonListener() {
+      adminOrTutorDialog.setButton1(R.string.dialog_button1_login, new ButtonListener() {
          @Override
          public void onClick() { playSoundAndStartActivity(AdminActivity.class); }
       });

@@ -91,51 +91,35 @@ abstract class SchlibActivity extends ScannerActivity {
     */
    void onPermissionGranted() {}
 
-   private void requestPermission(String permission) {
+   private void requestPermission(final String permission) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
             onPermissionGranted();
          } else {
-            showRationaleDialogAndRequestPermission(permission);
+            NoFocusDialog dialog = new NoFocusDialog(this);
+            dialog.setMessage(R.string.dialog_message_schlib_no_permission);
+            dialog.setButton1(R.string.app_cont, new ButtonListener() {
+               @Override
+               public void onClick() {
+                  SchlibActivity.this.requestPermissions(new String[] { permission }, REQUEST_ID);
+               }
+            }).show();
          }
       }
    }
 
-   private static final int REQUEST_ID = 0x23122003;
-
-   /**
-    * Shows a NoFocusDialog that explains why we need this permission and then requests for it.
-    */
-   private void showRationaleDialogAndRequestPermission(final String permission) {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      dialog.setTitle(R.string.schlib_rationale_dialog_title);
-      dialog.setMessage(R.string.schlib_rationale_dialog_message);
-      dialog.setPositiveButton(R.string.app_cont, new ButtonListener() {
-         @Override
-         public void onClick() {
-            Log.d("requestPermissions");
-            SchlibActivity.this.requestPermissions(new String[] { permission }, REQUEST_ID);
-         }
-      }).show();
-   }
+   private static final int REQUEST_ID = 0x21082007;
 
    @Override
    public final void onRequestPermissionsResult(int reqId, @NonNull String[] permissions, @NonNull int[] grantResults) {
       if (reqId == REQUEST_ID) {
          if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             userDeniedPermission = true;
-            showFatalDialogAndStop();
+            NoFocusDialog dialog = new NoFocusDialog(this);
+            dialog.setMessage(R.string.dialog_message_schlib_permission_not_granted);
+            dialog.setOnCancelListener(null).show();
          }
       }
-   }
-
-   /**
-    * Shows a NoFocusDialog that informs the user that the app must be stopped.
-    */
-   private void showFatalDialogAndStop() {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      dialog.setTitle(R.string.schlib_fatal_dialog_title);
-      dialog.setMessage(R.string.schlib_fatal_dialog_message).show();
    }
 
    /* ============================================================================================================== */

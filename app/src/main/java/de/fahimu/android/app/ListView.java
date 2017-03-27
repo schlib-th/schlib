@@ -123,22 +123,41 @@ public final class ListView extends RecyclerView {
    /* ============================================================================================================== */
 
    public static abstract class Item<R extends Row> {
-      public final R            row;
-      public final SearchString searchString;
-
-      final long rid;      // cached row.getOid()
+      final public  R        row;
+      final         long     rid;         // cached row.getOid()
+      final private String[] columns;
 
       @WorkerThread
-      protected Item(R row, String... searchFields) {
+      protected Item(R row, String... columns) {
          this.row = row;
          this.rid = row.getOid();
-         SearchString searchString = null;
-         if (searchFields.length > 0) {
-            SearchString.Builder builder = new SearchString.Builder(searchFields.length);
-            for (String searchField : searchFields) { builder.add(searchField); }
-            searchString = builder.buildSearchString();
+         this.columns = columns;
+      }
+
+      public final String getText(int index) {
+         return columns[index];
+      }
+   }
+
+   public static abstract class SearchableItem<R extends Row> extends Item<R> {
+      final private SearchString searchString;
+
+      @WorkerThread
+      protected SearchableItem(R row, String... columns) {
+         super(row, columns);
+         SearchString.Builder builder = new SearchString.Builder(columns.length);
+         for (String column : columns) {
+            builder.add(column);
          }
-         this.searchString = searchString;
+         searchString = builder.buildSearchString();
+      }
+
+      public final void setText(int index, TextView textView) {
+         searchString.setText(index, textView, getText(index));
+      }
+
+      public final boolean contains(String[] normalizedQueries) {
+         return searchString.contains(normalizedQueries);
       }
    }
 
@@ -299,7 +318,7 @@ public final class ListView extends RecyclerView {
       @MainThread
       protected abstract void onUpdated(int flags, @Nullable List<I> data);
 
-      private AsyncTask<Void,Void,Void> createUpdateTask(final int flags, final Filter<I> filter) {
+      private AsyncTask<Void,Void,Void> createUpdateTask(final int flags, @NonNull final Filter<I> filter) {
          return new AsyncTask<Void,Void,Void>() {
             @Override
             @WorkerThread
@@ -325,7 +344,7 @@ public final class ListView extends RecyclerView {
                   for (Adapter.Mod mod : mods) {
                      offset = mod.apply(offset);
                   }
-                  if (!list.isEmpty() && list.get(0).searchString != null) {
+                  if (!list.isEmpty() && list.get(0) instanceof SearchableItem) {
                      // searchString changed, so redraw complete list after 500 ms (after mods are applied)
                      new Handler().postDelayed(new Runnable() {
                         @Override
@@ -363,7 +382,7 @@ public final class ListView extends RecyclerView {
       }
 
       @MainThread
-      public final synchronized void updateAsync(int flags, Filter<I> filter) {
+      public final synchronized void updateAsync(int flags, @NonNull Filter<I> filter) {
          if (activeTask == null) {
             activeTask = createUpdateTask(flags, filter);
             activeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -379,7 +398,7 @@ public final class ListView extends RecyclerView {
       private LinkedList<Adapter.Mod> mods;
 
       @WorkerThread
-      private void calculateModifications(Filter<I> filter) {
+      private void calculateModifications(@NonNull Filter<I> filter) {
          mods = new LinkedList<>();
          int l = 0, d = 0, ls = list.size(), ds = data.size();
          while (l < ls && d < ds) {

@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 
@@ -25,7 +26,7 @@ import java.util.List;
 
 import de.fahimu.android.app.ListView.Adapter;
 import de.fahimu.android.app.ListView.Filter;
-import de.fahimu.android.app.ListView.Item;
+import de.fahimu.android.app.ListView.SearchableItem;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.SearchString;
@@ -44,7 +45,7 @@ import de.fahimu.schlib.db.Label;
  */
 public final class AdminBooksActivity extends SchlibActivity {
 
-   private final class BookItem extends Item<Book> {
+   private final class BookItem extends SearchableItem<Book> {
       BookItem(@NonNull Book book) {
          super(book,
                book.getShelf(), book.getDisplayNumber(),
@@ -57,25 +58,28 @@ public final class AdminBooksActivity extends SchlibActivity {
       private final TextView shelf, number, title, author, keywords, publisher, isbnLabel;
 
       BookViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         super(inflater, parent, R.layout.admin_books_row);
-         shelf = App.findView(itemView, TextView.class, R.id.admin_books_row_shelf);
-         number = App.findView(itemView, TextView.class, R.id.admin_books_row_number);
-         title = App.findView(itemView, TextView.class, R.id.admin_books_row_title);
-         author = App.findView(itemView, TextView.class, R.id.admin_books_row_author);
-         keywords = App.findView(itemView, TextView.class, R.id.admin_books_row_keywords);
-         publisher = App.findView(itemView, TextView.class, R.id.admin_books_row_publisher);
-         isbnLabel = App.findView(itemView, TextView.class, R.id.admin_books_row_isbn_label);
+         super(inflater, parent, R.layout.row_book);
+         shelf = App.findView(itemView, TextView.class, R.id.row_book_shelf);
+         number = App.findView(itemView, TextView.class, R.id.row_book_number);
+         title = App.findView(itemView, TextView.class, R.id.row_book_title);
+         author = App.findView(itemView, TextView.class, R.id.row_book_author);
+         keywords = App.findView(itemView, TextView.class, R.id.row_book_keywords);
+         publisher = App.findView(itemView, TextView.class, R.id.row_book_publisher);
+         isbnLabel = App.findView(itemView, TextView.class, R.id.row_book_isbn_label);
+
+         final ImageButton action = App.findView(itemView, ImageButton.class, R.id.row_book_action);
+         action.setImageResource(R.drawable.ic_info_black_24dp);
+         action.setContentDescription(App.getStr(R.string.row_book_action_info));
       }
 
       protected void bind(BookItem item) {
-         Book book = item.row;
-         item.searchString.setText(0, shelf, book.getShelf());
-         item.searchString.setText(1, number, book.getDisplayNumber());
-         item.searchString.setText(2, title, book.getTitle());
-         item.searchString.setText(3, author, book.getAuthor());
-         item.searchString.setText(4, keywords, book.getKeywords());
-         item.searchString.setText(5, publisher, book.getPublisher());
-         item.searchString.setText(6, isbnLabel, book.getDisplayMultilineISBNLabel());
+         item.setText(0, shelf);
+         item.setText(1, number);
+         item.setText(2, title);
+         item.setText(3, author);
+         item.setText(4, keywords);
+         item.setText(5, publisher);
+         item.setText(6, isbnLabel);
       }
    }
 
@@ -122,7 +126,7 @@ public final class AdminBooksActivity extends SchlibActivity {
 
       @Override
       public boolean matches(BookItem item) {
-         return item.searchString.contains(normalizedQueries);
+         return item.contains(normalizedQueries);
       }
    }
 

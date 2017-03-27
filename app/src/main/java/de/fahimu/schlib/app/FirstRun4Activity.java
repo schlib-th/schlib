@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -47,8 +46,11 @@ import de.fahimu.schlib.db.Label;
 public final class FirstRun4Activity extends SchlibActivity {
 
    private final class BookItem extends Item<Book> {
-      @WorkerThread
-      BookItem(@NonNull Book book) { super(book); }
+      BookItem(@NonNull Book book) {
+         super(book,
+               book.getShelf(), book.getDisplayNumber(),
+               book.getTitle(), book.getDisplayISBN(), book.getDisplayLabel());
+      }
    }
 
    private final class BookViewHolder extends ViewHolder<BookItem> {
@@ -56,27 +58,27 @@ public final class FirstRun4Activity extends SchlibActivity {
       private final ImageButton action;
 
       BookViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         super(inflater, parent, R.layout.first_run_4_row);
-         shelf = App.findView(itemView, TextView.class, R.id.first_run_4_row_shelf);
-         number = App.findView(itemView, TextView.class, R.id.first_run_4_row_number);
-         title = App.findView(itemView, TextView.class, R.id.first_run_4_row_title);
-         isbn = App.findView(itemView, TextView.class, R.id.first_run_4_row_isbn);
-         label = App.findView(itemView, TextView.class, R.id.first_run_4_row_label);
-         action = App.findView(itemView, ImageButton.class, R.id.first_run_4_row_action);
+         super(inflater, parent, R.layout.row_book_first_run_4);
+         shelf = App.findView(itemView, TextView.class, R.id.row_book_first_run_4_shelf);
+         number = App.findView(itemView, TextView.class, R.id.row_book_first_run_4_number);
+         title = App.findView(itemView, TextView.class, R.id.row_book_first_run_4_title);
+         isbn = App.findView(itemView, TextView.class, R.id.row_book_first_run_4_isbn);
+         label = App.findView(itemView, TextView.class, R.id.row_book_first_run_4_label);
+         action = App.findView(itemView, ImageButton.class, R.id.row_book_first_run_4_action);
       }
 
       protected void bind(BookItem item) {
-         shelf.setText(item.row.getShelf());
-         number.setText(item.row.getDisplayNumber());
-         title.setText(item.row.getTitle());
-         isbn.setText(item.row.getDisplayISBN());
-         label.setText(item.row.getDisplayLabel());
+         shelf.setText(item.getText(0));
+         number.setText(item.getText(1));
+         title.setText(item.getText(2));
+         isbn.setText(item.getText(3));
+         label.setText(item.getText(4));
          if (item.row.hasNoScanId()) {
             action.setImageResource(R.drawable.ic_delete_black_24dp);
-            action.setContentDescription(App.getStr(R.string.first_run_4_row_action_delete));
+            action.setContentDescription(App.getStr(R.string.row_book_first_run_4_action_delete));
          } else {
             action.setImageResource(R.drawable.ic_undo_black_24dp);
-            action.setContentDescription(App.getStr(R.string.first_run_4_row_action_undo));
+            action.setContentDescription(App.getStr(R.string.row_book_first_run_4_action_undo));
          }
       }
    }
@@ -177,11 +179,10 @@ public final class FirstRun4Activity extends SchlibActivity {
    }
 
    private void showDialogDelete(final BookItem item) {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      dialog.setTitle(R.string.first_run_4_dialog_delete_title);
-      dialog.setMessage(R.string.first_run_4_dialog_delete_message, item.row.getDisplay());
-      dialog.setNegativeButton(R.string.first_run_4_dialog_delete_do_not_delete, NoFocusDialog.IGNORE_BUTTON);
-      dialog.setPositiveButton(R.string.first_run_4_dialog_delete_please_delete, new ButtonListener() {
+      NoFocusDialog dialog = new NoFocusDialog(this);
+      dialog.setMessage(R.string.dialog_message_first_run_4_delete_book, item.row.getDisplay());
+      dialog.setButton0(R.string.dialog_button0_first_run_4_delete_book, null);
+      dialog.setButton1(R.string.dialog_button1_first_run_4_delete_book, new ButtonListener() {
          @Override
          public void onClick() {
             item.row.delete();
@@ -258,27 +259,27 @@ public final class FirstRun4Activity extends SchlibActivity {
          if (book == null) {
             updateISBNLabel(item, isbn, null);
          } else {
-            NoFocusDialog dialog = new NoFocusDialog(this, new OnCancelListener() {
+            NoFocusDialog dialog = new NoFocusDialog(this);
+            dialog.setMessage(R.string.dialog_message_first_run_4_isbn_used, book.getDisplay());
+            dialog.setOnCancelListener(new OnCancelListener() {
                @Override
                public void onCancel(DialogInterface dialog) { bufferISBN(isbn); }
-            });
-            dialog.setTitle(R.string.first_run_4_dialog_assigned_title);
-            dialog.setMessage(R.string.first_run_4_dialog_assigned_message_isbn, book.getDisplay()).show();
+            }).show(R.raw.horn);
          }
       }
    }
 
    private void bufferISBN(ISBN isbn) {
       bufferedISBN = isbn;
-      showUndoSnackbar(App.getStr(R.string.first_run_4_snackbar_isbn_action_discard), new OnClickListener() {
+      showUndoSnackbar(App.getStr(R.string.first_run_4_snackbar_undo_isbn_action_discard), new OnClickListener() {
          @Override
          public void onClick(View v) { discardBufferedISBN(); }
-      }, R.string.first_run_4_snackbar_isbn_buffered, isbn.getDisplay());
+      }, R.string.first_run_4_snackbar_undo_isbn_buffered, isbn.getDisplay());
    }
 
    private void discardBufferedISBN() {
       bufferedISBN = null;
-      showInfoSnackbar(R.string.first_run_4_snackbar_isbn_discarded);
+      showInfoSnackbar(R.string.first_run_4_snackbar_info_isbn_discarded);
    }
 
    private void processLabel(@NonNull BookItem item, String barcode) {
@@ -287,9 +288,8 @@ public final class FirstRun4Activity extends SchlibActivity {
          showErrorSnackbar(R.string.snackbar_error_not_a_label);
       } else if (label.isUsed()) {
          Book book = Book.getNonNull(label.getBid());
-         NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.DEFAULT_CANCEL);
-         dialog.setTitle(R.string.first_run_4_dialog_assigned_title);
-         dialog.setMessage(R.string.first_run_4_dialog_assigned_message_label, book.getDisplay()).show(R.raw.horn);
+         NoFocusDialog dialog = new NoFocusDialog(this);
+         dialog.setMessage(R.string.dialog_message_first_run_4_label_used, book.getDisplay()).show(R.raw.horn);
       } else {
          if (label.isLost()) {
             label.setLost(false).update();       // Surprise! The label isn't lost, set this label to 'Stocked'.
@@ -309,14 +309,13 @@ public final class FirstRun4Activity extends SchlibActivity {
    }
 
    private void showDialogNoISBN(@NonNull final BookItem item, @NonNull final Label label) {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      dialog.setTitle(R.string.first_run_4_dialog_no_isbn_title);
-      dialog.setMessage(R.string.first_run_4_dialog_no_isbn_message);
-      dialog.setNegativeButton(R.string.first_run_4_dialog_no_isbn_forgot_scan, NoFocusDialog.IGNORE_BUTTON);
-      dialog.setPositiveButton(R.string.first_run_4_dialog_no_isbn_has_no_isbn, new ButtonListener() {
+      NoFocusDialog dialog = new NoFocusDialog(this);
+      dialog.setMessage(R.string.dialog_message_first_run_4_no_isbn);
+      dialog.setButton0(R.string.dialog_button0_first_run_4_no_isbn, null);
+      dialog.setButton1(R.string.dialog_button1_first_run_4_no_isbn, new ButtonListener() {
          @Override
          public void onClick() { updateISBNLabel(item, null, label); }
-      }).show();
+      }).show(R.raw.horn);
    }
 
    private void updateISBNLabel(@NonNull BookItem item, @Nullable ISBN isbn, @Nullable Label label) {

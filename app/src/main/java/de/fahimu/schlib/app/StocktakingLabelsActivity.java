@@ -8,7 +8,6 @@ package de.fahimu.schlib.app;
 
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 
@@ -58,12 +57,11 @@ public final class StocktakingLabelsActivity extends StocktakingSerialsActivity<
    int[] getSnackbarIds() { return SNACKBAR_IDS; }
 
    /** {@inheritDoc} */
-   @NonNull
    @Override
-   NoFocusDialog configInfoDialog(@NonNull NoFocusDialog dialog, Label label) {
-      dialog.setTitle(R.string.dialog_title_error);
+   void showErrorDialog(Label label) {
+      NoFocusDialog dialog = new NoFocusDialog(this);
       dialog.setMessage(R.string.dialog_message_label_used, Book.getNonNull(label.getBid()).getDisplay());
-      return dialog;
+      dialog.show(R.raw.horn);
    }
 
 }

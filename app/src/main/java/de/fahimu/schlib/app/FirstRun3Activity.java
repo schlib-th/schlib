@@ -119,11 +119,10 @@ public final class FirstRun3Activity extends SchlibActivity {
    }
 
    public void onGotoLoginClicked(View view) {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.IGNORE_CANCEL);
-      dialog.setTitle(R.string.first_run_3_gotoLogin_dialog_title);
-      dialog.setMessage(R.string.first_run_3_gotoLogin_dialog_message);
-      dialog.setNegativeButton(R.string.app_no, NoFocusDialog.IGNORE_BUTTON);
-      dialog.setPositiveButton(R.string.app_yes, new ButtonListener() {
+      NoFocusDialog dialog = new NoFocusDialog(this);
+      dialog.setMessage(R.string.dialog_message_first_run_3_continue_with_login);
+      dialog.setButton0(R.string.app_no, null);
+      dialog.setButton1(R.string.app_yes, new ButtonListener() {
          @Override
          public void onClick() { gotoLogin(); }
       }).show();
@@ -189,12 +188,17 @@ public final class FirstRun3Activity extends SchlibActivity {
             startActivity(new Intent(FirstRun3Activity.this, FirstRun4Activity.class));
             gotoLogin.setEnabled(false);
          } else if (nCSVFiles == 0) {
-            showAlertDialog(R.string.first_run_3_importCSV_dialog_no_files, "");
+            NoFocusDialog dialog = new NoFocusDialog(FirstRun3Activity.this);
+            dialog.setMessage(R.string.dialog_message_first_run_3_no_csv_files, createImportDir().getName());
+            dialog.show(R.raw.horn);
             gotoLogin.setEnabled(true);
          } else {
             String[] csvFiles = createImportDir().listNames("csv");
             if (csvFiles.length > 0) {
-               showAlertDialog(R.string.first_run_3_importCSV_dialog_file_corrupted, csvFiles[0]);
+               NoFocusDialog dialog = new NoFocusDialog(FirstRun3Activity.this);
+               dialog.setMessage(R.string.dialog_message_first_run_3_file_corrupted,
+                     createImportDir().getName(), csvFiles[0], csvFiles[0].replace(".csv", ".txt"));
+               dialog.show(R.raw.horn);
             }
             gotoLogin.setEnabled(csvFiles.length == 0);
          }
@@ -246,12 +250,6 @@ public final class FirstRun3Activity extends SchlibActivity {
 
          book.insert();
       } catch (SQLException e) { parser.writeThrowable(e); }
-   }
-
-   private void showAlertDialog(int id, String file) {
-      NoFocusDialog dialog = new NoFocusDialog(this, NoFocusDialog.DEFAULT_CANCEL);
-      dialog.setTitle(R.string.dialog_title_error);
-      dialog.setMessage(id, createImportDir().getName(), file, file.replace(".csv", ".txt")).show(R.raw.horn);
    }
 
 }

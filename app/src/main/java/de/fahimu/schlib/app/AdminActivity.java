@@ -127,7 +127,7 @@ public final class AdminActivity extends SchlibActivity {
    public void onStocktakingUsersClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          scope.d("clicked");
-         // TODO startActivity(new Intent(this, StocktakingUsersActivity.class));
+         startActivity(new Intent(this, StocktakingUsersActivity.class));
       }
    }
 

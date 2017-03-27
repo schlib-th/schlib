@@ -12,7 +12,6 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.annotation.WorkerThread;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,12 +56,12 @@ import de.fahimu.schlib.share.FileType;
 public final class RegisterPrintsActivity extends SchlibActivity {
 
    private final class Page extends Row {
-      @StringRes
-      final int pdfTitleId;
-      final int group, number;
+      final String pdfTitle;
+      final int    group, number;
 
       Page(@StringRes int pdfTitleId, int group, int number) {
-         this.pdfTitleId = pdfTitleId; this.group = group; this.number = number;
+         this.pdfTitle = App.getStr(pdfTitleId);
+         this.group = group; this.number = number;
       }
 
       @NonNull
@@ -80,12 +79,8 @@ public final class RegisterPrintsActivity extends SchlibActivity {
    /* -------------------------------------------------------------------------------------------------------------- */
 
    private final class PageItem extends Item<Page> {
-      final String text;
-
-      @WorkerThread
       PageItem(@NonNull Page page) {
-         super(page);
-         text = App.format("%s - %s %d", App.getStr(page.pdfTitleId), App.getStr(R.string.pdf_page), page.number);
+         super(page, App.getStr(R.string.row_page_text, page.pdfTitle, page.number));
       }
    }
 
@@ -93,11 +88,13 @@ public final class RegisterPrintsActivity extends SchlibActivity {
       private final TextView text;
 
       PageViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         super(inflater, parent, R.layout.register_prints_row);
-         text = App.findView(itemView, TextView.class, R.id.register_prints_row_text);
+         super(inflater, parent, R.layout.row_page);
+         text = App.findView(itemView, TextView.class, R.id.row_page_text);
       }
 
-      protected void bind(PageItem item) { text.setText(item.text); }
+      protected void bind(PageItem item) {
+         text.setText(item.getText(0));
+      }
    }
 
    private final class PagesAdapter extends Adapter<Page,PageItem,PageViewHolder> {
@@ -113,7 +110,7 @@ public final class RegisterPrintsActivity extends SchlibActivity {
 
       @Override
       protected ArrayList<Page> loadData() {
-         ArrayList<Page> data = new ArrayList<>(32);
+         final ArrayList<Page> data = new ArrayList<>(32);
          addPageNumbers(data, 0, Label.getPageNumbers(), R.string.pdf_labels_title);
          addPageNumbers(data, 1, Idcard.getPageNumbers(), R.string.pdf_idcards_title);
          return data;
