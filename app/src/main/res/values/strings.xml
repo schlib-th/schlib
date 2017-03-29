@@ -191,7 +191,7 @@
     <string name="dialog_message_first_run_4_isbn_used">
         Barcode nicht eindeutig!
         \nDie ISBN identifiziert bereits das Buch
-        \n%1$s.
+        \n%1$s.\n
         \nBitte überkleben Sie jetzt die ISBN mit einem Etikett und scannen dieses dann als ISBN-Ersatz.
     </string>
     <string name="dialog_message_first_run_4_label_used">

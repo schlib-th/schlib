@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.scanner.NoFocusDialog;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.db.User.Role;
@@ -96,7 +95,7 @@ public final class AdminUsersAddStep2 extends StepFragment<AdminUsersAddActivity
          if (activity.getRemaining() == 0) {
             activity.showErrorSnackbar(R.string.admin_users_add_step_2_status_0);
          } else {
-            Idcard idcard = Idcard.getNullable(SerialNumber.parseCode128(barcode));
+            Idcard idcard = Idcard.parse(barcode);
             if (idcard == null) {
                activity.showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
             } else if (idcard.isUsed()) {

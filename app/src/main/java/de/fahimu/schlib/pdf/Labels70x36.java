@@ -10,7 +10,6 @@ import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 
 
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.db.Label;
 
@@ -36,10 +35,10 @@ public final class Labels70x36 extends BarcodeDocument {
 
    @Override
    @WorkerThread
-   void writeSerial(int count, SerialNumber sn) {
+   void writeSerial(int count, String code128, String serialDisplay) {
       double x = 35.0 + 70.0 * (count % 3), y = 262.0 - 36.0 * (count / 3);      // in mm
-      writeElement(new Barcode128C(sn.getCode128(), pt(55.0), pt(20.0)), pt(x - 27.5), pt(y + 5.5));
-      writeElement(new Text(sn.getDisplay(), 0.75, 11, CENTER, BASELINE), pt(x), pt(y));
+      writeElement(new Barcode128C(code128, pt(55.0), pt(20.0)), pt(x - 27.5), pt(y + 5.5));
+      writeElement(new Text(serialDisplay, 0.75, 11, CENTER, BASELINE), pt(x), pt(y));
    }
 
    @Override

@@ -53,11 +53,11 @@ public final class AdminUsersEditActivity extends SchlibActivity {
    @Override
    protected void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         int number = SerialNumber.parseCode128(barcode);
-         if (Idcard.getNullable(number) != null) {       // it's a serial from the expected type
-            scope.d("idcard=" + new SerialNumber(number).getDecimal());
-         } else {
+         Idcard idcard = Idcard.parse(barcode);
+         if (idcard == null) {
             showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
+         } else {
+            scope.d("idcard=" + SerialNumber.getDecimal(idcard.getId()));
          }
       }
    }

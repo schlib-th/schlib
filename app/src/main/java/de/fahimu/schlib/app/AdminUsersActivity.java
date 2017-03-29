@@ -46,7 +46,7 @@ public final class AdminUsersActivity extends SchlibActivity {
 
    private final class UserItem extends SearchableItem<User> {
       UserItem(@NonNull User user) {
-         super(user, user.getDisplay(), new SerialNumber(user.getIdcard()).getDisplay());
+         super(user, user.getDisplay(), SerialNumber.getDisplay(user.getIdcard()));
       }
    }
 
@@ -175,11 +175,11 @@ public final class AdminUsersActivity extends SchlibActivity {
    protected void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          if (searchView != null) {
-            int number = SerialNumber.parseCode128(barcode);
-            if (Idcard.getNullable(number) != null) {       // it's a serial from the expected type
-               searchView.expand(new SerialNumber(number).getDecimal());
-            } else {
+            Idcard idcard = Idcard.parse(barcode);
+            if (idcard == null) {
                showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
+            } else {
+               searchView.expand(SerialNumber.getDecimal(idcard.getId()));
             }
          }
       }

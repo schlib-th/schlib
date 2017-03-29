@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.scanner.NoFocusDialog;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Label;
 
@@ -89,7 +88,7 @@ public final class AdminBooksAddStep1 extends StepFragment<AdminBooksAddActivity
 
    @Override
    void onBarcode(String barcode) {
-      Label label = Label.getNullable(SerialNumber.parseCode128(barcode));
+      Label label = Label.parse(barcode);
       if (label == null) {
          activity.showErrorSnackbar(R.string.snackbar_error_not_a_label);
       } else if (label.isUsed()) {

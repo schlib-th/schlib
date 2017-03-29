@@ -80,8 +80,7 @@ public final class FirstRun3Activity extends SchlibActivity {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onResume();
 
-         int idcard = Use.getLoggedInNonNull().getUser().getIdcard();
-         String serialNumber = new SerialNumber(idcard).getDisplay();
+         String serialNumber = SerialNumber.getDisplay(Use.getLoggedInNonNull().getUser().getIdcard());
          explanation.setText(getString(R.string.first_run_3_explanation, serialNumber, ""));
       }
    }
@@ -92,8 +91,7 @@ public final class FirstRun3Activity extends SchlibActivity {
          new BackupDatabase(FileType.BACKUP).execute();
          ExternalFile importDir = createImportDir();
 
-         int idcard = Use.getLoggedInNonNull().getUser().getIdcard();
-         String serialNumber = new SerialNumber(idcard).getDisplay();
+         String serialNumber = SerialNumber.getDisplay(Use.getLoggedInNonNull().getUser().getIdcard());
          explanation.setText(getString(R.string.first_run_3_explanation, serialNumber, importDir.getName()));
 
          importCSV.setEnabled(true);

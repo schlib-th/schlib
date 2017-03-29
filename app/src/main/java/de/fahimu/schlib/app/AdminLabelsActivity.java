@@ -8,6 +8,7 @@ package de.fahimu.schlib.app;
 
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 
@@ -52,8 +53,9 @@ public final class AdminLabelsActivity extends AdminSerialsActivity<Label> {
    @Override
    int getMaxLength() { return 8; }
 
+   @Nullable
    @Override
-   boolean existsSerial(int number) { return Label.getNullable(number) != null; }
+   Label getSerial(String barcode) { return Label.parse(barcode); }
 
    @Override
    int countPrinted() { return Label.countPrinted(); }

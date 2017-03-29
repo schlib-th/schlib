@@ -114,7 +114,7 @@ public final class PupilList extends TextDocument {
 
          for (User pupil : users) {
             String serial = App.format("%02d", pupil.getSerial());
-            String idcard = new SerialNumber(pupil.getIdcard()).getDisplay();
+            String idcard = SerialNumber.getDisplay(pupil.getIdcard());
             add(new TableRow(0.0, 10, 24, serial, idcard));
          }
          finalizeTable(3, 0.75, 0.5);

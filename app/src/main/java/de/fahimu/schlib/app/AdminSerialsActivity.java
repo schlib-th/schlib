@@ -259,16 +259,17 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
    @Override
    protected final void onBarcode(String barcode) {
       if (searchView != null) {
-         int number = SerialNumber.parseCode128(barcode);
-         if (existsSerial(number)) {      // it's a serial from the expected type
-            searchView.expand(new SerialNumber(number).getDecimal());
-         } else {
+         S serial = getSerial(barcode);
+         if (serial == null) {
             showErrorSnackbar(getSnackbarIds()[4]);
+         } else {
+            searchView.expand(SerialNumber.getDecimal(serial.getId()));
          }
       }
    }
 
-   abstract boolean existsSerial(int number);
+   @Nullable
+   abstract S getSerial(String barcode);
 
    /* -------------------------------------------------------------------------------------------------------------- */
    /*  Override the methods called from {@link ScannerAwareSearchView}                                               */

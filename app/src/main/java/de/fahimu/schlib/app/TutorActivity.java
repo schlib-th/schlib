@@ -211,8 +211,8 @@ public final class TutorActivity extends SchlibActivity {
 
       User user = Use.getLoggedInNonNull().getUser();
       TextView loggedIn = findView(TextView.class, R.id.tutor_logged_in);
-      loggedIn.setText(getString(R.string.tutor_logged_in,
-            user.getDisplay(), new SerialNumber(user.getIdcard()).getDisplay()));
+      loggedIn.setText(App.getStr(R.string.tutor_logged_in,
+            user.getDisplay(), SerialNumber.getDisplay(user.getIdcard())));
 
       scan = findView(View.class, R.id.tutor_scan);
       item0 = findView(View.class, R.id.tutor_item_0);
@@ -328,7 +328,7 @@ public final class TutorActivity extends SchlibActivity {
             @Override
             public void run() {
                App.playSound(R.raw.beep);
-               message1.setText(getString(R.string.tutor_message_1_auto_logout, secondsToLogout));
+               message1.setText(App.getStr(R.string.tutor_message_1_auto_logout, secondsToLogout));
                message2.setText(R.string.tutor_message_2_auto_logout);
             }
          });
@@ -347,10 +347,7 @@ public final class TutorActivity extends SchlibActivity {
    public void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          restartAutoLogoutTimer();
-         scope.d("barcode=" + barcode);
-         int sn = SerialNumber.parseCode128(barcode);
-
-         Idcard idcard = Idcard.getNullable(sn);
+         Idcard idcard = Idcard.parse(barcode);
          if (idcard != null) {
             onIdcardScanned(idcard);
          } else {
@@ -358,7 +355,7 @@ public final class TutorActivity extends SchlibActivity {
             if (isbn != null) {
                onIsbnScanned(isbn);
             } else {
-               Label label = Label.getNullable(sn);
+               Label label = Label.parse(barcode);
                if (label != null) {
                   onLabelScanned(label);
                } else {
@@ -492,7 +489,7 @@ public final class TutorActivity extends SchlibActivity {
       if (displayAnimator != null) { displayAnimator.cancel(); }
 
       CharSequence oldText = displayProgress.getText();
-      CharSequence newText = getString(resId, formatArgs);
+      CharSequence newText = App.getStr(resId, formatArgs);
       TextViewColor oldIssue = new TextViewColor(displayIssue);
       TextViewColor newIssue = new TextViewColor(modeIssue);
       TextViewColor oldReturn = new TextViewColor(displayReturn);

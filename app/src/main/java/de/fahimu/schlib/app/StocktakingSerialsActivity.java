@@ -30,7 +30,6 @@ import de.fahimu.android.app.ListView.Filter;
 import de.fahimu.android.app.ListView.Item;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Serial;
 
 /**
@@ -177,7 +176,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
 
    @Override
    public final void onBarcode(String barcode) {
-      S serial = getSerial(SerialNumber.parseCode128(barcode));
+      S serial = getSerial(barcode);
       if (serial == null) {
          showErrorSnackbar(getSnackbarIds()[0]);
       } else if (serial.isUsed()) {
@@ -200,7 +199,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    }
 
    @Nullable
-   abstract S getSerial(int number);
+   abstract S getSerial(String barcode);
 
    @StringRes
    abstract int[] getSnackbarIds();

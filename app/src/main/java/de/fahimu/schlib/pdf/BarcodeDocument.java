@@ -43,7 +43,7 @@ abstract class BarcodeDocument extends Document {
    }
 
    @WorkerThread
-   abstract void writeSerial(int count, SerialNumber sn);
+   abstract void writeSerial(int count, String code128, String serialDisplay);
 
    @WorkerThread
    abstract void finishPage(String pagePrefix, int page);
@@ -67,7 +67,7 @@ abstract class BarcodeDocument extends Document {
             writeNewPage();
             count = 0; currentPage = serial.getPage();
          }
-         writeSerial(count, new SerialNumber(serial.getId()));
+         writeSerial(count, SerialNumber.getCode128(serial.getId()), SerialNumber.getDisplay(serial.getId()));
          count += 1;
       }
       finishPage(pagePrefix, currentPage);

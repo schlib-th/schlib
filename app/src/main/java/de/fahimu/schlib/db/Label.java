@@ -107,17 +107,17 @@ public final class Label extends Serial {
    }
 
    /**
-    * Returns the {@code Label} with the specified {@code number} or
-    * {@code null} if there is no such {@code Label}.
+    * Returns the {@code Label} with the specified {@code barcode}
+    * or {@code null} if there is no such {@code Label}.
     *
-    * @param number
-    *       the number of the requested {@code Label}.
-    * @return the {@code Label} with the specified {@code number} or {@code null}.
+    * @param barcode
+    *       the barcode of the requested {@code Label}.
+    * @return the {@code Label} with the specified {@code barcode} or {@code null}.
     */
    @Nullable
-   public static Label getNullable(int number) {
+   public static Label parse(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return getNullable(Label.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, number);
+         return parse(Label.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, barcode);
       }
    }
 

@@ -44,7 +44,7 @@ public final class StocktakingLabelsActivity extends StocktakingSerialsActivity<
    ArrayList<Label> loadData() { return Label.get(); }
 
    @Override
-   Label getSerial(int number) { return Label.getNullable(number); }
+   Label getSerial(String barcode) { return Label.parse(barcode); }
 
    @StringRes
    private static final int[] SNACKBAR_IDS = {

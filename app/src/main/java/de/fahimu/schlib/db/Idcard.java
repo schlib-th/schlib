@@ -109,17 +109,17 @@ public final class Idcard extends Serial {
    }
 
    /**
-    * Returns the {@code Idcard} with the specified {@code number} or
-    * {@code null} if there is no such {@code Idcard}.
+    * Returns the {@code Idcard} with the specified {@code barcode}
+    * or {@code null} if there is no such {@code Idcard}.
     *
-    * @param number
-    *       the number of the requested {@code Idcard}.
-    * @return the {@code Idcard} with the specified {@code number} or {@code null}.
+    * @param barcode
+    *       the barcode of the requested {@code Idcard}.
+    * @return the {@code Idcard} with the specified {@code barcode} or {@code null}.
     */
    @Nullable
-   public static Idcard getNullable(int number) {
+   public static Idcard parse(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return getNullable(Idcard.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, number);
+         return parse(Idcard.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, barcode);
       }
    }
 

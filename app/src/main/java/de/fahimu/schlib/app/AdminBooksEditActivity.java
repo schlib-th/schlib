@@ -13,7 +13,7 @@ import android.support.annotation.Nullable;
 import de.fahimu.android.app.Log;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
-import de.fahimu.schlib.db.Idcard;
+import de.fahimu.schlib.db.Label;
 
 /**
  * An activity for editing books.
@@ -53,11 +53,11 @@ public final class AdminBooksEditActivity extends SchlibActivity {
    @Override
    protected void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         int number = SerialNumber.parseCode128(barcode);
-         if (Idcard.getNullable(number) != null) {       // it's a serial from the expected type
-            scope.d("idcard=" + new SerialNumber(number).getDecimal());
+         Label label = Label.parse(barcode);
+         if (label == null) {
+            showErrorSnackbar(R.string.snackbar_error_not_a_label);
          } else {
-            showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
+            scope.d("label=" + SerialNumber.getDecimal(label.getId()));
          }
       }
    }

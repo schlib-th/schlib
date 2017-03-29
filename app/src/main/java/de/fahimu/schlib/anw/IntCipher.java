@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 
 import java.util.Random;
 
-import de.fahimu.schlib.app.App;
+import de.fahimu.android.app.App;
 import de.fahimu.schlib.db.Preference;
 
 /**

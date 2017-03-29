@@ -10,7 +10,6 @@ import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 
 
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.db.Idcard;
 
@@ -37,10 +36,10 @@ public final class Idcards85x54 extends BarcodeDocument {
 
    @Override
    @WorkerThread
-   void writeSerial(int count, SerialNumber sn) {
+   void writeSerial(int count, String code128, String serialDisplay) {
       double x = 57.5 + 95.0 * (count % 2), y = 236.5 - 54.0 * (count / 2);      // in mm
-      writeElement(new Barcode128C(sn.getCode128(), pt(68.0), pt(30.0)), pt(x - 34.0), pt(y + 8.5));
-      writeElement(new Text(sn.getDisplay(), 154, 11, 40, 14, CENTER, BASELINE), pt(x), pt(y));
+      writeElement(new Barcode128C(code128, pt(68.0), pt(30.0)), pt(x - 34.0), pt(y + 8.5));
+      writeElement(new Text(serialDisplay, 154, 11, 40, 14, CENTER, BASELINE), pt(x), pt(y));
    }
 
    @Override

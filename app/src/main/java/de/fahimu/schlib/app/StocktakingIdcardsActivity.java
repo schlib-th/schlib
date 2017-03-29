@@ -44,7 +44,7 @@ public final class StocktakingIdcardsActivity extends StocktakingSerialsActivity
    ArrayList<Idcard> loadData() { return Idcard.get(); }
 
    @Override
-   Idcard getSerial(int number) { return Idcard.getNullable(number); }
+   Idcard getSerial(String barcode) { return Idcard.parse(barcode); }
 
    @StringRes
    private static final int[] SNACKBAR_IDS = {

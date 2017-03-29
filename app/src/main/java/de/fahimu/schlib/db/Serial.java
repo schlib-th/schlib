@@ -160,8 +160,8 @@ public abstract class Serial extends Row {
    }
 
    /**
-    * Returns the {@code Serial} with the specified {@code number} or
-    * {@code null} if there is no such {@code Serial}.
+    * Returns the {@code Serial} with the specified {@code barcode}
+    * or {@code null} if there is no such {@code Serial}.
     *
     * @param cls
     *       either {@link Idcard} or {@link Label}.
@@ -171,17 +171,15 @@ public abstract class Serial extends Row {
     *       the column names.
     * @param table
     *       the table name for qualifying {@code _id} in the where clause.
-    * @param number
-    *       the number of the requested {@code Serial}.
-    * @return the {@code Serial} with the specified {@code number} or {@code null}.
+    * @param barcode
+    *       the barcode of the requested {@code Serial}.
+    * @return the {@code Serial} with the specified {@code barcode} or {@code null}.
     */
    @Nullable
-   static <S extends Serial> S getNullable(@NonNull Class<S> cls, @NonNull String joinedTable,
-         @NonNull Values columns, @NonNull String table, int number) {
-      // SELECT <columns> FROM <table> WHERE _id=<serial> ;
-      String where = App.format("%s.%s=?", table, OID);
-      List<S> list = SQLite.get(cls, joinedTable, columns, null, null, where, number);
-      return (list.size() == 0) ? null : list.get(0);
+   static <S extends Serial> S parse(@NonNull Class<S> cls, @NonNull String joinedTable,
+         @NonNull Values columns, @NonNull String table, String barcode) {
+      int serial = SerialNumber.parseCode128(barcode);
+      return (serial == 0) ? null : getNullable(cls, joinedTable, columns, table, serial);
    }
 
    /**
@@ -208,6 +206,15 @@ public abstract class Serial extends Row {
       S serial = getNullable(cls, joinedTable, columns, table, number);
       if (serial == null) { throw new RuntimeException("no " + cls.getSimpleName() + " with number " + number); }
       return serial;
+   }
+
+   @Nullable
+   private static <S extends Serial> S getNullable(@NonNull Class<S> cls, @NonNull String joinedTable,
+         @NonNull Values columns, @NonNull String table, int number) {
+      // SELECT <columns> FROM <table> WHERE _id=<serial> ;
+      String where = App.format("%s.%s=?", table, OID);
+      List<S> list = SQLite.get(cls, joinedTable, columns, null, null, where, number);
+      return (list.size() == 0) ? null : list.get(0);
    }
 
    /**
@@ -343,7 +350,7 @@ public abstract class Serial extends Row {
 
    @NonNull
    public final String getDisplayId() {
-      return new SerialNumber(getId()).getDisplay();
+      return SerialNumber.getDisplay(getId());
    }
 
    @NonNull

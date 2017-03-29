@@ -8,6 +8,7 @@ package de.fahimu.schlib.app;
 
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 
@@ -52,8 +53,9 @@ public final class AdminIdcardsActivity extends AdminSerialsActivity<Idcard> {
    @Override
    int getMaxLength() { return 5; }
 
+   @Nullable
    @Override
-   boolean existsSerial(int number) { return Idcard.getNullable(number) != null; }
+   Idcard getSerial(String barcode) { return Idcard.parse(barcode); }
 
    @Override
    int countPrinted() { return Idcard.countPrinted(); }

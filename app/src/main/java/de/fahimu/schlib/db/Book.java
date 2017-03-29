@@ -401,7 +401,7 @@ public final class Book extends Row {
 
    @NonNull
    public String getDisplayLabel() {
-      return !hasLabel() ? "" : new SerialNumber(values.getInt(LABEL)).getDisplay();
+      return !hasLabel() ? "" : SerialNumber.getDisplay(values.getInt(LABEL));
    }
 
    @NonNull

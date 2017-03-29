@@ -12,8 +12,8 @@ import android.support.annotation.NonNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.fahimu.android.app.App;
 import de.fahimu.android.app.scanner.ScannerAwareEditText;
-import de.fahimu.schlib.app.App;
 import de.fahimu.schlib.app.R;
 
 /**

@@ -45,7 +45,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
 
    private final class UserItem extends Item<User> {
       UserItem(@NonNull User user) {
-         super(user, user.getDisplay(), new SerialNumber(user.getIdcard()).getDisplay());
+         super(user, user.getDisplay(), SerialNumber.getDisplay(user.getIdcard()));
       }
    }
 
@@ -129,7 +129,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
    @Override
    protected void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         Idcard idcard = Idcard.getNullable(SerialNumber.parseCode128(barcode));
+         Idcard idcard = Idcard.parse(barcode);
          if (idcard == null) {
             showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
          } else if (idcard.isUsed()) {

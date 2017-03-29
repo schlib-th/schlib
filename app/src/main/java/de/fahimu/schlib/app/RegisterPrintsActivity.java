@@ -35,7 +35,6 @@ import de.fahimu.android.app.SmartAnimator;
 import de.fahimu.android.app.TaskRegistry;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.share.ExternalFile;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.Label;
 import de.fahimu.schlib.db.Preference;
@@ -314,12 +313,11 @@ public final class RegisterPrintsActivity extends SchlibActivity {
    @Override
    public void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         int number = SerialNumber.parseCode128(barcode);
-         Label label = Label.getNullable(number);
+         Label label = Label.parse(barcode);
          if (label != null) {
             processSerial(label);
          } else {
-            Idcard idcard = Idcard.getNullable(number);
+            Idcard idcard = Idcard.parse(barcode);
             if (idcard != null) {
                processSerial(idcard);
             } else {

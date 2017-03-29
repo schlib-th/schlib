@@ -197,11 +197,11 @@ public final class AdminBooksActivity extends SchlibActivity {
                   searchView.expand(isbn.getDisplay().replace('-', ' '));
                }
             } else {
-               Label label = Label.getNullable(SerialNumber.parseCode128(barcode));
+               Label label = Label.parse(barcode);
                if (label == null) {
                   showErrorSnackbar(R.string.snackbar_error_not_a_label);
                } else {
-                  searchView.expand(new SerialNumber(label.getId()).getDecimal());
+                  searchView.expand(SerialNumber.getDecimal(label.getId()));
                }
             }
          }

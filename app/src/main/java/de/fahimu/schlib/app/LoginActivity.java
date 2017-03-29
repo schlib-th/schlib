@@ -36,7 +36,6 @@ import de.fahimu.android.app.scanner.NoFocusDialog.ButtonListener;
 import de.fahimu.android.db.BackupDatabase;
 import de.fahimu.android.share.ExternalFile;
 import de.fahimu.schlib.anw.ISBN;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.Label;
@@ -245,29 +244,25 @@ public final class LoginActivity extends SchlibActivity {
    @Override
    public void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("barcode=" + barcode);
-         int sn = SerialNumber.parseCode128(barcode);
-         Idcard idcard = Idcard.getNullable(sn);
+         Idcard idcard = Idcard.parse(barcode);
          if (idcard != null) {
-            if (!idcard.isUsed()) {
-               if (idcard.isLost()) {
-                  setError(R.string.login_message_1_lost, R.string.login_message_2_please_return_idcard);
-               } else if (idcard.isPrinted()) {
-                  setError(R.string.login_message_1_printed, R.string.login_message_2_please_return_idcard);
-               } else {   // not used, not lost, not printed => idcard is stocked
-                  setError(R.string.login_message_1_stocked, R.string.login_message_2_please_return_idcard);
-               }
-            } else {
+            if (idcard.isUsed()) {
                User user = User.getNonNull(idcard.getUid());
                if (user.getRole() == Role.PUPIL) {
                   setError(R.string.login_message_1_idcard_from_pupil, R.string.login_message_2_idcard_from_pupil);
                } else {
                   loginTutorOrAdmin(user);
                }
+            } else if (idcard.isLost()) {
+               setError(R.string.login_message_1_lost, R.string.login_message_2_please_return_idcard);
+            } else if (idcard.isPrinted()) {
+               setError(R.string.login_message_1_printed, R.string.login_message_2_please_return_idcard);
+            } else {       // not used, not lost, not printed => idcard is stocked
+               setError(R.string.login_message_1_stocked, R.string.login_message_2_please_return_idcard);
             }
          } else {
             ISBN isbn = ISBN.parse(barcode);
-            Label label = Label.getNullable(sn);
+            Label label = Label.parse(barcode);
             if (label != null && label.isUsed() || isbn != null && Book.getIdentifiedByISBN(isbn) != null) {
                setError(R.string.login_message_1_barcode_from_book, R.string.login_message_2_please_login_first);
             } else {

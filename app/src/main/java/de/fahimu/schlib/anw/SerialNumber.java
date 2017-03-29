@@ -20,40 +20,19 @@ import android.support.annotation.NonNull;
  */
 public final class SerialNumber {
 
-   private final int value;
-
    /**
-    * Allocates a new {@code SerialNumber} with the specified value.
+    * Returns the value encoded as a 22-digit decimal string.
+    * First the value is {@link IntCipher#encrypt(int) encrypted} and then converted into a
+    * modified octal representation. This {@code String} object can efficiently be encoded in
+    * <a href="http://en.wikipedia .org/wiki/Code_128#Subtypes">Code Set C of Code 128</a>.
     *
-    * @param value
-    *       the value of the new {@code SerialNumber} instance.
-    * @throws IllegalArgumentException
-    *       if {@code value} is not greater than zero.
-    */
-   public SerialNumber(int value) {
-      if (value <= 0) {
-         throw new IllegalArgumentException(value + " not greater than zero");
-      }
-      this.value = value;
-   }
-
-   /**
-    * Returns the value of this {@code SerialNumber} as an {code int}.
-    *
-    * @return the value of this {@code SerialNumber} as an {code int}.
-    */
-   public int getValue() { return value; }
-
-   /**
-    * Returns a 22-digit decimal string, derived from the octal representation of this
-    * {@code SerialNumber}'s encrypted value. This {@code String} object can efficiently be encoded in
-    * <a href="http://en.wikipedia .org/wiki/Code_128#Subtypes"> Code Set C of Code 128</a>.
-    *
-    * @return a 22-digit decimal string.
+    * @param serial
+    *       the serial to encode.
+    * @return the value encoded as a 22-digit decimal string.
     */
    @NonNull
-   public String getCode128() {
-      long cipher = IntCipher.encrypt(value);
+   public static String getCode128(int serial) {
+      long cipher = IntCipher.encrypt(serial);
       char[] buf = new char[22];
       for (int p = 22; --p >= 0; ) {
          char base = (p & 1) == 0 ? '2' : '0';
@@ -65,18 +44,18 @@ public final class SerialNumber {
 
    /**
     * Returns the integer value of the specified string
-    * or 0 if the argument is not the result string of a call to {@link #getCode128() getCode128}.
+    * or 0 if {@code code128} is not the result string of a call to {@link #getCode128(int) getCode128}.
     *
-    * @param s
+    * @param code128
     *       the string to parse.
-    * @return the integer value represented by the specified string or 0.
+    * @return the integer value of the specified string or 0.
     */
-   public static int parseCode128(String s) {
-      if (s.length() != 22) { return 0; }
+   public static int parseCode128(String code128) {
+      if (code128.length() != 22) { return 0; }
 
       long cipher = 0;
       for (int p = 0; p < 22; p++) {
-         int v = s.charAt(p) - ((p & 1) == 0 ? '2' : '0');
+         int v = code128.charAt(p) - ((p & 1) == 0 ? '2' : '0');
          if (v < 0 || v > 7) { return 0; }
          cipher = (cipher << 3) | v;
       }
@@ -84,14 +63,16 @@ public final class SerialNumber {
    }
 
    /**
-    * Returns this {@code SerialNumber}'s value as a decimal string with an appended check digit calculated by the
+    * Returns the specified value as a decimal string with an appended check digit calculated by the
     * <a href="http://en.wikipedia.org/wiki/Damm_algorithm">Damm algorithm</a>.
     *
-    * @return this {@code SerialNumber}'s value as a decimal string with an appended check digit.
+    * @param serial
+    *       the serial to convert.
+    * @return the specified value as a decimal string with an appended check digit.
     */
    @NonNull
-   public String getDecimal() {
-      String plain = Integer.toString(value);
+   public static String getDecimal(int serial) {
+      String plain = Integer.toString(serial);
       char digit = '0';
       for (int p = 0; p < plain.length(); p++) {
          digit = TASQG[digit - '0'].charAt(plain.charAt(p) - '0');
@@ -105,14 +86,9 @@ public final class SerialNumber {
          "4810769532", "3692187405"
    };
 
-   @Override
-   public String toString() {
-      return Integer.toString(value);
-   }
-
    @NonNull
-   public String getDisplay() {
-      return "#\u00a0" + getDecimal() + "\u00a0#";
+   public static String getDisplay(int serial) {
+      return "#\u00a0" + getDecimal(serial) + "\u00a0#";
    }
 
 }

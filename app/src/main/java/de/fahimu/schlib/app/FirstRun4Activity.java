@@ -32,7 +32,6 @@ import de.fahimu.android.app.Log;
 import de.fahimu.android.app.scanner.NoFocusDialog;
 import de.fahimu.android.app.scanner.NoFocusDialog.ButtonListener;
 import de.fahimu.schlib.anw.ISBN;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Label;
 
@@ -283,7 +282,7 @@ public final class FirstRun4Activity extends SchlibActivity {
    }
 
    private void processLabel(@NonNull BookItem item, String barcode) {
-      Label label = Label.getNullable(SerialNumber.parseCode128(barcode));
+      Label label = Label.parse(barcode);
       if (label == null) {
          showErrorSnackbar(R.string.snackbar_error_not_a_label);
       } else if (label.isUsed()) {
