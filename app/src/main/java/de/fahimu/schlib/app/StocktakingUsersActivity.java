@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import de.fahimu.android.app.ListView.Item;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.scanner.NoFocusDialog;
+import de.fahimu.android.app.scanner.NoFocusDialog.ButtonListener;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Idcard;
@@ -122,6 +124,8 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       }
    }
 
+   private boolean deleteNoConfirmation;
+
    @Override
    protected void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
@@ -129,26 +133,23 @@ public final class StocktakingUsersActivity extends SchlibActivity {
          if (idcard == null) {
             showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
          } else if (idcard.isUsed()) {
-            User user = User.getNonNull(idcard.getUid());
+            final User user = User.getNonNull(idcard.getUid());
             if (user.getRole() != Role.PUPIL) {
                showErrorSnackbar(R.string.stocktaking_users_snackbar_error_no_pupil, user.getDisplay());
-            } else {
-               ArrayList<Lending> lendings = Lending.getUsersLendings(user.getUid(), true);
-               if (lendings.isEmpty()) {
-                  showInfoSnackbar(R.string.stocktaking_users_snackbar_info_deleted, user.getDisplay());
-                  user.delete();
-                  usersAdapter.updateAsync(Adapter.RELOAD_DATA);
+            } else if (noPendingLendings(user)) {
+               if (deleteNoConfirmation) {
+                  deleteUser(user, R.string.stocktaking_users_snackbar_info_deleted);
                } else {
-                  // user book size
                   NoFocusDialog dialog = new NoFocusDialog(this);
-                  if (lendings.size() == 1) {
-                     dialog.setMessage(R.string.dialog_message_stocktaking_users_book_issued,
-                           user.getDisplay(), Book.getNonNull(lendings.get(0).getBid()).getDisplay());
-                  } else {
-                     dialog.setMessage(R.string.dialog_message_stocktaking_users_books_issued,
-                           user.getDisplay(), Book.getNonNull(lendings.get(0).getBid()).getDisplay(), lendings.size());
-                  }
-                  dialog.show(R.raw.horn);
+                  dialog.setMessage(R.string.dialog_message_stocktaking_users_confirmation_scanned, user.getDisplay());
+                  dialog.setButton0(R.string.dialog_button0_stocktaking_users_confirmation, null);
+                  dialog.setButton1(R.string.dialog_button1_stocktaking_users_confirmation, new ButtonListener() {
+                     @Override
+                     public void onClick() {
+                        deleteNoConfirmation = true;
+                        deleteUser(user, R.string.stocktaking_users_snackbar_info_deleted);
+                     }
+                  }).show(R.raw.horn);
                }
             }
          } else if (idcard.isLost()) {
@@ -164,16 +165,46 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       }
    }
 
-   /* -------------------------------------------------------------------------------------------------------------- */
-
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         User user = usersAdapter.getItemByView(view).row;
-         showInfoSnackbar(R.string.stocktaking_users_snackbar_info_deleted_lost);
-         Idcard.getNonNull(user.getIdcard()).setLost(true).update();
-         user.delete();
-         usersAdapter.updateAsync(Adapter.RELOAD_DATA);
+         final User user = usersAdapter.getItemByView(view).row;
+         if (noPendingLendings(user)) {
+            NoFocusDialog dialog = new NoFocusDialog(this);
+            dialog.setMessage(R.string.dialog_message_stocktaking_users_confirmation_clicked);
+            dialog.setButton0(R.string.dialog_button0_stocktaking_users_confirmation, null);
+            dialog.setButton1(R.string.dialog_button1_stocktaking_users_confirmation, new ButtonListener() {
+               @Override
+               public void onClick() {
+                  deleteUser(user, R.string.stocktaking_users_snackbar_info_deleted_lost);
+                  Idcard.getNonNull(user.getIdcard()).setLost(true).update();
+               }
+            }).show();
+         }
       }
+   }
+
+   private boolean noPendingLendings(@NonNull User user) {
+      ArrayList<Lending> lendings = Lending.getLendings(user, true);
+      if (lendings.isEmpty()) {
+         return true;
+      } else {
+         NoFocusDialog dialog = new NoFocusDialog(this);
+         if (lendings.size() == 1) {
+            dialog.setMessage(R.string.dialog_message_stocktaking_users_book_issued,
+                  user.getDisplay(), Book.getNonNull(lendings.get(0).getBid()).getDisplay());
+         } else {
+            dialog.setMessage(R.string.dialog_message_stocktaking_users_books_issued,
+                  user.getDisplay(), Book.getNonNull(lendings.get(0).getBid()).getDisplay(), lendings.size());
+         }
+         dialog.show(R.raw.horn);
+         return false;
+      }
+   }
+
+   private void deleteUser(@NonNull User user, @StringRes int resId) {
+      user.delete();
+      usersAdapter.updateAsync(Adapter.RELOAD_DATA);
+      showInfoSnackbar(resId, user.getDisplay());
    }
 
 }

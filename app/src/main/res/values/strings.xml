@@ -274,6 +274,17 @@
         \n%1$s hat noch %3$d Bücher ausgeliehen, u. a. %2$s.\n
         \nDas Konto kann erst gelöscht werden, nachdem alle Bücher zurückgegeben wurden.
     </string>
+    <string name="dialog_message_stocktaking_users_confirmation_scanned">
+        Schülerkonto löschen?
+        \nWollen Sie wirklich das Konto von %1$s löschen? Sie können diese Aktion nicht widerrufen.\n
+        \nBitte beachten: Weitere Schülerkonten werden OHNE erneute Rückfrage gelöscht!
+    </string>
+    <string name="dialog_message_stocktaking_users_confirmation_clicked">
+        Schülerkonto löschen?
+        \nWollen Sie das Konto wirklich löschen? Sie können diese Aktion nicht widerrufen.
+    </string>
+    <string name="dialog_button0_stocktaking_users_confirmation">Nein, bitte nicht löschen</string>
+    <string name="dialog_button1_stocktaking_users_confirmation">Konto löschen</string>
 
     <!-- StringType -->
 
@@ -689,17 +700,17 @@
     <string name="stocktaking_users_explanation">
         Sie können jetzt einfach und schnell viele Schülerkonten löschen,
         z. B. am Ende des Schuljahres nach dem Einsammeln der Ausweiskarten.\n
-        \nScannen Sie dazu die Ausweiskarten der Reihe nach ein. Das zugehörige Konto
-        wird ohne Rückfrage gelöscht und der Ausweis wieder als im Vorrat befindlich markiert.\n
+        \nScannen Sie dazu die Ausweiskarten der Reihe nach ein. Das zugehörige
+        Konto wird gelöscht und der Ausweis wieder als im Vorrat befindlich markiert.\n
         \nNachdem am Ende des Schuljahres alle Ausweiskarten gescannt wurden, sollte die Liste rechts leer sein.\n
         \nAndernfalls können Sie die verbliebenen Konten mit dem Papierkorb löschen,
-        der zugehörige verloren gegangene Ausweis wird dann als ausgesondert markiert.
+        der zugehörige Ausweis wird dann als ausgesondert markiert.
     </string>
     <string name="stocktaking_users_empty">Alle Schülerkonten gelöscht</string>
     <string name="stocktaking_users_snackbar_error_no_pupil">Dieser Ausweis ist dem %1$s zugewiesen!</string>
     <string name="stocktaking_users_snackbar_info_deleted">Konto von %1$s gelöscht.</string>
     <string name="stocktaking_users_snackbar_info_stocked">Dieser Ausweis war bereits im Vorrat.</string>
-    <string name="stocktaking_users_snackbar_info_deleted_lost">Konto gelöscht, Ausweis ausgesondert.</string>
+    <string name="stocktaking_users_snackbar_info_deleted_lost">Konto gelöscht und Ausweis ausgesondert.</string>
 
     <!-- StocktakingBooksActivity -->
 

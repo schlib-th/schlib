@@ -431,7 +431,7 @@ public final class TutorActivity extends SchlibActivity {
       if (scannedBook != null) {
          setError(R.string.tutor_message_1_expected_user, R.string.tutor_message_2_book_before_user);
       } else {
-         ArrayList<Lending> lendings = Lending.getBooksLendings(book.getBid(), true);
+         ArrayList<Lending> lendings = Lending.getLendings(book, true);
          if (lendings.isEmpty()) {
             App.playSound(R.raw.bell);
             setDisplay(2, 0, R.string.tutor_progress_issue_init, book.getDisplay());

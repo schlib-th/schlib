@@ -72,28 +72,28 @@ public final class Lending extends Row {
    /**
     * Returns the {@link Lending}s of the specified book.
     *
-    * @param bid
-    *       the book id.
+    * @param book
+    *       the book.
     * @param issuedOnly
     *       if {@code true}, the result list will either be empty (book is returned)
     *       or have exactly one element (book is currently issued).
     * @return the {@link Lending}s of the specified book.
     */
-   public static ArrayList<Lending> getBooksLendings(long bid, boolean issuedOnly) {
-      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(BID, issuedOnly), bid);
+   public static ArrayList<Lending> getLendings(Book book, boolean issuedOnly) {
+      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(BID, issuedOnly), book.getBid());
    }
 
    /**
     * Returns the {@link Lending}s of the specified user.
     *
-    * @param uid
-    *       the user id.
+    * @param user
+    *       the user.
     * @param issuedOnly
     *       if {@code true}, only lendings will be returned where the books are currently issued.
     * @return the {@link Lending}s of the specified user.
     */
-   public static ArrayList<Lending> getUsersLendings(long uid, boolean issuedOnly) {
-      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(UID, issuedOnly), uid);
+   public static ArrayList<Lending> getLendings(User user, boolean issuedOnly) {
+      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(UID, issuedOnly), user.getUid());
    }
 
    /* ============================================================================================================== */
