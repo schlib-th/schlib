@@ -80,7 +80,7 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
    private static final class ShelfAdapter extends ColumnAdapter<ShelfItem> {
       @Override
       protected void loadData(ArrayList<ShelfItem> data) {
-         for (Book book : Book.getColumnValues(Book.SHELF)) {
+         for (Book book : Book.getShelfValues()) {
             data.add(new ShelfItem(book));
          }
       }
@@ -168,7 +168,7 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
          if (!StringType.SHELF.matches(shelf, activity.shelf)) { return false; }
 
          final HashMap<String,String> shelfsMap = new HashMap<>();
-         for (Book book : Book.getColumnValues(Book.SHELF)) {
+         for (Book book : Book.getShelfValues()) {
             final String shelf = book.getShelf();
             shelfsMap.put(simplify(shelf), shelf);
          }

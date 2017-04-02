@@ -224,7 +224,7 @@
     <string name="dialog_message_admin_idcards_used">
         Ausweiskarte %1$s
         \nDieser Ausweis ist dem %2$s zugewiesen.\n
-        \nWenn sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen
+        \nWenn Sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen
         oder das Nutzerkonto löschen.\n
         \nBitte wechseln Sie dazu in den Bereich \"Nutzerkonten verwalten\".
     </string>
@@ -263,6 +263,24 @@
         \nZwischen der von Ihnen gewählten Nummer (%1$s) und der bisher höchsten Nummer (%2$s) entsteht eine Lücke.\n
         \nMöchten Sie wirklich die Nummer %1$s verwenden?
     </string>
+    <string name="dialog_message_admin_books_add_step_3_no_isbn">
+        Dem Buch wurde keine ISBN zugewiesen!
+        \nEs gibt bereits ein Buch mit dem von Ihnen gewählten Titel,
+        das aber im Unterschied zu Ihrem neuen Buch die ISBN %1$s besitzt.\n
+        \nBitte überprüfen Sie, ob Ihr neues Buch nicht doch eine ISBN hat.
+        Wenn das der Fall ist, bitte zurück zu Schritt 1 gehen und die ISBN einscannen!
+    </string>
+    <string name="dialog_button0_admin_books_add_step_3_no_isbn">Ich habe vergessen, die ISBN zu scannen</string>
+    <string name="dialog_button1_admin_books_add_step_3_no_isbn">Das Buch hat keine ISBN</string>
+    <string name="dialog_message_admin_books_add_step_3_inconsistent_isbn">
+        ISBN und Titel passen vielleicht nicht zusammen!
+        \nEs gibt bereits ein Buch mit dem von Ihnen gewählten Titel,
+        das aber die ISBN %1$s und nicht die von Ihnen gescannte ISBN %2$s besitzt.\n
+        \nBitte überprüfen Sie, ob Sie vielleicht eine falsche ISBN gescannt haben.
+        Wenn das der Fall ist, bitte zurück zu Schritt 1 gehen und die richtige ISBN einscannen!
+    </string>
+    <string name="dialog_button0_admin_books_add_step_3_inconsistent_isbn">Ich habe die falsche ISBN gescannt</string>
+    <string name="dialog_button1_admin_books_add_step_3_inconsistent_isbn">ISBN und Titel passen</string>
 
     <string name="dialog_message_stocktaking_users_book_issued">
         Konto kann nicht gelöscht werden!
@@ -652,12 +670,12 @@
     </string>
 
     <string name="admin_books_add_step_3_label">Buchdaten eingeben</string>
-    <string name="admin_books_add_step_3_explanation_1">
+    <string name="admin_books_add_step_3_explanation_enter">
         Bitte geben Sie abschließend Titel, Autor und Verlag des Buchs ein.
         \nAußerdem können Sie dem Buch Schlagwörter für die Suche zuweisen, z. B. \"Antolin\" oder \"Erstleser\".\n
         \nDrücken Sie dann \"FERTIG\", um das Buch in der Datenbank zu speichern.
     </string>
-    <string name="admin_books_add_step_3_explanation_2">
+    <string name="admin_books_add_step_3_explanation_check">
         Bitte kontrollieren Sie abschließend Titel, Autor, Verlag und Schlagwörter des Buchs.\n
         \nDrücken Sie dann \"FERTIG\", um das Buch in der Datenbank zu speichern.
     </string>
@@ -703,8 +721,8 @@
         \nScannen Sie dazu die Ausweiskarten der Reihe nach ein. Das zugehörige
         Konto wird gelöscht und der Ausweis wieder als im Vorrat befindlich markiert.\n
         \nNachdem am Ende des Schuljahres alle Ausweiskarten gescannt wurden, sollte die Liste rechts leer sein.\n
-        \nAndernfalls können Sie die verbliebenen Konten mit dem Papierkorb löschen,
-        der zugehörige Ausweis wird dann als ausgesondert markiert.
+        \nIst ein Ausweis unbrauchbar geworden oder verloren gegangen, können Sie das
+        zugehörige Konto mit dem Papierkorb löschen, der Ausweis wird dann als ausgesondert markiert.
     </string>
     <string name="stocktaking_users_empty">Alle Schülerkonten gelöscht</string>
     <string name="stocktaking_users_snackbar_error_no_pupil">Dieser Ausweis ist dem %1$s zugewiesen!</string>

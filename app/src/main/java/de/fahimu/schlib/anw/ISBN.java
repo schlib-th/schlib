@@ -80,6 +80,18 @@ public final class ISBN {
    }
 
    @Override
-   public String toString() { return Long.toString(value); }
+   public int hashCode() {
+      return Long.valueOf(value).hashCode();
+   }
+
+   @Override
+   public boolean equals(Object other) {
+      return (other instanceof ISBN) && ((ISBN) other).value == this.value;
+   }
+
+   @Override
+   public String toString() {
+      return Long.toString(value);
+   }
 
 }

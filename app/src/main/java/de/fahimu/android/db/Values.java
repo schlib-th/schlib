@@ -273,7 +273,7 @@ public final class Values {
     * @return a new string array containing the key of every entry.
     */
    @NonNull
-   String[] keys() {
+   public String[] keys() {
       int i = 0;
       String[] keys = new String[cv.size()];
       for (String s : cv.keySet()) { keys[i++] = s; }

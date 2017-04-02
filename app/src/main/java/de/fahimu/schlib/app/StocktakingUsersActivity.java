@@ -28,7 +28,6 @@ import de.fahimu.android.app.Log;
 import de.fahimu.android.app.scanner.NoFocusDialog;
 import de.fahimu.android.app.scanner.NoFocusDialog.ButtonListener;
 import de.fahimu.schlib.anw.SerialNumber;
-import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.Lending;
 import de.fahimu.schlib.db.User;
@@ -191,10 +190,10 @@ public final class StocktakingUsersActivity extends SchlibActivity {
          NoFocusDialog dialog = new NoFocusDialog(this);
          if (lendings.size() == 1) {
             dialog.setMessage(R.string.dialog_message_stocktaking_users_book_issued,
-                  user.getDisplay(), Book.getNonNull(lendings.get(0).getBid()).getDisplay());
+                  user.getDisplay(), lendings.get(0).getBook().getDisplay());
          } else {
             dialog.setMessage(R.string.dialog_message_stocktaking_users_books_issued,
-                  user.getDisplay(), Book.getNonNull(lendings.get(0).getBid()).getDisplay(), lendings.size());
+                  user.getDisplay(), lendings.get(0).getBook().getDisplay(), lendings.size());
          }
          dialog.show(R.raw.horn);
          return false;

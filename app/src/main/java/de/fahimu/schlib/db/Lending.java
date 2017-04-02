@@ -103,21 +103,23 @@ public final class Lending extends Row {
    protected String getTable() { return TAB; }
 
    /**
-    * Returns the book ID of this issue.
+    * Returns the book of this issue.
     *
-    * @return the book ID of this issue.
+    * @return the book of this issue.
     */
-   public long getBid() {
-      return values.getLong(BID);
+   @NonNull
+   public Book getBook() {
+      return Book.getNonNull(values.getLong(BID));
    }
 
    /**
-    * Returns the user ID of this issue.
+    * Returns the user of this issue.
     *
-    * @return the user ID of this issue.
+    * @return the user of this issue.
     */
-   public long getUid() {
-      return values.getLong(UID);
+   @NonNull
+   public User getUser() {
+      return User.getNonNull(values.getLong(UID));
    }
 
    /**

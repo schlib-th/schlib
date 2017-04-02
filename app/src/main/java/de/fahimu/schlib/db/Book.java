@@ -15,8 +15,9 @@ import android.widget.AutoCompleteTextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 
+import de.fahimu.android.app.App;
 import de.fahimu.android.app.NumberPicker;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
@@ -26,7 +27,7 @@ import de.fahimu.android.db.Values;
 import de.fahimu.schlib.anw.ISBN;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.AdminUsersAddStep2;
-import de.fahimu.schlib.app.App;
+import de.fahimu.schlib.app.FirstRun3Activity;
 
 /**
  * A in-memory representation of one row of table {@code books}.
@@ -48,7 +49,7 @@ public final class Book extends Row {
    static final public  String AUTHOR    = "author";
    static final public  String KEYWORDS  = "keywords";
    static final private String STOCKED   = "stocked";
-   static final public  String SHELF     = "shelf";
+   static final private String SHELF     = "shelf";
    static final private String NUMBER    = "number";
    static final private String PERIOD    = "period";
    static final private String ISBN      = "isbn";
@@ -166,59 +167,96 @@ public final class Book extends Row {
    }
 
    @Nullable
-   public static Book getByISBN(ISBN isbn) {
-      return Book.get(App.format("%s=?", ISBN), isbn.getValue());
-   }
-
-   @Nullable
-   public static Book getIdentifiedByISBN(ISBN isbn) {
+   public static Book getIdentifiedByISBN(@NonNull ISBN isbn) {
       return Book.get(App.format("%s=? AND %s ISNULL", ISBN, LABEL), isbn.getValue());
    }
 
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   /**
+    * Returns the number of books that lack a identifying barcode, i. e. no isbn and no label.
+    * This method will be only called from {@link FirstRun3Activity}.
+    *
+    * @return the number of books that lack a identifying barcode.
+    */
    public static int countNoScanId() {
       // SELECT COUNT(*) FROM books WHERE isbn ISNULL AND label ISNULL ;
       String where = App.format("%s ISNULL AND %s ISNULL", ISBN, LABEL);
       return Integer.parseInt(SQLite.getFromQuery(TAB, "COUNT(*)", "0", where));
    }
 
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   private static final Values MOST_RECENT_COLUMNS = new Values()
+         .add(OID).add(TITLE).add(PUBLISHER).add(AUTHOR).add(KEYWORDS).add(SHELF).add(ISBN);
+
    /**
-    * Returns the books currently lent to the specified {@code user}.
-    *
-    * @param user
-    *       the user.
-    * @return the books currently lent to the specified {@code user}.
+    * Subquery that selects the most recent row of every book in prev_books (therefore including deleted books).
+    * (SELECT _id, title, publisher, author, keywords, shelf, isbn, MAX(_id) FROM prev_books GROUP BY bid)
     */
+   private static final String MOST_RECENT_SUBQUERY =
+         App.format("(SELECT %1$s, MAX(%2$s) FROM %3$s GROUP BY %4$s)",
+               SQLite.catToString(", ", MOST_RECENT_COLUMNS.keys()), OID, PREV, BID);
+
    @NonNull
-   public static ArrayList<Book> getLentTo(@NonNull User user) {
-      String table = App.format("%s JOIN %s USING (%s)", TAB, Lending.TAB, BID);
-      String where = App.format("%s=? AND %s ISNULL", Lending.UID, Lending.RETURN);
-      return SQLite.get(Book.class, table, TAB_COLUMNS, null, null, where, user.getUid());
+   private static ArrayList<Book> getMostRecent(String where, Object... args) {
+      return SQLite.get(Book.class, MOST_RECENT_SUBQUERY, MOST_RECENT_COLUMNS, null, OID + " DESC", where, args);
+   }
+
+   @NonNull
+   public static ArrayList<Book> getByISBNIncludeDeleted(@NonNull ISBN isbn) {
+      return getMostRecent(App.format("%s=?", ISBN), isbn.getValue());
+   }
+
+   @NonNull
+   public static ArrayList<Book> getByTitleIncludeDeleted(@NonNull String title) {
+      return getMostRecent(App.format("%s=?", TITLE), title);
    }
 
    /**
-    * Returns a list of books grouped and ordered by the specified {@code column},
+    * Returns a list of books from table {@code prev_books} grouped and ordered by the specified {@code column},
     * where values are only assigned for column {@code _id} and the specified {@code column}.
     * This method will be called e. g. to populate lists in {@link AutoCompleteTextView}s.
     *
     * @param column
     *       the requested column.
-    * @return a list of books grouped and ordered by the specified {@code column}.
+    * @param isbn
+    *       if not {@code null}, select only rows with the specified isbn.
+    * @return a list of books from table {@code prev_books} grouped and ordered by the specified {@code column}.
     *
     * @throws IllegalArgumentException
     *       if the specified {@code column} is not one of
-    *       {@link #TITLE}, {@link #PUBLISHER}, {@link #AUTHOR}, {@link #KEYWORDS} or {@link #SHELF}.
+    *       {@link #TITLE}, {@link #PUBLISHER}, {@link #AUTHOR} or {@link #KEYWORDS}.
     */
    @NonNull
-   public static ArrayList<Book> getColumnValues(@NonNull String column) {
+   public static ArrayList<Book> getColumnValues(@NonNull String column, @Nullable ISBN isbn) {
       if (!acceptedColumns.contains(column)) {
          throw new IllegalArgumentException(column + " not allowed");
       }
       Values columns = new Values().add(OID).add(column);
-      return SQLite.get(Book.class, TAB, columns, column, column, null);
+      if (isbn == null) {
+         return SQLite.get(Book.class, MOST_RECENT_SUBQUERY, columns, column, column, null);
+      } else {
+         return SQLite.get(Book.class, MOST_RECENT_SUBQUERY, columns, column, column, ISBN + "=?", isbn.getValue());
+      }
    }
 
-   private static final HashSet<String> acceptedColumns =
-         new HashSet<>(Arrays.asList(TITLE, PUBLISHER, AUTHOR, KEYWORDS, SHELF));
+   private static final List<String> acceptedColumns = Arrays.asList(TITLE, PUBLISHER, AUTHOR, KEYWORDS);
+
+   /**
+    * Returns a list of books from table {@code books} grouped and ordered by column {@code SHELF},
+    * where values are only assigned for column {@code _id} and column {@code SHELF}.
+    * This method will be called e. g. to populate lists in {@link AutoCompleteTextView}s.
+    *
+    * @return a list of books from table {@code books} grouped and ordered by column {@code SHELF}.
+    */
+   @NonNull
+   public static ArrayList<Book> getShelfValues() {
+      Values columns = new Values().add(OID).add(SHELF);
+      return SQLite.get(Book.class, TAB, columns, SHELF, SHELF, null);
+   }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
     * Returns a ascending ordered list of all used numbers of books on the specified {@code shelf}.
@@ -240,6 +278,8 @@ public final class Book extends Row {
       }
       return numbers;
    }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
     * Returns a list of all books, ordered by {@code shelf} and {@code number}.

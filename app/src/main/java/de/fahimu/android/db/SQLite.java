@@ -299,7 +299,7 @@ public final class SQLite {
     * @return a new string with the concatenated values.
     */
    @NonNull
-   static String catToString(String separator, String... values) {
+   public static String catToString(String separator, String... values) {
       StringBuilder b = new StringBuilder(50).append(values[0]);
       for (int i = 1; i < values.length; i++) { b.append(separator).append(values[i]); }
       return b.toString();

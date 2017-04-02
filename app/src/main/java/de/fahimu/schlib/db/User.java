@@ -307,13 +307,12 @@ public final class User extends Row {
    /**
     * Subquery that selects the oldest row of every pupil in prev_users.
     * That's the row that was inserted in table prev_users when the pupil was inserted in table users.
-    * (SELECT uid, name1, name2, serial, idcard, DATE(tstamp) AS tstamp, MIN(tstamp)
+    * (SELECT name1, name2, serial, idcard, DATE(tstamp) AS tstamp, MIN(_id)
     * FROM prev_users WHERE role='pupil' GROUP BY uid)
     */
    private static final String OLDEST_PUPIL_ROWS = App.format(
-         "(SELECT %1$s, %2$s, %3$s, %4$s, %5$s, DATE(%6$s) AS %6$s, MIN(%6$s) " +
-               "FROM %7$s WHERE %8$s='%9$s' GROUP BY %1$s)",
-         UID, NAME1, NAME2, SERIAL, IDCARD, TSTAMP, PREV, ROLE, PUPIL);
+         "(SELECT %1$s, %2$s, %3$s, %4$s, DATE(%5$s) AS %5$s, MIN(%6$s) FROM %7$s WHERE %8$s='%9$s' GROUP BY %10$s)",
+         NAME1, NAME2, SERIAL, IDCARD, TSTAMP, OID, PREV, ROLE, PUPIL, UID);
 
    /**
     * Returns the pupils list that will be print as a PDF document, sorted by {@code serial}.

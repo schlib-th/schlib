@@ -381,14 +381,14 @@ public final class TutorActivity extends SchlibActivity {
             setDisplay(3, 0, R.string.tutor_progress_idcard_not_used);
          } else {
             User user = User.getNonNull(idcard.getUid());
-            List<Book> lentBooks = Book.getLentTo(user);
-            if (lentBooks.size() == user.getNbooks()) {
+            List<Lending> lendings = Lending.getLendings(user, true);
+            if (lendings.size() == user.getNbooks()) {
                App.playSound(R.raw.horn);
-               String lentBook = lentBooks.get(0).getDisplay();
+               String lentBook = lendings.get(0).getBook().getDisplay();
                if (user.getNbooks() == 1) {
                   setDisplay(3, 0, R.string.tutor_progress_limit_1, user.getDisplay(), lentBook);
                } else {
-                  setDisplay(3, 0, R.string.tutor_progress_limit_n, user.getDisplay(), lentBook, lentBooks.size());
+                  setDisplay(3, 0, R.string.tutor_progress_limit_n, user.getDisplay(), lentBook, lendings.size());
                }
                stopAnimator.start();
             } else {
@@ -435,7 +435,7 @@ public final class TutorActivity extends SchlibActivity {
             scannedBook = book;
          } else {
             int days = lendings.get(0).returnBook() - book.getPeriod();
-            User user = User.getNonNull(lendings.get(0).getUid());
+            User user = lendings.get(0).getUser();
             if (days < 2) {
                App.playSound(R.raw.bell_return);
                setDisplay(0, 1, R.string.tutor_progress_return_in_time, book.getDisplay(), user.getDisplay());
