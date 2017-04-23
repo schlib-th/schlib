@@ -27,8 +27,7 @@ public final class App extends de.fahimu.android.app.App {
    @RawRes
    private static final int[] SOUND_IDS = {
          R.raw.horn, R.raw.lock, R.raw.beep,
-         R.raw.bell, R.raw.bell_issue, R.raw.bell_return,
-         R.raw.whistle_1, R.raw.whistle_2
+         R.raw.bell, R.raw.bell_issue, R.raw.bell_return
    };
 
    private static SoundPlayer soundPlayer;

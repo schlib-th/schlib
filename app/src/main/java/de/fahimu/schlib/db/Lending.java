@@ -14,11 +14,11 @@ import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 
+import de.fahimu.android.app.App;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Values;
-import de.fahimu.schlib.app.App;
 
 /**
  * A in-memory representation of one row of table {@code lendings}.
@@ -29,12 +29,12 @@ import de.fahimu.schlib.app.App;
  */
 public final class Lending extends Row {
 
-   static final         String TAB    = "lendings";
+   static final private String TAB    = "lendings";
    static final private String OID    = BaseColumns._ID;
    static final private String BID    = "bid";
-   static final         String UID    = "uid";
+   static final private String UID    = "uid";
    static final private String ISSUE  = "issue";
-   static final         String RETURN = "return";
+   static final private String RETURN = "return";
 
    // SELECT lendings._id AS _id, bid, uid, issue, return
    static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID), BID, UID, ISSUE, RETURN);
@@ -52,17 +52,17 @@ public final class Lending extends Row {
    /* ============================================================================================================== */
 
    /**
-    * Called if the book with the specified {@code bid} is issued to the user with the specified {@code uid}.
-    * A new row with the specified {@code bid} and {@code uid} is inserted into the {@code lendings} table
-    * and the value of column {@code issue} is set to the current time.
+    * Called if the specified {@code book} is issued to the specified {@code user}.
+    * A new row with the {@code bid} of the book and the {@code uid} of the user is inserted
+    * into the {@code lendings} table and the value of column {@code issue} is set to the current time.
     *
-    * @param bid
-    *       the book id.
-    * @param uid
-    *       the user id.
+    * @param book
+    *       the book.
+    * @param user
+    *       the user.
     */
-   public static void issueBook(long bid, long uid) {
-      SQLite.insert(TAB, new Values().add(BID, bid).add(UID, uid));
+   public static void issueBook(Book book, User user) {
+      SQLite.insert(TAB, new Values().add(BID, book.getBid()).add(UID, user.getUid()));
    }
 
    private static String whereClause(String column, boolean issuedOnly) {
@@ -144,14 +144,29 @@ public final class Lending extends Row {
 
    /**
     * Updates the value of column {@code return} to {@code DATETIME('NOW')} and
-    * returns the number of days between {@code issue} and {@code return} as an {@code int}.
+    * returns the number of days the book was returned belated as an {@code int}.
     *
-    * @return the number of days between {@code issue} and {@code return} as an {@code int}.
+    * @param period
+    *       maximum number of days the user is permitted to lend this book.
+    * @return the number of days the book was returned belated as an {@code int}.
     */
-   public int returnBook() {
+   public int returnBook(int period) {
       setNonNull(RETURN, SQLite.getDatetimeNow()).update();
-      String days = SQLite.getFromRawQuery("SELECT JULIANDAY(?) - JULIANDAY(?)", getReturn(), getIssue());
-      return (int) Double.parseDouble(days);     // days is formatted as a double from SQLITE
+
+      // SELECT JULIANDAY(DATE(<RETURN>)) - JULIANDAY(IFNULL(DATE(MIN(action)), DATE(<ISSUE>, '+<PERIOD> days')))
+      //    FROM (
+      //       SELECT MIN(issue)  AS action FROM lendings WHERE issue  >= DATE(<ISSUE>, '+<PERIOD> days')
+      //    UNION ALL
+      //       SELECT MIN(return) AS action FROM lendings WHERE return >= DATE(<ISSUE>, '+<PERIOD> days')
+      //    ) ;
+      String issuePlusPeriod = App.format("DATE(?, '+%d days')", period);
+      String subquery = "SELECT MIN(%2$s) AS action FROM %1$s WHERE %2$s >= %3$s";
+      String subquery1 = App.format(subquery, TAB, ISSUE, issuePlusPeriod);
+      String subquery2 = App.format(subquery, TAB, RETURN, issuePlusPeriod);
+      String query = App.format("SELECT JULIANDAY(DATE(?)) - JULIANDAY(IFNULL(DATE(MIN(action)), %s))" +
+            " FROM (%s UNION ALL %s)", issuePlusPeriod, subquery1, subquery2);
+      String belated = SQLite.getFromRawQuery(query, getReturn(), getIssue(), getIssue(), getIssue());
+      return (int) Double.parseDouble(belated);     // belated is formatted as a double from SQLITE
    }
 
 }

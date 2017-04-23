@@ -13,6 +13,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.TypeEvaluator;
+import android.support.annotation.ColorInt;
 import android.util.Property;
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -214,7 +215,7 @@ public abstract class SmartAnimator {
    }
 
    protected final ObjectAnimator colorAnimator(View view, Interpolator interpolator,
-         long startDelay, long duration, String propertyName, Integer... color) {
+         long startDelay, long duration, String propertyName, @ColorInt Integer... color) {
       return set(ObjectAnimator.ofObject(view, propertyName, new ArgbEvaluator(), (Object[]) color),
             interpolator, startDelay, duration);
    }

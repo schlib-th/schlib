@@ -15,16 +15,112 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"
+        android:layout_margin="24dp"
+        android:baselineAligned="false"
         android:descendantFocusability="blocksDescendants"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/admin_users_edit_label"
-            android:textSize="24sp" />
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="24dp"
+            android:layout_weight="382">
+
+            <RadioGroup
+                android:id="@+id/admin_users_edit_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerInParent="true"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/admin_users_edit_tutor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="24dp"
+                    android:text="@string/user_tutor"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/admin_users_edit_admin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/user_admin"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </RadioGroup>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/admin_users_edit_group"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:lines="2"
+                    android:labelFor="@+id/admin_users_edit_number_picker"
+                    android:text="@string/admin_users_edit_nbooks" />
+
+                <de.fahimu.android.app.NumberPicker
+                    android:id="@+id/admin_users_edit_number_picker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/admin_users_edit_new_idcard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/admin_users_edit_delete"
+                android:layout_centerInParent="true"
+                android:onClick="onDeleteClicked"
+                android:text="@string/admin_users_edit_new_idcard" />
+
+            <Button
+                android:id="@+id/admin_users_edit_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerInParent="true"
+                android:onClick="onDeleteClicked"
+                android:text="@string/admin_users_edit_delete" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="618"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/admin_users_edit_user_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:text="@string/user_display_pupil"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/darker_gray" />
+
+            <de.fahimu.android.app.ListView
+                android:id="@+id/admin_users_edit_lending_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/sh_rect_transparent"
+                android:listSelector="@android:color/transparent"
+                android:padding="1dp"
+                android:scrollbars="vertical" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

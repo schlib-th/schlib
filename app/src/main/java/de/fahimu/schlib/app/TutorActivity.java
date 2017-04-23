@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.MotionEvent;
@@ -253,10 +255,10 @@ public final class TutorActivity extends SchlibActivity {
          super.onResume();
          message1.setText("");
          message2.setText("");
-         displayIssue.setTextColor(TextViewColor.TEXT_COLORS[0]);
-         displayIssue.setBackgroundColor(TextViewColor.BACK_COLORS[0]);
-         displayReturn.setTextColor(TextViewColor.TEXT_COLORS[0]);
-         displayReturn.setBackgroundColor(TextViewColor.BACK_COLORS[0]);
+         displayIssue.setTextColor(App.getColorFromRes(R.color.color_tutor_text_0));
+         displayIssue.setBackgroundColor(App.getColorFromRes(R.color.color_tutor_back_0));
+         displayReturn.setTextColor(App.getColorFromRes(R.color.color_tutor_text_0));
+         displayReturn.setBackgroundColor(App.getColorFromRes(R.color.color_tutor_back_0));
          displayProgress.setText(R.string.tutor_progress_please_scan_book);
       }
    }
@@ -392,7 +394,7 @@ public final class TutorActivity extends SchlibActivity {
                }
                stopAnimator.start();
             } else {
-               Lending.issueBook(scannedBook.getBid(), user.getUid());
+               Lending.issueBook(scannedBook, user);
                App.playSound(R.raw.bell_issue);
                setDisplay(1, 0, R.string.tutor_progress_issue_done, scannedBook.getDisplay(), user.getDisplay());
             }
@@ -434,15 +436,13 @@ public final class TutorActivity extends SchlibActivity {
             setDisplay(2, 0, R.string.tutor_progress_issue_init, book.getDisplay());
             scannedBook = book;
          } else {
-            int days = lendings.get(0).returnBook() - book.getPeriod();
+            App.playSound(R.raw.bell_return);
             User user = lendings.get(0).getUser();
-            if (days < 2) {
-               App.playSound(R.raw.bell_return);
+            int belated = lendings.get(0).returnBook(book.getPeriod());
+            if (belated < 2) {
                setDisplay(0, 1, R.string.tutor_progress_return_in_time, book.getDisplay(), user.getDisplay());
             } else {
-               App.playSound(days <= 10 ? R.raw.whistle_1 : R.raw.whistle_2);
-               setDisplay(0, days <= 10 ? 2 : 3, R.string.tutor_progress_return_belated,
-                     book.getDisplay(), user.getDisplay(), days);
+               setDisplay(0, 2, R.string.tutor_progress_return_belated, book.getDisplay(), user.getDisplay(), belated);
             }
          }
          selectBook();
@@ -465,14 +465,23 @@ public final class TutorActivity extends SchlibActivity {
    /* ============================================================================================================== */
 
    private static class TextViewColor {
-      private static final int[] TEXT_COLORS = { 0xffaaaaaa, 0xffffffff, 0xff000000, 0xffffffff };
-      private static final int[] BACK_COLORS = { 0xffdddddd, 0xff008754, 0xfff0ca00, 0xffc1121c };
+      @ColorRes
+      private static final int[] TEXT_COLORS = {
+            R.color.color_tutor_text_0, R.color.color_tutor_text_1,
+            R.color.color_tutor_text_2, R.color.color_tutor_text_3
+      };
+      @ColorRes
+      private static final int[] BACK_COLORS = {
+            R.color.color_tutor_back_0, R.color.color_tutor_back_1,
+            R.color.color_tutor_back_2, R.color.color_tutor_back_3
+      };
 
+      @ColorInt
       private final int textColor, backColor;
 
       TextViewColor(int mode) {
-         textColor = TEXT_COLORS[mode];
-         backColor = BACK_COLORS[mode];
+         textColor = App.getColorFromRes(TEXT_COLORS[mode]);
+         backColor = App.getColorFromRes(BACK_COLORS[mode]);
       }
 
       TextViewColor(TextView textView) {
@@ -480,7 +489,9 @@ public final class TutorActivity extends SchlibActivity {
          backColor = ((ColorDrawable) textView.getBackground()).getColor();
       }
 
-      boolean isGrey() { return textColor == TEXT_COLORS[0] && backColor == BACK_COLORS[0]; }
+      boolean isGrey() {
+         return textColor == App.getColorFromRes(TEXT_COLORS[0]) && backColor == App.getColorFromRes(BACK_COLORS[0]);
+      }
    }
 
    private SmartAnimator displayAnimator = null;

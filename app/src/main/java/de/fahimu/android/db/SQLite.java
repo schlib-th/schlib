@@ -321,7 +321,11 @@ public final class SQLite {
       StringBuilder b = new StringBuilder(where.length() + 20 * args.length);
       for (int j = 0, i = 0; i < where.length(); i++) {
          char c = where.charAt(i);
-         if (c == '?') { b.append(args[j++]); } else { b.append(c); }
+         if (c == '?') {
+            b.append('\'').append(args[j++]).append('\'');
+         } else {
+            b.append(c);
+         }
       }
       return b.toString();
    }

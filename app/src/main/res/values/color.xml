@@ -4,6 +4,15 @@
     <color name="color_primary">#71ada3</color>
     <color name="color_primary_dark">#377a6f</color>
 
+    <color name="color_tutor_text_0">#ffaaaaaa</color>
+    <color name="color_tutor_text_1">#ffffffff</color>
+    <color name="color_tutor_text_2">#ff000000</color>
+    <color name="color_tutor_text_3">#ffffffff</color>
+    <color name="color_tutor_back_0">#ffdddddd</color>
+    <color name="color_tutor_back_1">#ff008754</color>
+    <color name="color_tutor_back_2">#fff0ca00</color>
+    <color name="color_tutor_back_3">#ffc1121c</color>
+
     <color name="color_38_percent_black">#61000000</color>
     <color name="color_54_percent_black">#8A000000</color>
     <color name="color_87_percent_black">#DE000000</color>

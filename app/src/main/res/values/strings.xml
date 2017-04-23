@@ -34,6 +34,7 @@
 
     <!-- User -->
 
+    <string name="user_role">Funktion</string>
     <string name="user_admin">Verwalter</string>
     <string name="user_tutor">Mitarbeiter</string>
     <string name="user_pupil">Schüler</string>
@@ -635,6 +636,10 @@
     <!-- AdminUsersEditActivity -->
 
     <string name="admin_users_edit_label">Nutzerkonto bearbeiten</string>
+    <string name="admin_users_edit_empty">Keine Bücher ausgeliehen</string>
+    <string name="admin_users_edit_nbooks">Der Schüler kann %1$s\nBücher gleichzeitig ausleihen</string>
+    <string name="admin_users_edit_new_idcard">Neuen Ausweis zuweisen</string>
+    <string name="admin_users_edit_delete">Nutzerkonto löschen</string>
 
     <!-- AdminBooksActivity -->
 
