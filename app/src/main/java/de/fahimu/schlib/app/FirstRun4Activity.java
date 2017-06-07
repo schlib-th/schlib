@@ -94,7 +94,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<Book> loadData() { return Book.get(); }
+      protected ArrayList<Book> loadData() { return Book.getAll(); }
 
       @Override
       protected BookItem createItem(Book book) { return new BookItem(book); }

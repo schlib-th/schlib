@@ -11,10 +11,10 @@ import android.support.annotation.WorkerThread;
 
 
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 import de.fahimu.android.app.App;
 import de.fahimu.android.app.Log;
-import de.fahimu.android.db.SQLite;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.db.User;
@@ -39,40 +39,27 @@ public final class PupilList extends TextDocument {
 
    private final ArrayList<User> users;
 
-   private final String name1, name2, date;
+   private final String name2, name1, date;
 
    /**
-    * Creates a new {@code PupilList} PDF document for the specified class and the current calendar day.
+    * Creates a new {@code PupilList} PDF document for the specified class and date.
     *
-    * @param name1
-    *       the class name.
     * @param name2
     *       the school year.
-    */
-   @MainThread
-   public PupilList(String name1, String name2) {
-      this(name1, name2, SQLite.getDatetimeNow().substring(0, 10));
-   }
-
-   /**
-    * Creates a new {@code PupilList} PDF document for the specified class and calendar day.
-    *
     * @param name1
     *       the class name.
-    * @param name2
-    *       the school year.
-    * @param date
-    *       the calendar day in the format {@code 'YYYY-MM-DD'}.
+    * @param localDate
+    *       number of days since 1.1.1970 in the {@link TimeZone#getDefault() default} timezone.
     */
    @MainThread
-   public PupilList(String name1, String name2, String date) {
+   public PupilList(String name2, String name1, long localDate) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         ArrayList<User> events = User.getInsertPupilsEvents(name1, name2);
-         this.firstList = !events.isEmpty() && events.get(0).getTstamp().equals(date);
-         this.users = User.getPupilList(name1, name2, date);
-         this.name1 = name1;
+         ArrayList<User> events = User.getInsertPupilsEvents(name2, name1);
+         this.firstList = !events.isEmpty() && events.get(0).getLocalDate() == localDate;
+         this.users = User.getPupilList(name2, name1, localDate);
          this.name2 = name2;
-         this.date = App.format("%s.%s.%s", date.substring(8, 10), date.substring(5, 7), date.substring(0, 4));
+         this.name1 = name1;
+         this.date = App.formatDate("dd'.'MM'.'yyyy", true, localDate * 86400);
          String title = App.getStr(R.string.pdf_pupil_list_title, name1, name2, this.date);
          String subject = App.getStr(R.string.pdf_pupil_list_subject);
          open(title, subject);
@@ -101,7 +88,7 @@ public final class PupilList extends TextDocument {
          }
 
          String info = getInfoText();
-         info = replaceUserVariables(info, "DATE", date, "CLASS-NAME", name1, "SCHOOL-YEAR", name2);
+         info = replaceUserVariables(info, "DATE", date, "SCHOOL-YEAR", name2, "CLASS-NAME", name1);
          for (String line : info.split("\n")) {
             add(line.isEmpty() ? new Line(8) : new MultiLine(line, 0.0, 10, 12, true));
          }

@@ -183,7 +183,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
    }
 
    private boolean noPendingLendings(@NonNull User user) {
-      ArrayList<Lending> lendings = Lending.getLendings(user, true);
+      ArrayList<Lending> lendings = Lending.getByUser(user, true);
       if (lendings.isEmpty()) {
          return true;
       } else {

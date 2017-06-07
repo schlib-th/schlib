@@ -54,9 +54,10 @@
     <string name="book_keywords">Schlagwörter</string>
     <string name="book_shelf">Kategorie</string>
     <string name="book_number">Nummer</string>
+    <string name="book_period">Leihfrist</string>
     <string name="book_isbn">ISBN</string>
     <string name="book_label">Klebeetikett</string>
-    <string name="book_period">Leihfrist</string>
+    <string name="book_lost">Buch fehlt seit %1$s</string>
 
     <!-- PDF documents -->
 

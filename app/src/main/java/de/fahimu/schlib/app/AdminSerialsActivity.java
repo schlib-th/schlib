@@ -174,8 +174,9 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
       @Override
       public boolean matches(SerialItem item) {
+         boolean contains = item.contains(normalizedQueries);
          if (normalizedQueries.length > 0) {
-            return item.contains(normalizedQueries);
+            return contains;
          } else if (item.row.isPrinted()) {
             return isFilterPrintedChecked;
          } else if (item.row.isLost()) {

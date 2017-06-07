@@ -128,8 +128,9 @@ public final class FirstRun3Activity extends SchlibActivity {
 
    private void gotoLogin() {
       createImportDir().delete();
-      Use.getLoggedInNonNull().setLogoutToNow().update();
+      Use.getLoggedInNonNull().logout();
       Preference.getNonNull(Preference.FIRST_RUN).delete();     // first run is done
+      Book.deleteTemporaryRowsFromPrevBooks(null);
       new BackupDatabase(FileType.BACKUP).execute();
       startActivity(new Intent(this, LoginActivity.class));
       finish();
@@ -239,10 +240,7 @@ public final class FirstRun3Activity extends SchlibActivity {
       try {
          Book book = new Book();
          book.setTitle(line[2]).setPublisher(line[3]).setAuthor(line[4]).setKeywords(line[5]);
-
-         String date = line[6].substring(6) + "-" + line[6].substring(3, 5) + "-" + line[6].substring(0, 2);
-         book.setStocked(SQLite.getFromRawQuery("SELECT DATETIME(?,?)", date, "+8 hours"));  // set time to 8 AM UTC
-
+         book.setStocked(line[6].substring(0, 2), line[6].substring(3, 5), line[6].substring(6));
          book.setShelf(line[0]).setNumber(Integer.parseInt(line[1]));
          book.setPeriod(14);
 

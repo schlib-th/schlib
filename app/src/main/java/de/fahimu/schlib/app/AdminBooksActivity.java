@@ -49,8 +49,9 @@ public final class AdminBooksActivity extends SchlibActivity {
       BookItem(@NonNull Book book) {
          super(book,
                book.getShelf(), book.getDisplayNumber(),
-               book.getTitle(), book.getAuthor(), book.getKeywords(), book.getPublisher(),
-               book.getDisplayMultilineISBNLabel());
+               book.getTitle(), book.getAuthor(),
+               book.hasVanished() ? App.getStr(R.string.book_lost, book.getVanished()) : book.getKeywords(),
+               book.getPublisher(), book.getDisplayMultilineISBNLabel());
       }
    }
 
@@ -95,7 +96,7 @@ public final class AdminBooksActivity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<Book> loadData() { return Book.get(); }
+      protected ArrayList<Book> loadData() { return Book.getAll(); }
 
       @Override
       protected BookItem createItem(Book book) { return new BookItem(book); }
@@ -235,7 +236,7 @@ public final class AdminBooksActivity extends SchlibActivity {
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          long bid = booksAdapter.getItemByView(view).row.getBid();
-         startActivity(new Intent(this, AdminBooksEditActivity.class).putExtra("bid", bid));
+         // TODO startActivity(new Intent(this, AdminBooksEditActivity.class).putExtra("bid", bid));
       }
    }
 

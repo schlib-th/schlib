@@ -62,17 +62,17 @@ public final class AdminUsersAddActivity extends StepperActivity {
             public void run() {
                try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
                   if (role != Role.PUPIL) {
-                     User.insert(role, name1, name2, scanned.get(0));
+                     User.insertAdminOrTutor(role, name2, name1, scanned.get(0));
                      finish();
                   } else {
-                     User.insertPupils(name1, name2, scanned);
+                     User.insertPupils(name2, name1, scanned);
                      Document.writeAsync(new TaskRegistry(), new WriterListener() {
                         @Override
                         public void onPageWrite() { }
 
                         @Override
                         public void onPostWrite() { finish(); }
-                     }, new PupilList(name1, name2));
+                     }, new PupilList(name2, name1, App.localDate()));
                   }
                }
             }

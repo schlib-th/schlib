@@ -25,6 +25,10 @@ import de.fahimu.android.app.Log;
  */
 public final class SQLite {
 
+   public static final long MIN_TSTAMP = 1000000000L;       // '2001-09-09 01:46:40' UTC
+
+   /* ============================================================================================================== */
+
    /**
     * A logging wrapper for {@link SQLiteDatabase#beginTransaction()},
     * {@link SQLiteDatabase#setTransactionSuccessful()} and {@link SQLiteDatabase#endTransaction()}.
@@ -68,100 +72,128 @@ public final class SQLite {
    /* ============================================================================================================== */
 
    /**
-    * Returns the value of column 0 of the SQL statement {@code SELECT DATETIME('NOW')}.
-    *
-    * @return the value of column 0 of the SQL statement {@code SELECT DATETIME('NOW')}.
-    */
-   @NonNull
-   public static String getDatetimeNow() {
-      return getFromRawQuery("SELECT DATETIME('NOW')");
-   }
-
-   /**
-    * Runs the provided SQL and returns the value of column 0 of the first row.
-    * <p> The SQL SELECT statement and the result are logged with level verbose. </p>
-    *
-    * @param sql
-    *       the SQL query to execute (must no be ; terminated).
-    * @param args
-    *       the values, which will replace the {@code '?'} characters in {@code sql}.
-    * @return the value of column 0 of the first row.
-    *
-    * @throws IllegalStateException
-    *       if no row is selected or the value of the column 0 is null.
-    */
-   @NonNull
-   public static String getFromRawQuery(String sql, Object... args) {
-      try (Cursor cursor = rawQuery(sql, args)) {
-         String value = getValueOfFirstColumn(cursor, null);
-         if (value == null) { throw new IllegalStateException("raw query return null"); }
-         return value;
-      }
-   }
-
-   /**
     * Queries the specified {@code table} with a SQL WHERE clause, specified by {@code where} and {@code args}, and
-    * returns the value of the specified {@code column} or {@code defaultValue}, if no row is selected or the
-    * value of the column is null.
+    * returns the value of column 0 or the value {@code 0}, if no row is selected or column 0 {@code ISNULL}.
     * <p> The SQL SELECT statement and the result are logged with level verbose. </p>
     *
     * @param table
     *       the table name.
     * @param column
     *       the column to return.
-    * @param defaultValue
-    *       the value to return if no row is selected or the value of the column is null.
     * @param where
     *       a filter declaring which rows to return.
     * @param args
     *       the values, which will replace the {@code '?'} characters in {@code where}.
     * @return the value of the specified {@code column} or {@code defaultValue}.
     */
-   @Nullable
-   public static String getFromQuery(String table, String column, String defaultValue, String where, Object... args) {
-      try (Cursor cursor = query(table, new Values().add(column), null, null, where, args)) {
-         return getValueOfFirstColumn(cursor, defaultValue);
+   public static int getIntFromQuery(String table, String column, String where, Object... args) {
+      try (Cursor cursor = query(table, new Values(column), null, null, where, args)) {
+         int value = 0;
+         if (cursor.moveToFirst() && cursor.getType(0) != Cursor.FIELD_TYPE_NULL) {
+            value = Integer.parseInt(cursor.getString(0));
+         }
+         Log.d("value=" + value);
+         return value;
       }
-   }
-
-   /**
-    * Returns the value of column 0 of the specified cursor {@code c} or {@code defaultValue},
-    * if no row is selected or the value of the column is null.
-    *
-    * @param c
-    *       the cursor.
-    * @param defaultValue
-    *       the value to return if no row is selected or the value of the column is null.
-    * @return the value of column 0 of the specified cursor.
-    */
-   @Nullable
-   private static String getValueOfFirstColumn(Cursor c, @Nullable String defaultValue) {
-      String value = (c.moveToFirst() && c.getType(0) != Cursor.FIELD_TYPE_NULL) ? c.getString(0) : defaultValue;
-      Log.d("value=" + value);
-      return value;
    }
 
    /* ============================================================================================================== */
 
    /**
-    * {@code INSERT INTO} the specified {@code table} a new row with the specified {@code values}.
-    * <p> The SQL INSERT statement and the result {@code id} are logged with level verbose. </p>
+    * Execute a single SQL statement that is NOT a SELECT/INSERT/UPDATE/DELETE.
+    * <p> The SQL statement is logged with level verbose. </p>
     *
     * @param db
-    *       the database where to insert the row.
-    * @param table
-    *       the table to insert the row into.
-    * @param values
-    *       pairs of column names and column values of the new row.
+    *       the database.
+    * @param sql
+    *       the SQL statement to be executed. Multiple statements separated by semicolons are not supported.
     * @throws SQLException
     *       if an error occurred.
     */
-   public static void insertFirstRowAfterCreate(SQLiteDatabase db, String table, Values values) throws SQLException {
-      Log.d(App.format("INSERT INTO %s VALUES %s", table, values));
-      long oid = db.insertWithOnConflict(table, null, values.cv, SQLiteDatabase.CONFLICT_NONE);
-      if (oid == -1) { throw new SQLException("INSERT returned -1"); }
-      Log.d("oid=" + oid);
+   public static void execSQL(SQLiteDatabase db, @NonNull String sql) {
+      String[] lines = sql.split("\n");
+      for (int i = 0; i < lines.length; i++) {
+         Log.d(App.format("*** %02d: %s", i, lines[i]));
+      }
+      db.execSQL(sql);
    }
+
+   /**
+    * Executes the SQL statement {@code DROP [TABLE|INDEX|TRIGGER|VIEW] $names1_$names2;}.
+    *
+    * @param db
+    *       the database.
+    * @param what
+    *       one of {@code "TABLE"}, {@code "INDEX"}, {@code "TRIGGER"} or {@code "VIEW"}.
+    * @param names
+    *       will be concatenated and separated by {@code '_'} and form the name of the database object.
+    * @throws SQLException
+    *       if an error occurred.
+    */
+   static void drop(SQLiteDatabase db, String what, String... names) {
+      execSQL(db, App.format("DROP %s %s;", what, catToString("_", names)));
+   }
+
+   /**
+    * Executes the SQL statement {@code ALTER TABLE $table RENAME TO $table_temp;}.
+    *
+    * @param db
+    *       the database.
+    * @param table
+    *       the table to rename.
+    * @throws SQLException
+    *       if an error occurred.
+    */
+   public static void alterTablePrepare(SQLiteDatabase db, String table) {
+      execSQL(db, App.format("ALTER TABLE %1$s RENAME TO %1$s_temp;", table));
+   }
+
+   /**
+    * Returns the string {@code CAST(STRFTIME('%s',$column) AS INTEGER) AS $column}.
+    * The returned expression converts string values formatted {@code 'YYYY-MM-DD HH:MM:SS'}
+    * to POSIX time integers in SQLite columns with type {@code DATETIME}.
+    *
+    * @param column
+    *       the column name.
+    * @return the string {@code CAST(STRFTIME('%s',$column) AS INTEGER) AS $column}.
+    */
+   public static String datetimeToPosix(String column) {
+      return "CAST(STRFTIME('%s'," + column + ") AS INTEGER) AS " + column;
+   }
+
+   /**
+    * Returns the string {@code CAST(STRFTIME('%s',$column,'unixepoch','localtime') AS INTEGER) AS $column}.
+    * The returned expression converts POSIX time integers to local time integers by adding the time difference
+    * in seconds between the local timezone and the UTC timezone. This value can then be used to calculate the
+    * number of days since the epoch (divide by 86400) or the local time in seconds (modulo 86400).
+    *
+    * @param column
+    *       the column name.
+    * @return the string {@code CAST(STRFTIME('%s',$column,'unixepoch','localtime') AS INTEGER) AS $column}.
+    */
+   public static String posixToLocal(String column) {
+      return "CAST(STRFTIME('%s'," + column + ",'unixepoch','localtime') AS INTEGER) AS " + column;
+   }
+
+   /**
+    * Executes {@code INSERT INTO $table SELECT $columns1, $columns2 FROM $table_temp;}
+    * and {@code DROP TABLE $table_temp;}.
+    *
+    * @param db
+    *       the database.
+    * @param table
+    *       the destination table where to copy the rows from the renamed table.
+    * @param columns
+    *       will be concatenated and separated by {@code ", "} and form the column list of the select statement.
+    * @throws SQLException
+    *       if an error occurred.
+    */
+   public static void alterTableExecute(SQLiteDatabase db, String table, String... columns) {
+      execSQL(db, App.format("INSERT INTO %1$s SELECT %2$s FROM %1$s_temp;", table, catToString(", ", columns)));
+      drop(db, "TABLE", table, "temp");
+   }
+
+   /* ============================================================================================================== */
 
    /**
     * {@code INSERT OR ABORT INTO} the specified {@code table} a new row with the specified {@code values}.
@@ -176,9 +208,10 @@ public final class SQLite {
     * @throws SQLException
     *       if an error occurred.
     */
-   public static long insert(String table, Values values) throws SQLException {
+   public static long insert(@Nullable SQLiteDatabase db, String table, Values values) {
       Log.d(App.format("INSERT OR ABORT INTO %s VALUES %s", table, values));
-      long oid = App.getDb().insertWithOnConflict(table, null, values.cv, SQLiteDatabase.CONFLICT_ABORT);
+      if (db == null) { db = App.getDb(); }
+      long oid = db.insertWithOnConflict(table, null, values.cv, SQLiteDatabase.CONFLICT_ABORT);
       if (oid == -1) { throw new SQLException("INSERT OR ABORT returned -1"); }
       Log.d("oid=" + oid);
       return oid;
@@ -227,17 +260,10 @@ public final class SQLite {
    }
 
    @NonNull
-   private static Cursor query(String table, Values columns, String group, String order, String where,
-         Object... args) {
+   private static Cursor query(String table, Values columns, String group, String order, String where, Object... args) {
       Log.d(App.format("SELECT %s FROM %s WHERE %s GROUP BY %s ORDER BY %s",
             catToString(", ", columns.keys()), table, bind(where, args), group, order));
       return App.getDb().query(table, columns.keys(), where, toStringArray(args), group, null, order);
-   }
-
-   @NonNull
-   private static Cursor rawQuery(String sql, Object... args) {
-      Log.d(bind(sql, args));
-      return App.getDb().rawQuery(sql, toStringArray(args));
    }
 
    /**
@@ -265,27 +291,30 @@ public final class SQLite {
     * Deletes in the specified {@code table} the rows specified by {@code where} and {@code args}.
     * <p> The SQL DELETE statement and the number of deleted rows are logged with level verbose. </p>
     *
+    * @param db
+    *       the database where to delete rows.
     * @param table
     *       the table where to delete rows.
     * @param where
     *       a filter declaring which rows to delete.
     * @param args
     *       the values, which will replace the {@code '?'} characters in {@code where}.
-    * @return the number of deleted rows.
+    * @throws SQLException
+    *       if an error occurred.
     */
-   public static int delete(String table, String where, Object... args) {
+   public static void delete(@Nullable SQLiteDatabase db, String table, String where, Object... args) {
       Log.d(App.format("DELETE FROM %s WHERE %s", table, bind(where, args)));
-      int rows = App.getDb().delete(table, where, toStringArray(args));
+      if (db == null) { db = App.getDb(); }
+      int rows = db.delete(table, where, toStringArray(args));
       Log.d(rows + " rows were deleted");
-      return rows;
    }
 
    /* ============================================================================================================== */
    /*  Utility methods.                                                                                              */
    /* ============================================================================================================== */
 
-   public static String alias(String table, String column, String alias) {
-      return App.format("%s.%s AS %s", table, column, alias);
+   public static String alias(String table, String column) {
+      return App.format("%1$s.%2$s AS %2$s", table, column);
    }
 
    /**
@@ -299,7 +328,7 @@ public final class SQLite {
     * @return a new string with the concatenated values.
     */
    @NonNull
-   public static String catToString(String separator, String... values) {
+   static String catToString(String separator, String... values) {
       StringBuilder b = new StringBuilder(50).append(values[0]);
       for (int i = 1; i < values.length; i++) { b.append(separator).append(values[i]); }
       return b.toString();
@@ -307,7 +336,7 @@ public final class SQLite {
 
    /**
     * Replaces the question marks in the {@code where} clause by the specified {@code args} and
-    * returns the final where clause as a string. Used for logging purposes.
+    * returns the final where clause as a string. Used e. g. for logging purposes.
     *
     * @param where
     *       the raw where clause.
@@ -316,7 +345,7 @@ public final class SQLite {
     * @return the final where clause.
     */
    @NonNull
-   private static String bind(String where, Object[] args) {
+   static String bind(String where, Object[] args) {
       if (where == null) { return ""; }
       StringBuilder b = new StringBuilder(where.length() + 20 * args.length);
       for (int j = 0, i = 0; i < where.length(); i++) {

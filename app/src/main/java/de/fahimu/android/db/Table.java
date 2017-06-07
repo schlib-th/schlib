@@ -7,12 +7,11 @@
 package de.fahimu.android.db;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
 
 
 import java.util.ArrayList;
 import java.util.List;
-
-import de.fahimu.android.app.Log;
 
 /**
  * @author Thomas Hirsch, schlib@fahimu.de
@@ -21,9 +20,14 @@ import de.fahimu.android.app.Log;
  */
 public final class Table {
 
-   public static final String TYPE_TEXT = "TEXT    ";
-   public static final String TYPE_INTE = "INTEGER ";
-   public static final String TYPE_TIME = "DATETIME";
+   private static final String TYPE_TEXT  = "TEXT    ";
+   private static final String TYPE_LONG  = "INTEGER ";
+   private static final String TYPE_TIME  = "DATETIME";
+   private static final String CONSTRAINT = "        ";
+
+   private static final String EMPTY       = "           ";
+   private static final String NOT_NULL    = "NOT NULL   ";
+   private static final String PRIMARY_KEY = "PRIMARY KEY";
 
    private final int    align;
    private final String table;
@@ -32,75 +36,101 @@ public final class Table {
    private final List<String>  indices = new ArrayList<>(10);
 
    private String  column;
-   private boolean notNull;
+   private boolean isNull;
 
-   private StringBuilder newColumn(String separator, String column, String type) {
+   private Table append(String separator, String column, String type, String extra) {
       this.column = column;
       sql.append(separator).append(column);
       for (int i = column.length(); i < align; i++) { sql.append(' '); }
-      return sql.append(' ').append(type);
-   }
-
-   public Table(String table, int align, String oid, boolean autoIncrement) {
-      this.align = align;
-      this.table = table;
-      sql.append("CREATE TABLE ").append(table);
-      newColumn(" (\n", oid, TYPE_INTE).append(" PRIMARY KEY");
-      if (autoIncrement) { sql.append(" AUTOINCREMENT"); }
-   }
-
-   public Table addColumn(String column, String type, boolean notNull) {
-      this.notNull = notNull;
-      newColumn(",\n", column, type).append(notNull ? " NOT NULL   " : "            ");
+      sql.append(' ').append(type).append(' ').append(extra);
       return this;
    }
 
-   public Table addRefCol(String column, boolean notNull) {
-      addColumn(column, TYPE_INTE, notNull);
+   public Table(String table, int align, boolean autoIncrement) {
+      this.align = align;
+      this.table = table;
+      sql.append("CREATE TABLE ").append(table);
+      append(" (\n", BaseColumns._ID, TYPE_LONG, PRIMARY_KEY);
+      if (autoIncrement) { sql.append(" AUTOINCREMENT"); }
+   }
+
+   private Table addColumn(String column, String type, boolean notNull) {
+      isNull = !notNull;
+      return append(",\n", column, type, notNull ? NOT_NULL : EMPTY);
+   }
+
+   public Table addTextColumn(String column, boolean notNull) {
+      return addColumn(column, TYPE_TEXT, notNull);
+   }
+
+   public Table addLongColumn(String column, boolean notNull) {
+      return addColumn(column, TYPE_LONG, notNull);
+   }
+
+   public Table addTimeColumn(String column, boolean notNull) {
+      return addColumn(column, TYPE_TIME, notNull);
+   }
+
+   public Table addReferences(String column, boolean notNull) {
+      addLongColumn(column, notNull);
       sql.append(" REFERENCES ").append(column).append('s');
       return this;
    }
 
-   public Table addConstraint(String constraint) {
-      sql.append(",\nCONSTRAINT ").append(constraint);
+   public Table addConstraint() {
+      return addColumn("", CONSTRAINT, false);
+   }
+
+   /* ============================================================================================================== */
+
+   public Table addDefaultPosixTime() {
+      sql.append(" DEFAULT (CAST(STRFTIME('%s','now') AS INTEGER))");
       return this;
    }
 
-   public Table addDefault(String sql) {
-      this.sql.append(" DEFAULT ").append(sql);
-      return this;
-   }
+   private char constraint = 'a';
 
-   public Table addCheck(String sql) {
-      this.sql.append(" CHECK (").append(sql).append(")");
-      return this;
-   }
-
-   public Table addCheckBetween(int min, int max) {
-      sql.append(" CHECK (").append(column);
-      sql.append(" BETWEEN ").append(min).append(" AND ").append(max).append(")");
-      return this;
-   }
-
-   public Table addCheckLength(String operator, int len) {
-      if (notNull) {
-         sql.append(" CHECK (LENGTH(").append(column);
-      } else {
-         sql.append(" CHECK (IFNULL(LENGTH(").append(column).append("), ").append(len);
-      }
-      sql.append(")").append(operator).append(len).append(")");
-      return this;
-   }
-
-   public Table addCheckIn(String... values) {
-      sql.append(" CHECK (").append(column).append(" IN ('").append(SQLite.catToString("', '", values)).append("'))");
+   private Table addConstrain(String type, String statement) {
+      // CONSTRAINT a [CHECK|UNIQUE] (statement)
+      sql.append(" CONSTRAINT ").append(constraint++);
+      sql.append(" ").append(type).append(" (").append(statement).append(")");
       return this;
    }
 
    public Table addUnique(String... columns) {
-      sql.append(" UNIQUE");
-      if (columns.length > 0) { sql.append(" (").append(SQLite.catToString(", ", columns)).append(")"); }
-      return this;
+      if (columns.length == 0) {
+         sql.append(" UNIQUE");
+         return this;
+      } else {
+         return addConstrain("UNIQUE", SQLite.catToString(", ", columns));
+      }
+   }
+
+   public Table addCheck(String statement) {
+      // CHECK ($statement)
+      return addConstrain("CHECK", statement);
+   }
+
+   public Table addCheckBetween(long min, long max) {
+      // CHECK ($column BETWEEN $min AND $max)
+      return addCheck(column + " BETWEEN " + min + " AND " + max);
+   }
+
+   public Table addCheckLength(String cmp) {
+      // CHECK (LENGTH($column) $cmp)
+      return addCheck("LENGTH(" + column + ")" + cmp);
+   }
+
+   public Table addCheckPosixTime(long min) {
+      // CHECK (TYPEOF($column)='integer' AND $column>=$min)
+      // CHECK ($column ISNULL OR TYPEOF($column)='integer' AND $column>=$min)
+      String checkNull = isNull ? column + " ISNULL OR " : "";
+      return addCheck(checkNull + "TYPEOF(" + column + ")='integer' AND " + column + ">=" + min);
+   }
+
+   public Table addCheckIn(String... values) {
+      // CHECK ($column IN ('$value1', '$value2'))
+      return addCheck(column + " IN ('" + SQLite.catToString("', '", values) + "')");
    }
 
    public Table addIndex() {
@@ -109,12 +139,18 @@ public final class Table {
    }
 
    public void create(SQLiteDatabase db) {
-      String createTable = this.sql.append("\n);").toString();
-      Log.d(createTable);
-      db.execSQL(createTable);
+      String createTable = sql.append("\n);").toString();
+      SQLite.execSQL(db, createTable);
       for (String createIndex : indices) {
-         Log.d(createIndex);
-         db.execSQL(createIndex);
+         SQLite.execSQL(db, createIndex);
+      }
+   }
+
+   /* ============================================================================================================== */
+
+   public static void dropIndex(SQLiteDatabase db, String table, String... columns) {
+      for (String column : columns) {
+         SQLite.drop(db, "INDEX", table, column);
       }
    }
 

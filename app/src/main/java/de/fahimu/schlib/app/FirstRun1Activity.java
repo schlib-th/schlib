@@ -99,10 +99,9 @@ public final class FirstRun1Activity extends SchlibActivity {
             for (int i = 0; i < 3; i++) {
                Label.createOnePage();
             }
-            User user = User.insert(Role.ADMIN, name1, name2, Idcard.FIRST_FREE_IDCARD);
-            Use.login(user);
             Preference.insert(Preference.CIPHER_KEY, IntCipher.createKey());
             Preference.getNonNull(Preference.FIRST_RUN).setValue("2").update();
+            Use.login(User.insertAdminOrTutor(Role.ADMIN, name2, name1, Idcard.MIN));
             transaction.setSuccessful();
          }
          startActivity(new Intent(this, RegisterPrintsActivity.class));

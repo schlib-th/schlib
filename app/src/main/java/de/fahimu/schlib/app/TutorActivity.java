@@ -383,7 +383,7 @@ public final class TutorActivity extends SchlibActivity {
             setDisplay(3, 0, R.string.tutor_progress_idcard_not_used);
          } else {
             User user = User.getNonNull(idcard.getUid());
-            List<Lending> lendings = Lending.getLendings(user, true);
+            ArrayList<Lending> lendings = Lending.getByUser(user, true);
             if (lendings.size() == user.getNbooks()) {
                App.playSound(R.raw.horn);
                String lentBook = lendings.get(0).getBook().getDisplay();
@@ -430,7 +430,10 @@ public final class TutorActivity extends SchlibActivity {
       if (scannedBook != null) {
          setError(R.string.tutor_message_1_expected_user, R.string.tutor_message_2_book_before_user);
       } else {
-         ArrayList<Lending> lendings = Lending.getLendings(book, true);
+         if (book.hasVanished()) {
+            book.setVanished(false);      // book re-emerged magically after being set to vanished
+         }
+         ArrayList<Lending> lendings = Lending.getByBook(book, true);
          if (lendings.isEmpty()) {
             App.playSound(R.raw.bell);
             setDisplay(2, 0, R.string.tutor_progress_issue_init, book.getDisplay());
@@ -438,11 +441,11 @@ public final class TutorActivity extends SchlibActivity {
          } else {
             App.playSound(R.raw.bell_return);
             User user = lendings.get(0).getUser();
-            int belated = lendings.get(0).returnBook(book.getPeriod());
-            if (belated < 2) {
+            int delay = lendings.get(0).returnBook();
+            if (delay < 2) {
                setDisplay(0, 1, R.string.tutor_progress_return_in_time, book.getDisplay(), user.getDisplay());
             } else {
-               setDisplay(0, 2, R.string.tutor_progress_return_belated, book.getDisplay(), user.getDisplay(), belated);
+               setDisplay(0, 2, R.string.tutor_progress_return_belated, book.getDisplay(), user.getDisplay(), delay);
             }
          }
          selectBook();

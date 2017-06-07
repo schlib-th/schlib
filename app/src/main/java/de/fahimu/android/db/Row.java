@@ -9,7 +9,6 @@ package de.fahimu.android.db;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 /**
  * A in-memory representation of one row in a table.
@@ -43,35 +42,20 @@ public abstract class Row {
    /* ============================================================================================================== */
 
    @NonNull
-   protected final Row setNonNull(@NonNull String key, @NonNull String value) {
-      return setNullable(key, value);
-   }
-
-   @NonNull
-   protected final Row setNullable(@NonNull String key, @Nullable String value) {
-      change.add(key, value); values.add(key, value);
+   protected final Row setText(@NonNull String key, @NonNull String value) {
+      change.addText(key, value); values.addText(key, value);
       return this;
    }
 
    @NonNull
-   protected final Row setNonNull(@NonNull String key, int value) {
-      return setNullable(key, value);
-   }
-
-   @NonNull
-   protected final Row setNullable(@NonNull String key, @Nullable Integer value) {
-      change.add(key, value); values.add(key, value);
+   protected final Row setLong(@NonNull String key, long value) {
+      change.addLong(key, value); values.addLong(key, value);
       return this;
    }
 
    @NonNull
-   protected final Row setNonNull(@NonNull String key, long value) {
-      return setNullable(key, value);
-   }
-
-   @NonNull
-   protected final Row setNullable(@NonNull String key, @Nullable Long value) {
-      change.add(key, value); values.add(key, value);
+   protected final Row setNull(@NonNull String key) {
+      change.addNull(key); values.addNull(key);
       return this;
    }
 
@@ -79,14 +63,14 @@ public abstract class Row {
 
    @NonNull
    protected Row insert() {
-      long oid = SQLite.insert(getTable(), change);
-      values.add(BaseColumns._ID, oid);
+      long oid = SQLite.insert(null, getTable(), change);
+      values.addLong(BaseColumns._ID, oid);
       change.clear();
       return this;
    }
 
    public void delete() {
-      SQLite.delete(getTable(), BaseColumns._ID + "=?", values.getLong(BaseColumns._ID));
+      SQLite.delete(null, getTable(), BaseColumns._ID + "=?", values.getLong(BaseColumns._ID));
    }
 
    @NonNull

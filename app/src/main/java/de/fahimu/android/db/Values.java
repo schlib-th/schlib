@@ -8,6 +8,7 @@ package de.fahimu.android.db;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -23,7 +24,7 @@ import android.support.annotation.Nullable;
 public final class Values {
 
    /**
-    * Contains only {@link String} or {@code null} cv, no {@link Boolean} or {@link Number}.
+    * Contains only {@code null} or objects of type {@link String} or {@link Long}.
     */
    @NonNull
    final ContentValues cv;
@@ -32,17 +33,33 @@ public final class Values {
     * Creates a new empty {@code Values} object.
     */
    public Values() {
-      cv = new ContentValues(15);      // 15 columns should be enough
+      cv = new ContentValues(10);      // 10 columns should be enough
    }
 
    /**
     * Creates a new {@code Values} object from the specified one.
     *
     * @param other
-    *       the cv to copy
+    *       the cv to copy.
     */
    public Values(@NonNull Values other) {
       cv = new ContentValues(other.cv);
+   }
+
+   /**
+    * Creates a new {@code Values} object
+    * and adds an entry with value {@code null} for each key in the specified array.
+    *
+    * @param keys
+    *       the key array.
+    */
+   public Values(@NonNull String... keys) {
+      this();
+      for (String key : keys) {
+         if (key != null) {
+            cv.putNull(key);     // assure that no {@code null} keys are stored
+         }
+      }
    }
 
    /* ============================================================================================================== */
@@ -57,7 +74,7 @@ public final class Values {
     * @return this {@code Values} object.
     */
    @NonNull
-   public Values add(@NonNull String key, String value) {
+   public Values addText(@NonNull String key, @NonNull String value) {
       cv.put(key, value);
       return this;
    }
@@ -72,23 +89,8 @@ public final class Values {
     * @return this {@code Values} object.
     */
    @NonNull
-   public Values add(@NonNull String key, Integer value) {
-      cv.put(key, (value == null) ? null : value.toString());
-      return this;
-   }
-
-   /**
-    * Adds the specified entry and returns this {@code Values} object.
-    *
-    * @param key
-    *       the key of the entry.
-    * @param value
-    *       the value of the entry.
-    * @return this {@code Values} object.
-    */
-   @NonNull
-   public Values add(@NonNull String key, Long value) {
-      cv.put(key, (value == null) ? null : value.toString());
+   public Values addLong(@NonNull String key, long value) {
+      cv.put(key, value);
       return this;
    }
 
@@ -100,25 +102,8 @@ public final class Values {
     * @return this {@code Values} object.
     */
    @NonNull
-   public Values add(@NonNull String key) {
+   public Values addNull(@NonNull String key) {
       cv.putNull(key);
-      return this;
-   }
-
-   /**
-    * Adds an entry with a string key and value null for each string in the specified array.
-    *
-    * @param keys
-    *       the key array
-    * @return this {@code Values} object.
-    */
-   @NonNull
-   public Values add(@NonNull String... keys) {
-      for (String key : keys) {
-         if (key != null) {
-            cv.putNull(key);     // assure that no {@code null} keys are stored
-         }
-      }
       return this;
    }
 
@@ -135,10 +120,17 @@ public final class Values {
    public Values add(@NonNull Cursor c) {
       for (int i = 0; i < c.getColumnCount(); i++) {
          String key = c.getColumnName(i);
-         if (c.getType(i) != Cursor.FIELD_TYPE_NULL) {
-            cv.put(key, c.getString(i));
-         } else if (!cv.containsKey(key)) {
-            cv.putNull(key);
+         switch (c.getType(i)) {
+         case Cursor.FIELD_TYPE_INTEGER:
+            cv.put(key, c.getLong(i)); break;
+         case Cursor.FIELD_TYPE_STRING:
+            cv.put(key, c.getString(i)); break;
+         case Cursor.FIELD_TYPE_NULL:
+            if (!cv.containsKey(key)) { cv.putNull(key); } break;
+         case Cursor.FIELD_TYPE_FLOAT:
+            throw new SQLException("Column type 'REAL' not supported");
+         case Cursor.FIELD_TYPE_BLOB:
+            throw new SQLException("Column type 'BLOB' not supported");
          }
       }
       return this;
@@ -147,16 +139,22 @@ public final class Values {
    /* ============================================================================================================== */
 
    @Nullable
-   private static String getNullable(@NonNull ContentValues values, @NonNull String key) {
-      if (!values.containsKey(key)) {
+   private <T> T getNullable(Class<T> type, @NonNull String key) {
+      if (!cv.containsKey(key)) {
          throw new RuntimeException(key + ": no such entry");
+      } else {
+         try {
+            return type.cast(cv.get(key));
+         } catch (ClassCastException cce) {
+            throw new RuntimeException(key + ": expected " + type.getCanonicalName()
+                  + ", found " + cv.get(key).getClass().getCanonicalName());
+         }
       }
-      return (String) values.get(key);
    }
 
    @NonNull
-   private static String getNonNull(@NonNull ContentValues values, @NonNull String key) {
-      String value = getNullable(values, key);
+   private <T> T getNonNull(Class<T> type, @NonNull String key) {
+      T value = getNullable(type, key);
       if (value == null) {
          throw new RuntimeException(key + ": value is null");
       }
@@ -164,18 +162,17 @@ public final class Values {
    }
 
    /**
-    * Returns the value of the specified {@code key} as a possibly {@code null} {@link String}.
+    * Returns {@code true} if the value of the specified {@code key} is not {@code null}.
     *
     * @param key
     *       the key of the requested entry.
-    * @return the value of the specified {@code key} as a possibly {@code null} {@link String}.
+    * @return {@code true} if the value of the specified {@code key} is not {@code null}.
     *
     * @throws RuntimeException
     *       if there is no entry with the specified {@code key}.
     */
-   @Nullable
-   public String getNullable(@NonNull String key) {
-      return getNullable(cv, key);
+   public boolean notNull(@NonNull String key) {
+      return getNullable(Object.class, key) != null;
    }
 
    /**
@@ -186,30 +183,11 @@ public final class Values {
     * @return the value of the specified {@code key} as {@code NonNull} {@link String}
     *
     * @throws RuntimeException
-    *       if there is no entry with the specified {@code key} or the value is {@code null}.
+    *       if there is no entry with the specified {@code key} or the value is not an instance of {@code String}.
     */
    @NonNull
-   public String getNonNull(@NonNull String key) {
-      return getNonNull(cv, key);
-   }
-
-   /**
-    * Returns the value of the specified {@code key} as a possibly {@code null} {@link Integer}.
-    *
-    * @param key
-    *       the key of the requested entry.
-    * @return the value of the specified {@code key} as a possibly {@code null} {@link Integer}.
-    *
-    * @throws RuntimeException
-    *       if there is no entry with the specified {@code key} or the value can't be converted.
-    */
-   @Nullable
-   public Integer getNullableInt(@NonNull String key) {
-      String value = getNullable(cv, key);
-      if (value == null) { return null; }
-      try { return Integer.parseInt(value); } catch (NumberFormatException e) {
-         throw new RuntimeException(key, e);
-      }
+   public String getText(@NonNull String key) {
+      return getNonNull(String.class, key);
    }
 
    /**
@@ -220,32 +198,14 @@ public final class Values {
     * @return the value of the specified {@code key} as an {@code int}.
     *
     * @throws RuntimeException
-    *       if there is no entry with the specified {@code key}, the value is {@code null} or can't be converted.
+    *       if there is no entry with the specified {@code key} or the value is not an instance of {@code int}.
     */
    public int getInt(@NonNull String key) {
-      String value = getNonNull(cv, key);
-      try { return Integer.parseInt(value); } catch (NumberFormatException e) {
-         throw new RuntimeException(key, e);
+      Long value = getNonNull(Long.class, key);
+      if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+         throw new RuntimeException(value + " out of int bounds");
       }
-   }
-
-   /**
-    * Returns the value of the specified {@code key} as a possibly {@code null} {@link Long}.
-    *
-    * @param key
-    *       the key of the requested entry.
-    * @return the value of the specified {@code key} as a possibly {@code null} {@link Long}.
-    *
-    * @throws RuntimeException
-    *       if there is no entry with the specified {@code key} or the value can't be converted.
-    */
-   @Nullable
-   public Long getNullableLong(@NonNull String key) {
-      String value = getNullable(cv, key);
-      if (value == null) { return null; }
-      try { return Long.parseLong(value); } catch (NumberFormatException e) {
-         throw new RuntimeException(key, e);
-      }
+      return value.intValue();
    }
 
    /**
@@ -256,13 +216,10 @@ public final class Values {
     * @return the value of the specified {@code key} as a {@code long}.
     *
     * @throws RuntimeException
-    *       if there is no entry with the specified {@code key}, the value is {@code null} or can't be converted.
+    *       if there is no entry with the specified {@code key} or the value is not an instance of {@code long}.
     */
    public long getLong(@NonNull String key) {
-      String value = getNonNull(cv, key);
-      try { return Long.parseLong(value); } catch (NumberFormatException e) {
-         throw new RuntimeException(key, e);
-      }
+      return getNonNull(Long.class, key);
    }
 
    /* ============================================================================================================== */
@@ -273,7 +230,7 @@ public final class Values {
     * @return a new string array containing the key of every entry.
     */
    @NonNull
-   public String[] keys() {
+   String[] keys() {
       int i = 0;
       String[] keys = new String[cv.size()];
       for (String s : cv.keySet()) { keys[i++] = s; }
@@ -282,13 +239,9 @@ public final class Values {
 
    /**
     * Removes all entries and returns this {@code Values} object.
-    *
-    * @return this {@code Values} object.
     */
-   @NonNull
-   Values clear() {
+   void clear() {
       cv.clear();
-      return this;
    }
 
    /**

@@ -22,9 +22,14 @@ import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Trigger;
+import de.fahimu.android.db.Trigger.Type;
 import de.fahimu.android.db.Values;
+import de.fahimu.android.db.View;
 import de.fahimu.schlib.app.R;
+import de.fahimu.schlib.app.StocktakingUsersActivity;
 import de.fahimu.schlib.pdf.PupilList;
+
+import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
 
 /**
  * A in-memory representation of one row of table {@code users}.
@@ -42,83 +47,128 @@ public final class User extends Row {
    static final private String IDS  = "uids";
    static final         String TAB  = "users";
    static final private String PREV = "prev_users";
+   static final private String VIEW = "prev_users_oldest_pupils";
 
    static final private String OID    = BaseColumns._ID;
    static final         String UID    = "uid";
-   static final private String NAME1  = "name1";
+   static final         String ROLE   = "role";
    static final private String NAME2  = "name2";
+   static final private String NAME1  = "name1";
    static final private String SERIAL = "serial";
-   static final private String ROLE   = "role";
    static final private String NBOOKS = "nbooks";
    static final         String IDCARD = "idcard";
    static final private String TSTAMP = "tstamp";
 
-   /** Part of the result set of {@link #getInsertPupilsEvents(Values, String, String, String, Object...)} */
-   static final private String MIN_SERIAL = "minSerial";
-   /** Part of the result set of {@link #getInsertPupilsEvents(Values, String, String, String, Object...)} */
-   static final private String MAX_SERIAL = "maxSerial";
+   static final private String MIN_SERIAL = "min_serial";
+   static final private String MAX_SERIAL = "max_serial";
+   static final private String LOCAL_DATE = "local_date";
 
    static final private String ADMIN = "admin";
    static final private String TUTOR = "tutor";
-   static final private String PUPIL = "pupil";
+   static final         String PUPIL = "pupil";
 
-   // SELECT users._id AS _id, uid, name1, name2, serial, role, nbooks, idcard
-   static final private Values TAB_COLUMNS =
-         new Values().add(SQLite.alias(TAB, OID, OID), UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD);
+   static final private Values TAB_COLUMNS = new Values(SQLite.alias(TAB, OID),
+         UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD);
+
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   static void create(SQLiteDatabase db) {
+      createTableUids(db);
+      createTableUsers(db);
+      createTablePrevUsers(db);
+
+      createTrigger(db, Type.AFTER_INSERT);
+      createTrigger(db, Type.AFTER_UPDATE);
+      createTrigger(db, Type.AFTER_DELETE);
+
+      createViewPrevUsersOldestPupils(db);
+   }
+
+   static void upgrade(SQLiteDatabase db, int oldVersion) {
+      if (oldVersion < 2) {
+         Trigger.drop(db, TAB, Type.AFTER_INSERT);
+         Trigger.drop(db, TAB, Type.AFTER_UPDATE);
+         Trigger.drop(db, TAB, Type.AFTER_DELETE);
+
+         upgradeTableUsersV2(db);
+         SQLite.delete(db, PREV, IDCARD + " ISNULL");      // null forbidden since V2
+         upgradeTablePrevUsersV2(db);
+
+         createTrigger(db, Type.AFTER_INSERT);
+         createTrigger(db, Type.AFTER_UPDATE);
+         createTrigger(db, Type.AFTER_DELETE);
+
+         createViewPrevUsersOldestPupils(db);
+      }
+   }
+
+   private static void createTableUids(SQLiteDatabase db) {
+      new Table(IDS, 3, true).create(db);
+   }
+
+   private static void createTableUsers(SQLiteDatabase db) {
+      Table tab = new Table(TAB, 6, false);
+      tab.addReferences(UID, true).addUnique();
+      tab.addTextColumn(ROLE, true).addCheckIn(ADMIN, TUTOR, PUPIL);
+      tab.addTextColumn(NAME2, true).addCheckLength(">=1");
+      tab.addTextColumn(NAME1, true).addCheckLength(">=1");
+      tab.addLongColumn(SERIAL, true).addCheckBetween(0, 99);
+      tab.addLongColumn(NBOOKS, true).addCheckBetween(0, 99);
+      tab.addReferences(IDCARD, true).addUnique();
+      tab.addConstraint().addUnique(NAME2, NAME1, SERIAL);
+      tab.create(db);
+   }
+
+   private static void createTablePrevUsers(SQLiteDatabase db) {
+      Table prev = new Table(PREV, 6, true);
+      prev.addReferences(UID, true).addIndex();          // index essential to group rows by uid
+      prev.addTextColumn(ROLE, true).addCheckIn(ADMIN, TUTOR, PUPIL);
+      prev.addTextColumn(NAME2, true).addCheckLength(">=1");
+      prev.addTextColumn(NAME1, true).addCheckLength(">=1");
+      prev.addLongColumn(SERIAL, true).addCheckBetween(0, 99);
+      prev.addLongColumn(NBOOKS, true).addCheckBetween(0, 99);
+      prev.addReferences(IDCARD, true);
+      prev.addTimeColumn(TSTAMP, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();
+      prev.create(db);
+   }
+
+   private static void createTrigger(SQLiteDatabase db, Trigger.Type type) {
+      Trigger.create(db, TAB, type, PREV, UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD);
+   }
 
    /**
-    * Creates new tables {@code uids}, {@code users} and {@code prev_users} in the specified database.
-    * Also three triggers are created that will copy any changed row from {@code users} to the history table
-    * {@code prev_users} after inserting, updating or deleting.
-    *
-    * @param db
-    *       the database where the tables are created.
+    * Select the oldest row of every pupil in prev_users (therefore including deleted pupils).
+    * That is the row that was inserted in table prev_users when the pupil was inserted in table users.
+    * <p>
+    * <pre> {@code
+    * CREATE VIEW prev_users_oldest_pupils AS
+    *    SELECT MIN(_id) AS _id, name2, name1, serial, idcard,
+    *           CAST(STRFTIME('%s',tstamp,'unixepoch','localtime') AS INTEGER) AS tstamp
+    *    FROM prev_users WHERE role='pupil' GROUP BY uid ;
+    * }
+    * </pre>
     */
-   static void create(SQLiteDatabase db) {
-      // CREATE TABLE uids
-      Table ids = new Table(IDS, 3, OID, true);
-      ids.create(db);
-      // CREATE TABLE users
-      Table tab = new Table(TAB, 6, OID, false);
-      tab.addRefCol(UID, true).addUnique();
-      tab.addColumn(NAME1, Table.TYPE_TEXT, true).addCheckLength(">=", 1).addIndex();
-      tab.addColumn(NAME2, Table.TYPE_TEXT, true).addCheckLength(">=", 1).addIndex();
-      tab.addColumn(SERIAL, Table.TYPE_INTE, true).addCheckBetween(0, 99).addIndex();
-      tab.addColumn(ROLE, Table.TYPE_TEXT, true).addCheckIn(ADMIN, TUTOR, PUPIL).addIndex();
-      tab.addColumn(NBOOKS, Table.TYPE_INTE, true).addCheckBetween(0, 99);
-      tab.addRefCol(IDCARD, false).addUnique();
-      tab.addConstraint("name_unique").addUnique(NAME1, NAME2, SERIAL);
-      tab.create(db);
-      // CREATE TABLE prev_users
-      Table prev = new Table(PREV, 6, OID, true);
-      prev.addRefCol(UID, true).addIndex();
-      prev.addColumn(NAME1, Table.TYPE_TEXT, true).addCheckLength(">=", 1);
-      prev.addColumn(NAME2, Table.TYPE_TEXT, true).addCheckLength(">=", 1);
-      prev.addColumn(SERIAL, Table.TYPE_INTE, true).addCheckBetween(0, 99);
-      prev.addColumn(ROLE, Table.TYPE_TEXT, true).addCheckIn(ADMIN, TUTOR, PUPIL);
-      prev.addColumn(NBOOKS, Table.TYPE_INTE, true).addCheckBetween(0, 99);
-      prev.addRefCol(IDCARD, false);
-      prev.addColumn(TSTAMP, Table.TYPE_TIME, true).addDefault("CURRENT_TIMESTAMP");
-      prev.create(db);
+   private static void createViewPrevUsersOldestPupils(SQLiteDatabase db) {
+      View view = new View(VIEW);
+      String oid = App.format("MIN(%1$s) AS %1$s", OID);
+      String tstamp = SQLite.posixToLocal(TSTAMP);
+      view.addSelect(PREV, new Values(oid, NAME2, NAME1, SERIAL, IDCARD, tstamp), UID, null, ROLE + "=?", PUPIL);
+      view.create(db);
+   }
 
-      // CREATE TRIGGER AI_users
-      Trigger insert = new Trigger(TAB, Trigger.Type.AFTER_INSERT);
-      insert.addInsert(PREV, UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD);
-      insert.addValues("NEW." + UID, "NEW." + NAME1, "NEW." + NAME2, "NEW." + SERIAL, "NEW." + ROLE, "NEW." + NBOOKS,
-            "NEW." + IDCARD);
-      insert.create(db);
-      // CREATE TRIGGER AU_users
-      Trigger update = new Trigger(TAB, Trigger.Type.AFTER_UPDATE);
-      update.addInsert(PREV, UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD);
-      update.addValues("NEW." + UID, "NEW." + NAME1, "NEW." + NAME2, "NEW." + SERIAL, "NEW." + ROLE, "NEW." + NBOOKS,
-            "NEW." + IDCARD);
-      update.create(db);
-      // CREATE TRIGGER AD_users
-      Trigger delete = new Trigger(TAB, Trigger.Type.AFTER_DELETE);
-      delete.addInsert(PREV, UID, NAME1, NAME2, SERIAL, ROLE, NBOOKS, IDCARD);
-      delete.addValues("OLD." + UID, "OLD." + NAME1, "OLD." + NAME2, "OLD." + SERIAL, "OLD." + ROLE, "OLD." + NBOOKS,
-            "OLD." + IDCARD);
-      delete.create(db);
+   private static void upgradeTableUsersV2(SQLiteDatabase db) {
+      Table.dropIndex(db, TAB, NAME1, NAME2, SERIAL, ROLE);
+      SQLite.alterTablePrepare(db, TAB);
+      createTableUsers(db);
+      SQLite.alterTableExecute(db, TAB, OID, UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD);
+   }
+
+   private static void upgradeTablePrevUsersV2(SQLiteDatabase db) {
+      Table.dropIndex(db, PREV, UID);
+      SQLite.alterTablePrepare(db, PREV);
+      createTablePrevUsers(db);
+      String tstamp = SQLite.datetimeToPosix(TSTAMP);
+      SQLite.alterTableExecute(db, PREV, OID, UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD, tstamp);
    }
 
    /* ============================================================================================================== */
@@ -152,37 +202,34 @@ public final class User extends Row {
    /* ============================================================================================================== */
 
    @NonNull
-   public static User insert(Role role, String name1, String name2, int idcard) {
+   public static User insertAdminOrTutor(Role role, String name2, String name1, int idcard) {
       if (role == Role.PUPIL) {
          throw new IllegalArgumentException("role PUPIL not allowed");
       }
-      return insert(name1, name2, 0, role, 5, idcard);
+      return insert(role, name2, name1, 0, 5, idcard);
    }
 
-   @NonNull
-   public static ArrayList<User> insertPupils(String name1, String name2, @NonNull List<Integer> idcards) {
+   public static void insertPupils(String name2, String name1, @NonNull List<Integer> idcards) {
       try (SQLite.Transaction transaction = new SQLite.Transaction()) {
-         int serial = getNextAvailableSerial(name1, name2);
-         ArrayList<User> users = new ArrayList<>(idcards.size());
+         int serial = getNextAvailableSerial(name2, name1);
          for (int idcard : idcards) {
-            users.add(insert(name1, name2, serial++, Role.PUPIL, 1, idcard));
+            insert(Role.PUPIL, name2, name1, serial++, 1, idcard);
          }
          transaction.setSuccessful();
-         return users;
       }
    }
 
    @NonNull
-   private static User insert(String name1, String name2, int serial, Role role, int nbooks, int idcard) {
-      User user = new User().setName1(name1).setName2(name2).setSerial(serial);
-      return user.setRole(role).setNbooks(nbooks).setIdcard(idcard).insert();
+   private static User insert(Role role, String name2, String name1, int serial, int nbooks, int idcard) {
+      return new User().setRole(role).setName2(name2).setName1(name1).setSerial(serial)
+            .setNbooks(nbooks).setIdcard(idcard).insert();
    }
 
    @NonNull
    @Override
    protected User insert() {
       try (SQLite.Transaction transaction = new SQLite.Transaction()) {
-         setNonNull(UID, SQLite.insert(IDS, new Values().add(OID)));
+         setLong(UID, SQLite.insert(null, IDS, new Values(OID)));
          super.insert();
          transaction.setSuccessful();
          return this;
@@ -203,39 +250,20 @@ public final class User extends Row {
     */
    @Nullable
    private static User get(String where, Object... args) {
-      List<User> list = SQLite.get(User.class, TAB, TAB_COLUMNS, null, null, where, args);
+      ArrayList<User> list = SQLite.get(User.class, TAB, TAB_COLUMNS, null, null, where, args);
       return (list.size() == 0) ? null : list.get(0);
    }
 
-   /**
-    * Returns {@link #get(String, Object...) User.get("uid=?", uid)}.
-    */
-   @Nullable
-   public static User getNullable(long uid) {
-      return User.get(App.format("%s=?", UID), uid);
-   }
-
-   /**
-    * Returns {@link #get(String, Object...) User.get("uid=?", uid)}
-    * or throws a {@link RuntimeException} if {@link #get(String, Object...)} returns {@code null}.
-    *
-    * @throws RuntimeException
-    *       if {@link #get(String, Object...)} returns {@code null}.
-    */
    @NonNull
    public static User getNonNull(long uid) {
-      User user = User.getNullable(uid);
+      User user = User.get(UID + "=?", uid);
       if (user == null) { throw new RuntimeException("no user with uid " + uid); }
       return user;
    }
 
-   /**
-    * Returns {@link #get(String, Object...) User.get("name1=? AND name2=? AND serial=?", name1, name2, serial)}.
-    */
    @Nullable
-   public static User get(String name1, String name2, int serial) {
-      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, SERIAL);
-      return User.get(where, name1, name2, serial);
+   public static User getAdminOrTutor(String name2, String name1) {
+      return User.get(NAME2 + "=? AND " + NAME1 + "=? AND " + SERIAL + "=0", name2, name1);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
@@ -247,7 +275,7 @@ public final class User extends Row {
     * @return a list of all users, ordered by {@code role}, {@code name2}, {@code name1} and {@code serial}.
     */
    @NonNull
-   public static ArrayList<User> get() {
+   public static ArrayList<User> getAll() {
       String order = App.format("(CASE %s WHEN '%s' THEN 0 WHEN '%s' THEN 1 ELSE 2 END), %s, %s, %s",
             ROLE, ADMIN, TUTOR, NAME2, NAME1, SERIAL);
       return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, null);
@@ -255,116 +283,124 @@ public final class User extends Row {
 
    /**
     * Returns a list of all pupils, ordered by {@code name2}, {@code name1} and {@code serial}.
+    * <p> This method will be called to populate the list in {@link StocktakingUsersActivity}. </p>
     *
     * @return a list of all pupils, ordered by {@code name2}, {@code name1} and {@code serial}.
     */
    @NonNull
    public static ArrayList<User> getPupils() {
-      // SELECT <TAB_COLUMNS> FROM users WHERE role='pupil' ORDER BY name2, name1, serial ;
+      // SELECT * FROM users WHERE role='pupil' ORDER BY name2, name1, serial ;
       String order = App.format("%s, %s, %s", NAME2, NAME1, SERIAL);
-      return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, App.format("%s=?", ROLE), PUPIL);
+      return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, ROLE + "=?", PUPIL);
    }
 
    /**
     * Returns a list of pupils grouped and ordered by column {@code name1},
     * where values are only assigned for column {@code _id} and {@code name1}.
-    * This method will be called e. g. to populate lists in {@link ScannerAwareEditText}s.
+    * <p> This method will be called e. g. to populate lists in {@link ScannerAwareEditText}s. </p>
     *
     * @return a list of pupils grouped and ordered by column {@code name1}.
     */
    @NonNull
    public static ArrayList<User> getPupilsName1() {
       // SELECT _id, name1 FROM users WHERE role='pupil' GROUP BY name1 ORDER BY name1 ;
-      Values columns = new Values().add(OID).add(NAME1);
-      return SQLite.get(User.class, TAB, columns, NAME1, NAME1, App.format("%s=?", ROLE), PUPIL);
+      Values columns = new Values(OID, NAME1);
+      return SQLite.get(User.class, TAB, columns, NAME1, NAME1, ROLE + "=?", PUPIL);
    }
 
    /**
     * Returns the number of pupils in the specified school class.
     */
-   public static int countPupils(String name1, String name2) {
-      // SELECT COUNT(*) FROM users WHERE name1='$name1' AND name2='$name2' AND role='pupil' ;
-      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
-      return Integer.parseInt(SQLite.getFromQuery(TAB, "COUNT(*)", "0", where, name1, name2, PUPIL));
+   public static int countPupils(String name2, String name1) {
+      // SELECT COUNT(*) FROM users WHERE role='pupil' AND name2='$name2' AND name1='$name1' ;
+      String where = App.format("%s=? AND %s=? AND %s=?", ROLE, NAME2, NAME1);
+      return SQLite.getIntFromQuery(TAB, "COUNT(*)", where, PUPIL, name2, name1);
    }
 
    /**
     * Returns the next available serial for the specified school class.
     */
-   public static int getNextAvailableSerial(String name1, String name2) {
+   public static int getNextAvailableSerial(String name2, String name1) {
       // If we would search for MAX(serial) in table 'users', and the last inserted pupil would have
       // been deleted, then its serial number would be reused, but that's erroneous! So we'll have
       // to search for MAX(serial) in the history table 'prev_users' where deleted pupils still exist.
 
-      // SELECT MAX(serial) FROM prev_users WHERE name1='$name1' AND name2='$name2' AND role='pupil' ;
-      String column = App.format("MAX(%s)", SERIAL);
-      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, ROLE);
-      return 1 + Integer.parseInt(SQLite.getFromQuery(PREV, column, "0", where, name1, name2, PUPIL));
+      // SELECT MAX(serial) FROM prev_users WHERE role='pupil' AND name2='$name2' AND name1='$name1' ;
+      String column = "MAX(" + SERIAL + ")";
+      String where = App.format("%s=? AND %s=? AND %s=?", ROLE, NAME2, NAME1);
+      return 1 + SQLite.getIntFromQuery(PREV, column, where, PUPIL, name2, name1);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
-    * Subquery that selects the oldest row of every pupil in prev_users.
-    * That's the row that was inserted in table prev_users when the pupil was inserted in table users.
-    * (SELECT name1, name2, serial, idcard, DATE(tstamp) AS tstamp, MIN(_id)
-    * FROM prev_users WHERE role='pupil' GROUP BY uid)
-    */
-   private static final String OLDEST_PUPIL_ROWS = App.format(
-         "(SELECT %1$s, %2$s, %3$s, %4$s, DATE(%5$s) AS %5$s, MIN(%6$s) FROM %7$s WHERE %8$s='%9$s' GROUP BY %10$s)",
-         NAME1, NAME2, SERIAL, IDCARD, TSTAMP, OID, PREV, ROLE, PUPIL, UID);
-
-   /**
-    * Returns the pupils list that will be print as a PDF document, sorted by {@code serial}.
-    * Only the methods {@link #getSerial()} and {@link #getIdcard()}
-    * are permitted to be called for the returned {@code User} objects.
-    * This method will be called e. g. by {@link PupilList}.
+    * Returns the pupils list that will be printed as a PDF document, sorted by {@code serial}.
+    * Values are only assigned for columns {@code serial} and {@code idcard}.
+    * This method will be called by {@link PupilList}.
+    * <p>
+    * <pre> {@code
+    * SELECT serial, idcard
+    * FROM prev_users_oldest_pupils
+    * WHERE name2='$name2' AND name1='$name1' AND tstamp/86400=$localDate
+    * ORDER BY serial ;
+    * }
+    * </pre>
     */
    @NonNull
-   public static ArrayList<User> getPupilList(String name1, String name2, String date) {
-      // SELECT serial, idcard FROM (<OLDEST-PUPIL-ROWS>)
-      //    WHERE name1='$name1' AND name2='$name2' AND tstamp='$date' ORDER BY serial ;
-      String where = App.format("%s=? AND %s=? AND %s=?", NAME1, NAME2, TSTAMP);
-      Values columns = new Values().add(SERIAL).add(IDCARD);
-      return SQLite.get(User.class, OLDEST_PUPIL_ROWS, columns, null, SERIAL, where, name1, name2, date);
+   public static ArrayList<User> getPupilList(String name2, String name1, long localDate) {
+      String where = App.format("%s=? AND %s=? AND %s/86400=%d", NAME2, NAME1, TSTAMP, localDate);
+      return SQLite.get(User.class, VIEW, new Values(SERIAL, IDCARD), null, SERIAL, where, name2, name1);
    }
 
    @NonNull
-   private static ArrayList<User> getInsertPupilsEvents(
-         Values columns, String group, String order, String where, Object... args) {
-      String minSerial = App.format("MIN(%s) AS %s", SERIAL, MIN_SERIAL);
-      String maxSerial = App.format("MAX(%s) AS %s", SERIAL, MAX_SERIAL);
-      columns.add(minSerial).add(maxSerial).add(TSTAMP);
-      return SQLite.get(User.class, OLDEST_PUPIL_ROWS, columns, group, order, where, args);
+   private static ArrayList<User> getEvents(Values columns, String group, String order, String where, Object... args) {
+      String minSerial = App.format("MIN (%s) AS %s", SERIAL, MIN_SERIAL);
+      String maxSerial = App.format("MAX (%s) AS %s", SERIAL, MAX_SERIAL);
+      String localDate = App.format("%s/86400 AS %s", TSTAMP, LOCAL_DATE);
+      columns.addNull(minSerial).addNull(maxSerial).addNull(localDate);
+      return SQLite.get(User.class, VIEW, columns, group, order, where, args);
    }
 
    /**
     * Returns the insert-pupils-events for the specified school class.
-    * Only the methods {@link #getMinSerial()}, {@link #getMaxSerial()}
-    * and {@link #getTstamp()} are permitted to be called for the returned {@code User} objects.
-    * This method will be called e. g. by {@link PupilList} to determine which version of pupil list must be printed.
+    * Values are only assigned for columns
+    * {@code min_serial}, {@code max_serial} and {@code tstamp}.
+    * This method will be called by {@link PupilList} to determine which version of pupil list must be printed.
+    * <p>
+    * <pre> {@code
+    * SELECT MIN(serial) AS min_serial, MAX(serial) AS max_serial, tstamp/86400 AS local_date,
+    * FROM prev_users_oldest_pupils
+    * WHERE name2='$name2' AND name1='$name1'
+    * GROUP BY local_date
+    * ORDER BY local_date ;
+    * }
+    * </pre>
     */
    @NonNull
-   public static ArrayList<User> getInsertPupilsEvents(String name1, String name2) {
-      // SELECT MIN(serial) AS minSerial, MAX(serial) AS maxSerial, tstamp FROM (<OLDEST-PUPIL-ROWS>)
-      //    WHERE name1='$name1' AND name2='$name2' GROUP BY tstamp ORDER BY tstamp ;
-      String where = App.format("%s=? AND %s=?", NAME1, NAME2);
-      return getInsertPupilsEvents(new Values(), TSTAMP, TSTAMP, where, name1, name2);
+   public static ArrayList<User> getInsertPupilsEvents(String name2, String name1) {
+      String where = App.format("%s=? AND %s=?", NAME2, NAME1);
+      return getEvents(new Values(), LOCAL_DATE, LOCAL_DATE, where, name2, name1);
    }
 
    /**
     * Returns all insert-pupils-events sorted by date (descending), school year and class name.
-    * Only the methods {@link #getName1()}, {@link #getName2()}, {@link #getMinSerial()}, {@link #getMaxSerial()}
-    * and {@link #getTstamp()} are permitted to be called for the returned {@code User} objects.
+    * Values are only assigned for columns
+    * {@code min_serial}, {@code max_serial}, {@code local_date}, {@code name2} and {@code name1}.
     * This method will be called to present all such events in a list when a pupil list should be reprinted.
+    * <p>
+    * <pre> {@code
+    * SELECT MIN(serial) AS min_serial, MAX(serial) AS max_serial, tstamp/86400 AS local_date, name2, name1
+    * FROM prev_users_oldest_pupils
+    * GROUP BY local_date,      name2, name1
+    * ORDER BY local_date DESC, name2, name1 ;
+    * }
+    * </pre>
     */
    @NonNull
    public static ArrayList<User> getInsertPupilsEvents() {
-      // SELECT name1, name2, MIN(serial) AS minSerial, MAX(serial) AS maxSerial, tstamp FROM (<OLDEST-PUPIL-ROWS>)
-      //    GROUP BY tstamp, name2, name1 ORDER BY tstamp DESC, name2, name1
-      String group = App.format("%s, %s, %s", TSTAMP, NAME2, NAME1);
-      String order = App.format("%s DESC, %s, %s", TSTAMP, NAME2, NAME1);
-      return getInsertPupilsEvents(new Values().add(NAME1).add(NAME2), group, order, null);
+      String group = App.format("%s,      %s, %s", LOCAL_DATE, NAME2, NAME1);
+      String order = App.format("%s DESC, %s, %s", LOCAL_DATE, NAME2, NAME1);
+      return getEvents(new Values(NAME2, NAME1), group, order, null);
    }
 
    /* ============================================================================================================== */
@@ -378,21 +414,18 @@ public final class User extends Row {
    }
 
    @NonNull
-   public String getName1() {
-      return values.getNonNull(NAME1);
+   public Role getRole() {
+      return Role.getEnum(values.getText(ROLE));
    }
 
-   /**
-    * Attribute {@code name1} cannot be changed after creation for security reasons.
-    */
    @NonNull
-   private User setName1(@NonNull String name1) {
-      return (User) setNonNull(NAME1, name1);
+   public User setRole(@NonNull Role role) {
+      return (User) setText(ROLE, role.value);
    }
 
    @NonNull
    public String getName2() {
-      return values.getNonNull(NAME2);
+      return values.getText(NAME2);
    }
 
    /**
@@ -400,7 +433,20 @@ public final class User extends Row {
     */
    @NonNull
    private User setName2(@NonNull String name2) {
-      return (User) setNonNull(NAME2, name2);
+      return (User) setText(NAME2, name2);
+   }
+
+   @NonNull
+   public String getName1() {
+      return values.getText(NAME1);
+   }
+
+   /**
+    * Attribute {@code name1} cannot be changed after creation for security reasons.
+    */
+   @NonNull
+   private User setName1(@NonNull String name1) {
+      return (User) setText(NAME1, name1);
    }
 
    public int getSerial() {
@@ -412,17 +458,7 @@ public final class User extends Row {
     */
    @NonNull
    private User setSerial(int serial) {
-      return (User) setNonNull(SERIAL, serial);
-   }
-
-   @NonNull
-   public Role getRole() {
-      return Role.getEnum(values.getNonNull(ROLE));
-   }
-
-   @NonNull
-   public User setRole(@NonNull Role role) {
-      return (User) setNonNull(ROLE, role.value);
+      return (User) setLong(SERIAL, serial);
    }
 
    public int getNbooks() {
@@ -431,7 +467,7 @@ public final class User extends Row {
 
    @NonNull
    public User setNbooks(int nbooks) {
-      return (User) setNonNull(NBOOKS, nbooks);
+      return (User) setLong(NBOOKS, nbooks);
    }
 
    public int getIdcard() {
@@ -440,12 +476,7 @@ public final class User extends Row {
 
    @NonNull
    public User setIdcard(int idcard) {
-      return (User) setNonNull(IDCARD, idcard);
-   }
-
-   @NonNull
-   public String getTstamp() {
-      return values.getNonNull(TSTAMP);
+      return (User) setLong(IDCARD, idcard);
    }
 
    public int getMinSerial() {
@@ -454,6 +485,10 @@ public final class User extends Row {
 
    public int getMaxSerial() {
       return values.getInt(MAX_SERIAL);
+   }
+
+   public long getLocalDate() {
+      return values.getLong(LOCAL_DATE);
    }
 
    /* ============================================================================================================== */

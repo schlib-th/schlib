@@ -34,15 +34,20 @@ public final class Label extends Serial {
    static final private int    MAX      = 999999;
    static final private int    PER_PAGE = 21;
 
-   static void create(@NonNull SQLiteDatabase db) { create(db, TAB, MIN, MAX); }
+   static void create(SQLiteDatabase db) {
+      create(db, TAB, MIN, MAX);
+   }
+
+   static void upgrade(SQLiteDatabase db, int oldVersion) {
+      upgrade(db, TAB, MIN, MAX, oldVersion);
+   }
 
    // SELECT labels._id AS _id, page, lost, bid
-   private static final Values COLUMNS_FOR_JOIN_QUERY =
-         new Values().add(SQLite.alias(TAB, OID, OID), PAGE, LOST, Book.BID);
+   private static final Values JOIN_COLUMNS = new Values(SQLite.alias(TAB, OID), PAGE, LOST, Book.BID);
 
    // FROM labels LEFT JOIN books ON labels._id=books.label
-   private static final String TABLE_NAME_FOR_JOIN_QUERY =
-         App.format("%s LEFT JOIN %s ON %s.%s=%s.%s", TAB, Book.TAB, TAB, OID, Book.TAB, Book.LABEL);
+   private static final String JOINED_TABLE =
+         App.format("%1$s LEFT JOIN %2$s ON %1$s.%3$s=%2$s.%4$s", TAB, Book.TAB, OID, Book.LABEL);
 
    /* ============================================================================================================== */
 
@@ -102,7 +107,7 @@ public final class Label extends Serial {
    @NonNull
    public static List<Label> getPrinted() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return getPrinted(Label.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY);
+         return getPrinted(Label.class, JOINED_TABLE, JOIN_COLUMNS);
       }
    }
 
@@ -117,7 +122,7 @@ public final class Label extends Serial {
    @Nullable
    public static Label parse(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return parse(Label.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, barcode);
+         return parse(Label.class, JOINED_TABLE, JOIN_COLUMNS, TAB, barcode);
       }
    }
 
@@ -134,7 +139,7 @@ public final class Label extends Serial {
    @NonNull
    public static Label getNonNull(int number) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return getNonNull(Label.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, number);
+         return getNonNull(Label.class, JOINED_TABLE, JOIN_COLUMNS, TAB, number);
       }
    }
 
@@ -148,7 +153,7 @@ public final class Label extends Serial {
    @NonNull
    public static ArrayList<Label> get() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return get(Label.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY);
+         return get(Label.class, JOINED_TABLE, JOIN_COLUMNS);
       }
    }
 
@@ -177,7 +182,7 @@ public final class Label extends Serial {
     * @return {@code true} if this Label is ued.
     */
    public boolean isUsed() {
-      return values.getNullable(Book.BID) != null;
+      return values.notNull(Book.BID);
    }
 
    /**

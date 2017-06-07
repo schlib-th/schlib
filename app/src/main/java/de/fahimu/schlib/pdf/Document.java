@@ -82,7 +82,7 @@ public abstract class Document {
       User user = Use.getLoggedInNonNull().getUser();
       String author = user.getName1() + " " + user.getName2();
       begObj("<<").write("/Title(%s)/Author(%s)/Subject(%s)", title, author, subject);
-      write("/Creator(%1$s)/Producer(%1$s)", "School-Library V1.0 (\u00A9 2017)");
+      write("/Creator(%1$s)/Producer(%1$s)", "School-Library V1.06 (\u00A9 2017)");
       String d = new SimpleDateFormat("yyyyMMddHHmmssZ", Locale.US).format(new Date());
       write("/CreationDate(D:%1$s'%2$s')/ModDate(D:%1$s'%2$s')", d.substring(0, 17), d.substring(17)).endObj(">>");
 

@@ -81,7 +81,7 @@ public final class AdminUsersActivity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<User> loadData() { return User.get(); }
+      protected ArrayList<User> loadData() { return User.getAll(); }
 
       @Override
       protected UserItem createItem(User user) { return new UserItem(user); }
@@ -212,7 +212,7 @@ public final class AdminUsersActivity extends SchlibActivity {
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          long uid = usersAdapter.getItemByView(view).row.getUid();
-         startActivity(new Intent(this, AdminUsersEditActivity.class).putExtra("uid", uid));
+         // TODO startActivity(new Intent(this, AdminUsersEditActivity.class).putExtra("uid", uid));
       }
    }
 

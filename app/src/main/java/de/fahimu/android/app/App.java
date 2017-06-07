@@ -20,7 +20,13 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * The object returned by {@link android.content.Context#getApplicationContext()}.
@@ -159,6 +165,63 @@ public abstract class App extends android.app.Application {
       View child = parent.findViewById(resId);
       if (child == null) { throw new ClassCastException("resource not found"); }
       return type.cast(child);
+   }
+
+   /* ============================================================================================================== */
+
+   /**
+    * Returns the current POSIX time.
+    *
+    * @return the current POSIX time.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    */
+   public static long posixTime() {
+      return System.currentTimeMillis() / 1000;
+   }
+
+   /**
+    * Returns the number of days since 1.1.1970 in the {@link TimeZone#getDefault() default} timezone.
+    *
+    * @return the number of days since 1.1.1970 in the {@link TimeZone#getDefault() default} timezone.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    */
+   public static long localDate() {
+      Calendar calendar = new GregorianCalendar();
+      long diff = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
+      return (calendar.getTimeInMillis() + diff) / 1000 / 86400;
+   }
+
+   private static final HashMap<String,SimpleDateFormat> UTC   = new HashMap<>();
+   private static final HashMap<String,SimpleDateFormat> LOCAL = new HashMap<>();
+
+   /**
+    * Returns the specified {@code posixTime} formatted according to the specified {@code format}.
+    * If {@code utc} is {@code true}, {@link TimeZone#getTimeZone getTimeZone("UTC")} will be used,
+    * else the {@link TimeZone#getDefault() default} timezone.
+    *
+    * @param format
+    *       the pattern string.
+    * @param utc
+    *       if {@code true}, {@code getTimeZone("UTC")} will be used, else the default timezone.
+    * @param posixTime
+    *       the POSIX time to format.
+    * @return the specified {@code posixTime} formatted according to the specified {@code format}.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    */
+   @NonNull
+   public static synchronized String formatDate(@NonNull String format, boolean utc, long posixTime) {
+      SimpleDateFormat sdf = (utc ? UTC : LOCAL).get(format);
+      if (sdf == null) {
+         sdf = new SimpleDateFormat(format, Locale.US);
+         sdf.setCalendar(new GregorianCalendar(utc ? TimeZone.getTimeZone("UTC") : TimeZone.getDefault()));
+         (utc ? UTC : LOCAL).put(format, sdf);
+      }
+      String string = sdf.format(new Date(posixTime * 1000));
+      Log.d(posixTime + " -> " + string);
+      return string;
    }
 
 }

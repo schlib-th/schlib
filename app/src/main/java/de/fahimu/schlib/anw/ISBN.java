@@ -18,10 +18,13 @@ public final class ISBN {
 
    public static final int LENGTH = 13;
 
+   public static final long MIN = 9780000000000L;
+   public static final long MAX = 9799999999999L;
+
    private final long value;
 
    private static boolean outOfRange(long value) {
-      return value < 9780000000000L || value > 9799999999999L;
+      return value < MIN || value > MAX;
    }
 
    /**

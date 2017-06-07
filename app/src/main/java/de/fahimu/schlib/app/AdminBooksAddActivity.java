@@ -9,7 +9,6 @@ package de.fahimu.schlib.app;
 import android.support.annotation.NonNull;
 
 
-import de.fahimu.android.db.SQLite;
 import de.fahimu.schlib.anw.ISBN;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Label;
@@ -51,8 +50,7 @@ public final class AdminBooksAddActivity extends StepperActivity {
       book.setISBN(isbn).setLabel(label);
       book.setShelf(shelf).setNumber(number);
       book.setTitle(title).setPublisher(publisher).setAuthor(author).setKeywords(keywords);
-      book.setPeriod(14).setStocked(SQLite.getDatetimeNow());
-      book.insert();
+      book.setPeriod(14).insert();
       finish();
    }
 

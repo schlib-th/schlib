@@ -6,6 +6,7 @@
 
 package de.fahimu.schlib.db;
 
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -20,6 +21,7 @@ import java.util.zip.GZIPInputStream;
 
 import de.fahimu.android.app.App;
 import de.fahimu.android.app.Log;
+import de.fahimu.android.db.SQLite;
 import de.fahimu.android.share.ExternalFile;
 import de.fahimu.android.share.ExternalInputStream;
 import de.fahimu.schlib.share.FileType;
@@ -32,7 +34,7 @@ import de.fahimu.schlib.share.FileType;
 public final class OpenHelper extends SQLiteOpenHelper {
 
    public OpenHelper() {
-      super(App.getInstance(), "database", null, 1);
+      super(App.getInstance(), "database", null, 2);
       restoreDatabaseFile();
    }
 
@@ -50,9 +52,11 @@ public final class OpenHelper extends SQLiteOpenHelper {
          if (Arrays.asList(backupFiles).contains(RESTORE_FILENAME)) {
             try {
                File databasePath = App.getInstance().getDatabasePath(getDatabaseName()).getParentFile();
-               for (String filename : databasePath.list()) {
-                  if (!new File(databasePath, filename).delete()) {
-                     throw new IOException("delete of file '" + filename + "' failed");
+               if (databasePath.list() != null) {
+                  for (String filename : databasePath.list()) {
+                     if (!new File(databasePath, filename).delete()) {
+                        throw new IOException("delete of file '" + filename + "' failed");
+                     }
                   }
                }
                ExternalFile restoreFile = new ExternalFile(FileType.BACKUP, RESTORE_FILENAME);
@@ -73,32 +77,54 @@ public final class OpenHelper extends SQLiteOpenHelper {
 
    @Override
    public void onConfigure(SQLiteDatabase db) {
-      Log.d(db.getPath() + (db.isReadOnly() ? " - read" : " - read/write"));
-      db.setForeignKeyConstraintsEnabled(true);
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         db.setForeignKeyConstraintsEnabled(false);
+         scope.d("PRAGMA foreign_keys = OFF;");
+      }
    }
 
    @Override
    public void onCreate(SQLiteDatabase db) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         Preference.create(db);
          Idcard.create(db);
          Label.create(db);
          User.create(db);
          Book.create(db);
          Use.create(db);
          Lending.create(db);
-         Preference.create(db);
       }
    }
 
    @Override
    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-      Log.d("newVersion=" + newVersion);
-      throw new IllegalArgumentException("newVersion=" + newVersion);
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         scope.d("Upgrading database " + oldVersion + "->" + newVersion);
+
+         Preference.upgrade(db, oldVersion);
+         Idcard.upgrade(db, oldVersion);
+         Label.upgrade(db, oldVersion);
+         User.upgrade(db, oldVersion);
+         Book.upgrade(db, oldVersion);
+         Use.upgrade(db, oldVersion);
+         Lending.upgrade(db, oldVersion);
+
+         if (db.isDatabaseIntegrityOk()) {
+            scope.d("PRAGMA integrity_check SUCCEEDED");
+         } else {
+            throw new SQLException("PRAGMA integrity_check FAILED");
+         }
+      }
    }
 
    @Override
    public void onOpen(SQLiteDatabase db) {
-      Log.d(db.getPath() + (db.isReadOnly() ? " - read" : " - read/write"));
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         db.setForeignKeyConstraintsEnabled(true);
+         scope.d("PRAGMA foreign_keys = ON; db.getPath()=" + db.getPath());
+         SQLite.execSQL(db, "VACUUM;");      // reorganize database
+         SQLite.execSQL(db, "ANALYZE;");     // gather statistics about tables and indices
+      }
    }
 
 }

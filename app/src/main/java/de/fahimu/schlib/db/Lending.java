@@ -9,7 +9,6 @@ package de.fahimu.schlib.db;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 
 import java.util.ArrayList;
@@ -18,7 +17,12 @@ import de.fahimu.android.app.App;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
+import de.fahimu.android.db.Trigger;
+import de.fahimu.android.db.Trigger.Type;
 import de.fahimu.android.db.Values;
+import de.fahimu.android.db.View;
+
+import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
 
 /**
  * A in-memory representation of one row of table {@code lendings}.
@@ -29,24 +33,168 @@ import de.fahimu.android.db.Values;
  */
 public final class Lending extends Row {
 
-   static final private String TAB    = "lendings";
+   static final private String TAB      = "lendings";
+   static final private String TAB_OPD  = "opening_dates";
+   static final private String VIEW_LOC = "lendings_loc";
+   static final private String VIEW_DEL = "lendings_loc_delay";
+
    static final private String OID    = BaseColumns._ID;
    static final private String BID    = "bid";
    static final private String UID    = "uid";
    static final private String ISSUE  = "issue";
+   static final private String DUN    = "dun";
    static final private String RETURN = "return";
+   static final private String TERM   = "term";
+   static final private String DELAY  = "delay";
 
-   // SELECT lendings._id AS _id, bid, uid, issue, return
-   static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID), BID, UID, ISSUE, RETURN);
+   static final private int MIN_LENDING_TIME = 60;
+
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    static void create(SQLiteDatabase db) {
-      Table tab = new Table(TAB, 6, OID, true);
-      tab.addRefCol(BID, true).addIndex();
-      tab.addRefCol(UID, true).addIndex();
-      tab.addColumn(ISSUE, Table.TYPE_TIME, true).addDefault("CURRENT_TIMESTAMP");
-      tab.addColumn(RETURN, Table.TYPE_TIME, false);
-      tab.addConstraint("return_after_issue").addCheck("IFNULL(" + RETURN + ">=" + ISSUE + ", 1)");
+      createTableOpeningDates(db);
+      createTableLendings(db);
+
+      createViewLendingsLoc(db);
+      createTrigger(db, Type.AFTER_INSERT, ISSUE);
+      createTrigger(db, Type.AFTER_UPDATE, RETURN);
+      createViewLendingsLocDelay(db);
+   }
+
+   static void upgrade(SQLiteDatabase db, int oldVersion) {
+      if (oldVersion < 2) {
+         createTableOpeningDates(db);     // new introduced with V2
+
+         deleteShortTimeLendings(db);     // rows forbidden since V2 where return - issue < MIN_LENDING_TIME
+         upgradeTableLendingsV2(db);
+
+         createViewLendingsLoc(db);
+         createTrigger(db, Type.AFTER_INSERT, ISSUE);
+         createTrigger(db, Type.AFTER_UPDATE, RETURN);
+         createViewLendingsLocDelay(db);
+      }
+   }
+
+   /**
+    * Table with local dates when the library was officially opened for pupils.
+    */
+   private static void createTableOpeningDates(SQLiteDatabase db) {
+      new Table(TAB_OPD, 3, false).create(db);
+   }
+
+   private static void createTableLendings(SQLiteDatabase db) {
+      Table tab = new Table(TAB, 6, true);
+      tab.addReferences(BID, true).addIndex();           // essential to find all lendings of a given book
+      tab.addReferences(UID, true).addIndex();           // essential to find all lendings of a given user
+      tab.addTimeColumn(ISSUE, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();
+      tab.addTimeColumn(DUN, false).addCheckPosixTime(MIN_TSTAMP);                    // new in version V2
+      tab.addTimeColumn(RETURN, false).addCheckPosixTime(MIN_TSTAMP);
+      tab.addConstraint().addCheck(DUN + " BETWEEN " + ISSUE + " AND " + RETURN);
+      tab.addConstraint().addCheck(RETURN + "-" + ISSUE + ">=" + MIN_LENDING_TIME);
       tab.create(db);
+   }
+
+   /**
+    * Select from {@code lendings} with values of
+    * {@code issue}, {@code dun} and {@code return} converted to localtime.
+    * <p>
+    * <pre> {@code
+    * CREATE VIEW lendings_loc AS
+    * SELECT _id, bid, uid, CAST(STRFTIME('%s',issue ,'unixepoch','localtime') AS INTEGER) AS issue,
+    *                       CAST(STRFTIME('%s',dun   ,'unixepoch','localtime') AS INTEGER) AS dun,
+    *                       CAST(STRFTIME('%s',return,'unixepoch','localtime') AS INTEGER) AS return
+    * FROM lendings ;
+    * }
+    * </pre>
+    */
+   private static void createViewLendingsLoc(SQLiteDatabase db) {
+      View view = new View(VIEW_LOC);
+      String issueLoc = SQLite.posixToLocal(ISSUE);
+      String dunLoc = SQLite.posixToLocal(DUN);
+      String returnLoc = SQLite.posixToLocal(RETURN);
+      view.addSelect(TAB, new Values(OID, BID, UID, issueLoc, dunLoc, returnLoc), null, null, null);
+      view.create(db);
+   }
+
+   /**
+    * Creates a trigger of the specified type that inserts into table opening_dates after lendings changed.
+    * <p>
+    * <pre> {@code
+    * INSERT OR IGNORE INTO opening_dates
+    * SELECT column/86400 FROM lendings_loc
+    *                     JOIN users USING (uid)
+    *                     JOIN opened ON ((column/86400+4)%7=dw AND column%86400 BETWEEN s1 AND s2)
+    * WHERE role='pupil' AND lendings_loc._id=NEW._id AND OLD.column ISNULL;
+    * }
+    * </pre>
+    */
+   private static void createTrigger(SQLiteDatabase db, Type type, String... columns) {
+      Trigger trigger = new Trigger(TAB, type);
+      for (String column : columns) {
+         String table = App.format("%s JOIN %s USING (%s) %s", VIEW_LOC, User.TAB, UID, Preference.joinOpened(column));
+         String where = App.format("%s='%s' AND %s.%s=NEW.%s", User.ROLE, User.PUPIL, VIEW_LOC, OID, OID);
+         if (type == Type.AFTER_UPDATE) {
+            where = where + " AND OLD." + column + " ISNULL";
+         }
+         trigger.addInsertOrIgnoreSelected(TAB_OPD, column + "/86400", table, where);
+      }
+      trigger.create(db);
+   }
+
+   /**
+    * Select from {@code lendings_loc} and with extra columns {@code term} and {@code delay}.
+    * <p>
+    * <pre> {@code
+    * CREATE VIEW lendings_loc_delay AS
+    *    SELECT lendings_loc._id AS _id, bid, uid, issue, return,
+    *           MIN(opening_dates._id)*86400 AS term,
+    *           IFNULL(return,CAST(STRFTIME('%s','now','localtime') AS INTEGER))/86400
+    *         - IFNULL(MIN(opening_dates._id),issue/86400+period) AS delay
+    *    FROM lendings_loc JOIN books USING (bid)
+    *         LEFT JOIN opening_dates ON opening_dates._id>=issue/86400+period
+    *    GROUP BY lendings_loc._id
+    *    ORDER BY lendings_loc._id ;
+    * }
+    * </pre>
+    */
+   private static void createViewLendingsLocDelay(SQLiteDatabase db) {
+      View view = new View(VIEW_DEL);
+      String opdOid = TAB_OPD + "." + OID;
+      String locOid = VIEW_LOC + "." + OID;
+
+      String term = App.format("MIN(%s)*86400 AS %s", opdOid, TERM);
+      String min = App.format("IFNULL(%s,CAST(STRFTIME('%%s','now','localtime') AS INTEGER))/86400", RETURN);
+      String sub = App.format("IFNULL(MIN(%s),%s/86400+%s)", opdOid, ISSUE, Book.PERIOD);
+      String delay = App.format("%s - %s AS %s", min, sub, DELAY);
+      Values columns = new Values(SQLite.alias(VIEW_LOC, OID), BID, UID, ISSUE, RETURN, term, delay);
+
+      String table = App.format("%s JOIN %s USING (%s) LEFT JOIN %s ON %s>=%s/86400+%s",
+            VIEW_LOC, Book.TAB, BID, TAB_OPD, opdOid, ISSUE, Book.PERIOD);
+      view.addSelect(table, columns, locOid, locOid, null);
+      view.create(db);
+   }
+
+   private static void deleteShortTimeLendings(SQLiteDatabase db) {
+      // DELETE FROM lendings
+      //    WHERE CAST(STRFTIME('%s',return) AS INTEGER) - CAST(STRFTIME('%s',issue) AS INTEGER) < MIN_LENDING_TIME;
+      String cast = "CAST(STRFTIME('%%s',%s) AS INTEGER)";
+      SQLite.delete(db, TAB, App.format(cast, RETURN) + " - " + App.format(cast, ISSUE) + " < " + MIN_LENDING_TIME);
+   }
+
+   private static void upgradeTableLendingsV2(SQLiteDatabase db) {
+      // Rebuild table lendings to contain integers for issue and return instead of text strings
+      Table.dropIndex(db, TAB, BID, UID);
+      SQLite.alterTablePrepare(db, TAB);
+      createTableLendings(db);
+
+      createViewLendingsLoc(db);
+      createTrigger(db, Type.AFTER_INSERT, ISSUE, RETURN);
+
+      SQLite.alterTableExecute(db, TAB, OID, BID, UID,
+            SQLite.datetimeToPosix(ISSUE), "NULL", SQLite.datetimeToPosix(RETURN));
+
+      Trigger.drop(db, TAB, Type.AFTER_INSERT);
+      View.drop(db, VIEW_LOC);
    }
 
    /* ============================================================================================================== */
@@ -62,11 +210,16 @@ public final class Lending extends Row {
     *       the user.
     */
    public static void issueBook(Book book, User user) {
-      SQLite.insert(TAB, new Values().add(BID, book.getBid()).add(UID, user.getUid()));
+      SQLite.insert(null, TAB, new Values().addLong(BID, book.getBid()).addLong(UID, user.getUid()));
    }
 
    private static String whereClause(String column, boolean issuedOnly) {
       return issuedOnly ? App.format("%s=? AND %s ISNULL", column, RETURN) : App.format("%s=?", column);
+   }
+
+   private static ArrayList<Lending> get(String where, Object... args) {
+      Values columns = new Values(OID, BID, UID, ISSUE, RETURN);
+      return SQLite.get(Lending.class, TAB, columns, null, OID, where, args);
    }
 
    /**
@@ -79,8 +232,8 @@ public final class Lending extends Row {
     *       or have exactly one element (book is currently issued).
     * @return the {@link Lending}s of the specified book.
     */
-   public static ArrayList<Lending> getLendings(Book book, boolean issuedOnly) {
-      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(BID, issuedOnly), book.getBid());
+   public static ArrayList<Lending> getByBook(Book book, boolean issuedOnly) {
+      return get(whereClause(BID, issuedOnly), book.getBid());
    }
 
    /**
@@ -92,8 +245,27 @@ public final class Lending extends Row {
     *       if {@code true}, only lendings will be returned where the books are currently issued.
     * @return the {@link Lending}s of the specified user.
     */
-   public static ArrayList<Lending> getLendings(User user, boolean issuedOnly) {
-      return SQLite.get(Lending.class, TAB, TAB_COLUMNS, null, OID, whereClause(UID, issuedOnly), user.getUid());
+   public static ArrayList<Lending> getByUser(User user, boolean issuedOnly) {
+      return get(whereClause(UID, issuedOnly), user.getUid());
+   }
+
+   /**
+    * Returns the {@link Lending}s from {@code lendings_loc_delay} as specified by {@code where} and {@code args}.
+    * <p>
+    * <pre> {@code
+    * SELECT _id, bid, uid, issue, return, term, delay FROM lendings_loc_delay ORDER BY _id ;
+    * }
+    * </pre>
+    *
+    * @param where
+    *       a filter declaring which rows to return.
+    * @param args
+    *       the values, which will replace the {@code '?'} characters in {@code where}.
+    * @return the {@link Lending}s
+    */
+   private static ArrayList<Lending> getLocalizedLendingsWithDelay(String where, Object... args) {
+      Values columns = new Values(OID, BID, UID, ISSUE, RETURN, TERM, DELAY);
+      return SQLite.get(Lending.class, VIEW_DEL, columns, null, OID, where, args);
    }
 
    /* ============================================================================================================== */
@@ -123,50 +295,105 @@ public final class Lending extends Row {
    }
 
    /**
-    * Returns the date when the book was issued.
+    * Returns the POSIX time when the book was issued.
     *
-    * @return the date when the book was issued.
+    * @return the POSIX time when the book was issued.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
     */
-   @NonNull
-   public String getIssue() {
-      return values.getNonNull(ISSUE);
+   private long getIssue() {
+      return values.getLong(ISSUE);
+   }
+
+   private boolean isDunned() {
+      return values.notNull(DUN);
    }
 
    /**
-    * Returns the date when the book was returned or {@code null} if the book is still issued.
+    * Returns the POSIX time when the book was dunned.
+    * <p> Precondition: {@link #isDunned()} ()} must be {@code true}. </p>
     *
-    * @return the date when the book was returned or {@code null} if the book is still issued.
+    * @return the POSIX time when the book was dunned.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
     */
-   @Nullable
-   public String getReturn() {
-      return values.getNullable(RETURN);
+   private long getDun() {
+      return values.getLong(DUN);
+   }
+
+   private boolean isReturned() {
+      return values.notNull(RETURN);
    }
 
    /**
-    * Updates the value of column {@code return} to {@code DATETIME('NOW')} and
-    * returns the number of days the book was returned belated as an {@code int}.
+    * Returns the POSIX time when the book was returned.
+    * <p> Precondition: {@link #isReturned()} must be {@code true}. </p>
     *
-    * @param period
-    *       maximum number of days the user is permitted to lend this book.
-    * @return the number of days the book was returned belated as an {@code int}.
+    * @return the POSIX time when the book was returned.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
     */
-   public int returnBook(int period) {
-      setNonNull(RETURN, SQLite.getDatetimeNow()).update();
+   private long getReturn() {
+      return values.getLong(RETURN);
+   }
 
-      // SELECT JULIANDAY(DATE(<RETURN>)) - JULIANDAY(IFNULL(DATE(MIN(action)), DATE(<ISSUE>, '+<PERIOD> days')))
-      //    FROM (
-      //       SELECT MIN(issue)  AS action FROM lendings WHERE issue  >= DATE(<ISSUE>, '+<PERIOD> days')
-      //    UNION ALL
-      //       SELECT MIN(return) AS action FROM lendings WHERE return >= DATE(<ISSUE>, '+<PERIOD> days')
-      //    ) ;
-      String issuePlusPeriod = App.format("DATE(?, '+%d days')", period);
-      String subquery = "SELECT MIN(%2$s) AS action FROM %1$s WHERE %2$s >= %3$s";
-      String subquery1 = App.format(subquery, TAB, ISSUE, issuePlusPeriod);
-      String subquery2 = App.format(subquery, TAB, RETURN, issuePlusPeriod);
-      String query = App.format("SELECT JULIANDAY(DATE(?)) - JULIANDAY(IFNULL(DATE(MIN(action)), %s))" +
-            " FROM (%s UNION ALL %s)", issuePlusPeriod, subquery1, subquery2);
-      String belated = SQLite.getFromRawQuery(query, getReturn(), getIssue(), getIssue(), getIssue());
-      return (int) Double.parseDouble(belated);     // belated is formatted as a double from SQLITE
+   private boolean hasTerm() {
+      return values.notNull(TERM);
+   }
+
+   /**
+    * Returns the term of the lending.
+    * <p>
+    * Usually a book must be returned not later than the day of issue plus
+    * the number of days the book can be lend at most (the period of the book).
+    * The first day from this day when the library is official opened for pupils is called the term.
+    * </p>
+    * <p> Precondition: {@link #hasTerm()} must be {@code true}. </p>
+    *
+    * @return the term of the lending.
+    */
+   private long getTerm() {
+      return values.getLong(TERM);
+   }
+
+   /**
+    * Returns the difference in calendar days between return of the book and the term.
+    * <p>
+    * Usually a book must be returned not later than the day of issue plus
+    * the number of days the book can be lend at most (the period of the book).
+    * The first day from this day when the library is official opened for pupils is called the term.
+    * If there is no term, then the day of issue plus the book's period will be used for calculation instead.
+    * </p><p>
+    * If the book is not returned yet, the current day will be used for calculation instead.
+    * </p>
+    *
+    * @return the difference in calendar days between return of the book and the term.
+    */
+   private int getDelay() {
+      return values.getInt(DELAY);
+   }
+
+   /**
+    * Updates the value of column {@code return} to the current posix time and
+    * returns the number of days the book was returned delayed as an {@code int}.
+    * <p>
+    * If the lending time is less than MIN_LENDING_TIME seconds,
+    * we assume this lending to be erroneous and we'll delete this row and return 0.
+    * </p>
+    *
+    * @return the number of days the book was returned delayed as an {@code int}.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    */
+   public int returnBook() {
+      long now = App.posixTime();
+      if (now - getIssue() < MIN_LENDING_TIME) {
+         delete();
+         return 0;
+      } else {
+         setLong(RETURN, now).update();
+         return getLocalizedLendingsWithDelay(OID + "=?", getOid()).get(0).getDelay();
+      }
    }
 
 }

@@ -19,13 +19,16 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.scanner.ScannerAwareEditText;
 import de.fahimu.android.app.scanner.ScannerAwareEditText.AbstractTextWatcher;
 import de.fahimu.android.app.scanner.ScannerAwareEditText.ColumnAdapter;
 import de.fahimu.android.app.scanner.ScannerAwareEditText.ColumnItem;
-import de.fahimu.android.db.SQLite;
 import de.fahimu.schlib.anw.StringType;
 import de.fahimu.schlib.db.User;
 
@@ -128,8 +131,8 @@ public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivit
    private int oldCount;
 
    private void updateCountMaxAndText() {
-      oldCount = User.countPupils(activity.name1, activity.name2);
-      int available = 100 - User.getNextAvailableSerial(activity.name1, activity.name2);
+      oldCount = User.countPupils(activity.name2, activity.name1);
+      int available = 100 - User.getNextAvailableSerial(activity.name2, activity.name1);
       countSeek.setMax(available > 40 ? 40 : available);
       updateCountText();
    }
@@ -177,15 +180,14 @@ public final class AdminUsersAddStep1b extends StepFragment<AdminUsersAddActivit
    void clearInput() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          name1.setText(""); name1.setError(null);
-         // Get SQLite DATETIME('NOW') and set the previous and the next school year
-         String now = SQLite.getDatetimeNow();
-         int y = Integer.parseInt(now.substring(0, 4));
-         int m = Integer.parseInt(now.substring(5, 7));
-         name2Year0.setText(App.format("%d/%d", (y - 1), y % 100));
-         name2Year1.setText(App.format("%d/%d", y, (y + 1) % 100));
+         Calendar calendar = new GregorianCalendar(TimeZone.getDefault(), Locale.US);
+         int year = calendar.get(Calendar.YEAR);
+         name2Year0.setText(App.format("%d/%02d", (year - 1), year % 100));
+         name2Year1.setText(App.format("%d/%02d", year, (year + 1) % 100));
          // From January to June PRESELECT the first school year, from July to December the second one.
          name2Group.clearCheck();
-         name2Group.check(m <= 6 ? R.id.admin_users_add_step_1b_name2_year_0 :
+         name2Group.check(calendar.get(Calendar.MONTH) < Calendar.JULY ?
+                          R.id.admin_users_add_step_1b_name2_year_0 :
                           R.id.admin_users_add_step_1b_name2_year_1);
          countSeek.setProgress(1);
       }

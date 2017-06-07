@@ -30,23 +30,26 @@ import de.fahimu.schlib.app.R;
 public final class Idcard extends Serial {
 
    static final private String TAB      = "idcards";
-   static final private int    MIN      = 1000;
+   static final public  int    MIN      = 1000;
    static final private int    MAX      = 9999;
    static final private int    PER_PAGE = 10;
 
-   static void create(@NonNull SQLiteDatabase db) { create(db, TAB, MIN, MAX); }
+   static void create(SQLiteDatabase db) {
+      create(db, TAB, MIN, MAX);
+   }
+
+   static void upgrade(SQLiteDatabase db, int oldVersion) {
+      upgrade(db, TAB, MIN, MAX, oldVersion);
+   }
 
    // SELECT idcards._id AS _id, page, lost, uid
-   private static final Values COLUMNS_FOR_JOIN_QUERY =
-         new Values().add(SQLite.alias(TAB, OID, OID), PAGE, LOST, User.UID);
+   private static final Values JOIN_COLUMNS = new Values(SQLite.alias(TAB, OID), PAGE, LOST, User.UID);
 
    // FROM idcards LEFT JOIN users ON idcards._id=users.idcard
-   private static final String TABLE_NAME_FOR_JOIN_QUERY =
-         App.format("%s LEFT JOIN %s ON %s.%s=%s.%s", TAB, User.TAB, TAB, OID, User.TAB, User.IDCARD);
+   private static final String JOINED_TABLE =
+         App.format("%1$s LEFT JOIN %2$s ON %1$s.%3$s=%2$s.%4$s", TAB, User.TAB, OID, User.IDCARD);
 
    /* ============================================================================================================== */
-
-   public static final int FIRST_FREE_IDCARD = MIN;      // accessed from FirstRun3Activity
 
    /**
     * Returns how often {@link #createOnePage()} can be called without an exception thrown.
@@ -104,7 +107,7 @@ public final class Idcard extends Serial {
    @NonNull
    public static List<Idcard> getPrinted() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return getPrinted(Idcard.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY);
+         return getPrinted(Idcard.class, JOINED_TABLE, JOIN_COLUMNS);
       }
    }
 
@@ -119,7 +122,7 @@ public final class Idcard extends Serial {
    @Nullable
    public static Idcard parse(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return parse(Idcard.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, barcode);
+         return parse(Idcard.class, JOINED_TABLE, JOIN_COLUMNS, TAB, barcode);
       }
    }
 
@@ -136,7 +139,7 @@ public final class Idcard extends Serial {
    @NonNull
    public static Idcard getNonNull(int number) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return getNonNull(Idcard.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY, TAB, number);
+         return getNonNull(Idcard.class, JOINED_TABLE, JOIN_COLUMNS, TAB, number);
       }
    }
 
@@ -150,7 +153,7 @@ public final class Idcard extends Serial {
    @NonNull
    public static ArrayList<Idcard> get() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         return get(Idcard.class, TABLE_NAME_FOR_JOIN_QUERY, COLUMNS_FOR_JOIN_QUERY);
+         return get(Idcard.class, JOINED_TABLE, JOIN_COLUMNS);
       }
    }
 
@@ -179,7 +182,7 @@ public final class Idcard extends Serial {
     * @return {@code true} if this Idcard is used.
     */
    public boolean isUsed() {
-      return values.getNullable(User.UID) != null;
+      return values.notNull(User.UID);
    }
 
    /**

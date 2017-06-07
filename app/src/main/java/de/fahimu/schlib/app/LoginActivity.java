@@ -204,7 +204,7 @@ public final class LoginActivity extends SchlibActivity {
          // assure that no one is logged in
          Use use = Use.getLoggedInNullable();
          if (use != null) {
-            use.setLogoutToNow().update();
+            use.logout();
             // Delete the oldest backup files if there are more than 9 files, and make a new backup
             AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
                @Override

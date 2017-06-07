@@ -40,7 +40,8 @@ public final class BackupDatabase extends AsyncTask<Void,Void,Void> {
    @Override
    protected Void doInBackground(Void... voids) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         ExternalFile file = new ExternalFile(type, buildBackupFilename());
+         String backupFilename = App.formatDate("'database.'yyyyMMddHHmmss'.sqlite3.gzip'", true, App.posixTime());
+         ExternalFile file = new ExternalFile(type, backupFilename);
          try (InputStream is = new FileInputStream(App.getDb().getPath());
               OutputStream os = new GZIPOutputStream(ExternalOutputStream.newInstance(file))) {
             byte[] buffer = new byte[8192];
@@ -53,16 +54,6 @@ public final class BackupDatabase extends AsyncTask<Void,Void,Void> {
          taskRegistry.remove(this);
          return null;
       }
-   }
-
-   private static String buildBackupFilename() {
-      String time = SQLite.getDatetimeNow();
-      StringBuilder b = new StringBuilder(100).append("database.");
-      for (int i = 0; i < time.length(); i++) {
-         char c = time.charAt(i);
-         if (c >= '0' && c <= '9') { b.append(c); }
-      }
-      return b.append(".sqlite3.gzip").toString();
    }
 
 }

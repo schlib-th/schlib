@@ -98,7 +98,7 @@ public final class AdminUsersAddStep1a extends StepFragment<AdminUsersAddActivit
    boolean isDone() {
       if (!StringType.NAME1.matches(name1, activity.name1)) { return false; }
       if (!StringType.NAME2.matches(name2, activity.name2)) { return false; }
-      User user = User.get(activity.name1, activity.name2, 0);
+      User user = User.getAdminOrTutor(activity.name2, activity.name1);
       if (user != null) {
          activity.showErrorSnackbar(R.string.admin_users_add_step_1a_snackbar_error, user.getRole().getDisplay());
       }

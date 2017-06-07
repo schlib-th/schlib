@@ -15,6 +15,7 @@ import android.widget.AutoCompleteTextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import de.fahimu.android.app.App;
@@ -23,11 +24,19 @@ import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Trigger;
+import de.fahimu.android.db.Trigger.Type;
 import de.fahimu.android.db.Values;
+import de.fahimu.android.db.View;
 import de.fahimu.schlib.anw.ISBN;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.AdminUsersAddStep2;
 import de.fahimu.schlib.app.FirstRun3Activity;
+
+import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
+import static de.fahimu.schlib.anw.ISBN.MAX;
+import static de.fahimu.schlib.anw.ISBN.MIN;
+import static de.fahimu.schlib.db.Preference.FIRST_RUN;
+import static de.fahimu.schlib.db.Preference.KEY;
 
 /**
  * A in-memory representation of one row of table {@code books}.
@@ -41,6 +50,7 @@ public final class Book extends Row {
    static final private String IDS  = "bids";
    static final         String TAB  = "books";
    static final private String PREV = "prev_books";
+   static final private String VIEW = "prev_books_newest";
 
    static final private String OID       = BaseColumns._ID;
    static final         String BID       = "bid";
@@ -51,76 +61,145 @@ public final class Book extends Row {
    static final private String STOCKED   = "stocked";
    static final private String SHELF     = "shelf";
    static final private String NUMBER    = "number";
-   static final private String PERIOD    = "period";
+   static final         String PERIOD    = "period";
    static final private String ISBN      = "isbn";
    static final         String LABEL     = "label";
+   static final private String VANISHED  = "vanished";
    static final private String TSTAMP    = "tstamp";
 
-   // SELECT books._id AS _id, bid, title, publisher, author, keywords, stocked, shelf, number, period, isbn, label
-   static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID),
-         BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL);
+   static final private Values TAB_COLUMNS = new Values(SQLite.alias(TAB, OID),
+         BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL, VANISHED);
+
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   static void create(SQLiteDatabase db) {
+      createTableBids(db);
+      createTableBooks(db);
+      createTablePrevBooks(db);
+
+      createTrigger(db, Type.AFTER_INSERT);
+      createTrigger(db, Type.AFTER_UPDATE);
+      createTrigger(db, Type.AFTER_DELETE);
+
+      createViewPrevBooksNewest(db);
+   }
+
+   static void upgrade(SQLiteDatabase db, int oldVersion) {
+      if (oldVersion < 2) {
+         Trigger.drop(db, TAB, Type.AFTER_INSERT);
+         Trigger.drop(db, TAB, Type.AFTER_UPDATE);
+         Trigger.drop(db, TAB, Type.AFTER_DELETE);
+
+         upgradeTableBooksV2(db);
+         deleteTemporaryRowsFromPrevBooks(db);
+         upgradeTablePrevBooksV2(db);
+
+         createTrigger(db, Type.AFTER_INSERT);
+         createTrigger(db, Type.AFTER_UPDATE);
+         createTrigger(db, Type.AFTER_DELETE);
+
+         createViewPrevBooksNewest(db);
+      }
+   }
+
+   private static void createTableBids(SQLiteDatabase db) {
+      new Table(IDS, 3, true).create(db);
+   }
+
+   private static void createTableBooks(SQLiteDatabase db) {
+      Table tab = new Table(TAB, 9, false);
+      tab.addReferences(BID, true).addUnique();
+      tab.addTextColumn(TITLE, true).addCheckLength(">=1");
+      tab.addTextColumn(PUBLISHER, true);
+      tab.addTextColumn(AUTHOR, true);
+      tab.addTextColumn(KEYWORDS, true);
+      tab.addTimeColumn(STOCKED, true).addCheckPosixTime(0).addDefaultPosixTime();
+      tab.addTextColumn(SHELF, true).addCheckLength(">=1");
+      tab.addLongColumn(NUMBER, true).addCheckBetween(1, 999);
+      tab.addLongColumn(PERIOD, true).addCheckBetween(1, 90);
+      tab.addLongColumn(ISBN, false).addIndex().addCheckBetween(MIN, MAX);
+      tab.addReferences(LABEL, false).addUnique();
+      tab.addTimeColumn(VANISHED, false).addCheckPosixTime(MIN_TSTAMP);
+      tab.addConstraint().addUnique(SHELF, NUMBER);
+      tab.create(db);
+   }
+
+   private static void createTablePrevBooks(SQLiteDatabase db) {
+      Table prev = new Table(PREV, 9, true);
+      prev.addReferences(BID, true).addIndex();          // index essential to group rows by bid
+      prev.addTextColumn(TITLE, true).addCheckLength(">=1");
+      prev.addTextColumn(PUBLISHER, true);
+      prev.addTextColumn(AUTHOR, true);
+      prev.addTextColumn(KEYWORDS, true);
+      prev.addTimeColumn(STOCKED, true).addCheckPosixTime(0);
+      prev.addTextColumn(SHELF, true).addCheckLength(">=1");
+      prev.addLongColumn(NUMBER, true).addCheckBetween(1, 999);
+      prev.addLongColumn(PERIOD, true).addCheckBetween(1, 90);
+      prev.addLongColumn(ISBN, false).addCheckBetween(MIN, MAX);
+      prev.addReferences(LABEL, false);
+      prev.addTimeColumn(VANISHED, false).addCheckPosixTime(MIN_TSTAMP);
+      prev.addTimeColumn(TSTAMP, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();
+      prev.create(db);
+   }
+
+   private static void createTrigger(SQLiteDatabase db, Trigger.Type type) {
+      Trigger.create(db, TAB, type, PREV,
+            BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL, VANISHED);
+   }
 
    /**
-    * Creates new tables {@code bids}, {@code books} and {@code prev_books} in the specified database.
-    * Also three triggers are created that will copy any changed row from {@code books} to the history table
-    * {@code prev_books} after inserting, updating or deleting.
-    *
-    * @param db
-    *       the database where the tables are created.
+    * Select the newest row of every book in prev_books (therefore including deleted books).
+    * <p>
+    * <pre> {@code
+    * CREATE VIEW prev_books_newest AS
+    *    SELECT MAX(_id) AS _id, title, publisher, author, keywords, isbn FROM prev_books GROUP BY bid ;
+    * }
+    * </pre>
     */
-   static void create(SQLiteDatabase db) {
-      // CREATE TABLE bids
-      Table ids = new Table(IDS, 3, OID, true);
-      ids.create(db);
-      // CREATE TABLE books
-      Table tab = new Table(TAB, 9, OID, false);
-      tab.addRefCol(BID, true).addUnique();
-      tab.addColumn(TITLE, Table.TYPE_TEXT, true).addIndex().addCheckLength(">=", 1);
-      tab.addColumn(PUBLISHER, Table.TYPE_TEXT, true).addIndex();
-      tab.addColumn(AUTHOR, Table.TYPE_TEXT, true).addIndex();
-      tab.addColumn(KEYWORDS, Table.TYPE_TEXT, true).addIndex();
-      tab.addColumn(STOCKED, Table.TYPE_TIME, true).addIndex().addDefault("CURRENT_TIMESTAMP");
-      tab.addColumn(SHELF, Table.TYPE_TEXT, true).addIndex().addCheckLength(">=", 1);
-      tab.addColumn(NUMBER, Table.TYPE_INTE, true).addIndex().addCheckBetween(1, 999);
-      tab.addColumn(PERIOD, Table.TYPE_INTE, true).addCheckBetween(1, 90);
-      tab.addColumn(ISBN, Table.TYPE_INTE, false).addIndex().addCheckLength("=", 13);
-      tab.addRefCol(LABEL, false).addUnique();
-      tab.addConstraint("location_unique").addUnique(SHELF, NUMBER);
-      tab.create(db);
-      // CREATE TABLE prev_books
-      Table prev = new Table(PREV, 9, OID, true);
-      prev.addRefCol(BID, true).addIndex();
-      prev.addColumn(TITLE, Table.TYPE_TEXT, true).addCheckLength(">=", 1);
-      prev.addColumn(PUBLISHER, Table.TYPE_TEXT, true);
-      prev.addColumn(AUTHOR, Table.TYPE_TEXT, true);
-      prev.addColumn(KEYWORDS, Table.TYPE_TEXT, true);
-      prev.addColumn(STOCKED, Table.TYPE_TIME, true);
-      prev.addColumn(SHELF, Table.TYPE_TEXT, true).addCheckLength(">=", 1);
-      prev.addColumn(NUMBER, Table.TYPE_INTE, true).addCheckBetween(1, 999);
-      prev.addColumn(PERIOD, Table.TYPE_INTE, true).addCheckBetween(1, 90);
-      prev.addColumn(ISBN, Table.TYPE_INTE, false).addCheckLength("=", 13);
-      prev.addRefCol(LABEL, false);
-      prev.addColumn(TSTAMP, Table.TYPE_TIME, true).addDefault("CURRENT_TIMESTAMP");
-      prev.create(db);
+   private static void createViewPrevBooksNewest(SQLiteDatabase db) {
+      View view = new View(VIEW);
+      String oid = App.format("MAX(%1$s) AS %1$s", OID);
+      view.addSelect(PREV, new Values(oid, TITLE, PUBLISHER, AUTHOR, KEYWORDS, ISBN), BID, null, null);
+      view.create(db);
+   }
 
-      // CREATE TRIGGER AI_books
-      Trigger i = new Trigger(TAB, Trigger.Type.AFTER_INSERT);
-      i.addInsert(PREV, BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL);
-      i.addValues("NEW." + BID, "NEW." + TITLE, "NEW." + PUBLISHER, "NEW." + AUTHOR, "NEW." + KEYWORDS,
-            "NEW." + STOCKED, "NEW." + SHELF, "NEW." + NUMBER, "NEW." + PERIOD, "NEW." + ISBN, "NEW." + LABEL);
-      i.create(db);
-      // CREATE TRIGGER AU_books
-      Trigger u = new Trigger(TAB, Trigger.Type.AFTER_UPDATE);
-      u.addInsert(PREV, BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL);
-      u.addValues("NEW." + BID, "NEW." + TITLE, "NEW." + PUBLISHER, "NEW." + AUTHOR, "NEW." + KEYWORDS,
-            "NEW." + STOCKED, "NEW." + SHELF, "NEW." + NUMBER, "NEW." + PERIOD, "NEW." + ISBN, "NEW." + LABEL);
-      u.create(db);
-      // CREATE TRIGGER AD_books
-      Trigger d = new Trigger(TAB, Trigger.Type.AFTER_DELETE);
-      d.addInsert(PREV, BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL);
-      d.addValues("OLD." + BID, "OLD." + TITLE, "OLD." + PUBLISHER, "OLD." + AUTHOR, "OLD." + KEYWORDS,
-            "OLD." + STOCKED, "OLD." + SHELF, "OLD." + NUMBER, "OLD." + PERIOD, "OLD." + ISBN, "OLD." + LABEL);
-      d.create(db);
+   private static void upgradeTableBooksV2(SQLiteDatabase db) {
+      Table.dropIndex(db, TAB, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, ISBN);
+      SQLite.alterTablePrepare(db, TAB);
+      createTableBooks(db);
+      String stocked = SQLite.datetimeToPosix(STOCKED);
+      SQLite.alterTableExecute(db, TAB,
+            OID, BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, stocked, SHELF, NUMBER, PERIOD, ISBN, LABEL, "NULL");
+   }
+
+   /**
+    * Deletes all rows from table {@code prev_books} where {@code isbn ISNULL AND label ISNULL}.
+    * Since database version 2, this is done after the entry 'first_run' is deleted from table preferences.
+    * <p>
+    * <pre> {@code
+    * DELETE FROM prev_books WHERE _id IN (
+    *    SELECT prev_books._id
+    *    FROM prev_books LEFT JOIN preferences ON key='first_run'
+    *    WHERE key ISNULL AND isbn ISNULL AND label ISNULL
+    * );
+    * }
+    * </pre>
+    */
+   public static void deleteTemporaryRowsFromPrevBooks(@Nullable SQLiteDatabase db) {
+      String table = App.format("%s LEFT JOIN %s ON %s='%s'", PREV, Preference.TAB, KEY, FIRST_RUN);
+      String where = App.format("%s ISNULL AND %s ISNULL AND %s ISNULL", KEY, ISBN, LABEL);
+      String query = App.format("(SELECT %s.%s FROM %s WHERE %s)", PREV, OID, table, where);
+      SQLite.delete(db, PREV, OID + " IN " + query);
+   }
+
+   private static void upgradeTablePrevBooksV2(SQLiteDatabase db) {
+      Table.dropIndex(db, PREV, BID);
+      SQLite.alterTablePrepare(db, PREV);
+      createTablePrevBooks(db);
+      String stocked = SQLite.datetimeToPosix(STOCKED);
+      String tstamp = SQLite.datetimeToPosix(TSTAMP);
+      SQLite.alterTableExecute(db, PREV,
+            OID, BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, stocked, SHELF, NUMBER, PERIOD, ISBN, LABEL, "NULL", tstamp);
    }
 
    /* ============================================================================================================== */
@@ -129,7 +208,7 @@ public final class Book extends Row {
    @Override
    public Book insert() {
       try (SQLite.Transaction transaction = new SQLite.Transaction()) {
-         setNonNull(BID, SQLite.insert(IDS, new Values().add(OID)));
+         setLong(BID, SQLite.insert(null, IDS, new Values(OID)));
          super.insert();
          transaction.setSuccessful();
          return this;
@@ -154,75 +233,60 @@ public final class Book extends Row {
       return (list.size() == 0) ? null : list.get(0);
    }
 
-   @Nullable
-   public static Book getNullable(long bid) {
-      return Book.get(App.format("%s=?", BID), bid);
-   }
-
    @NonNull
    public static Book getNonNull(long bid) {
-      Book book = Book.getNullable(bid);
+      Book book = Book.get(BID + "=?", bid);
       if (book == null) { throw new RuntimeException("no book with bid " + bid); }
       return book;
    }
 
    @Nullable
    public static Book getIdentifiedByISBN(@NonNull ISBN isbn) {
-      return Book.get(App.format("%s=? AND %s ISNULL", ISBN, LABEL), isbn.getValue());
+      return Book.get(ISBN + "=? AND " + LABEL + " ISNULL", isbn.getValue());
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
     * Returns the number of books that lack a identifying barcode, i. e. no isbn and no label.
-    * This method will be only called from {@link FirstRun3Activity}.
+    * This method will only be called from {@link FirstRun3Activity}.
     *
     * @return the number of books that lack a identifying barcode.
     */
    public static int countNoScanId() {
       // SELECT COUNT(*) FROM books WHERE isbn ISNULL AND label ISNULL ;
-      String where = App.format("%s ISNULL AND %s ISNULL", ISBN, LABEL);
-      return Integer.parseInt(SQLite.getFromQuery(TAB, "COUNT(*)", "0", where));
+      String where = ISBN + " ISNULL AND " + LABEL + " ISNULL";
+      return SQLite.getIntFromQuery(TAB, "COUNT(*)", where);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
-   private static final Values MOST_RECENT_COLUMNS = new Values()
-         .add(OID).add(TITLE).add(PUBLISHER).add(AUTHOR).add(KEYWORDS).add(SHELF).add(ISBN);
-
-   /**
-    * Subquery that selects the most recent row of every book in prev_books (therefore including deleted books).
-    * (SELECT _id, title, publisher, author, keywords, shelf, isbn, MAX(_id) FROM prev_books GROUP BY bid)
-    */
-   private static final String MOST_RECENT_SUBQUERY =
-         App.format("(SELECT %1$s, MAX(%2$s) FROM %3$s GROUP BY %4$s)",
-               SQLite.catToString(", ", MOST_RECENT_COLUMNS.keys()), OID, PREV, BID);
-
    @NonNull
-   private static ArrayList<Book> getMostRecent(String where, Object... args) {
-      return SQLite.get(Book.class, MOST_RECENT_SUBQUERY, MOST_RECENT_COLUMNS, null, OID + " DESC", where, args);
+   private static ArrayList<Book> getIncludeDeleted(String where, Object... args) {
+      Values columns = new Values(OID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, ISBN);
+      return SQLite.get(Book.class, VIEW, columns, null, OID + " DESC", where, args);
    }
 
    @NonNull
    public static ArrayList<Book> getByISBNIncludeDeleted(@NonNull ISBN isbn) {
-      return getMostRecent(App.format("%s=?", ISBN), isbn.getValue());
+      return getIncludeDeleted(ISBN + "=?", isbn.getValue());
    }
 
    @NonNull
    public static ArrayList<Book> getByTitleIncludeDeleted(@NonNull String title) {
-      return getMostRecent(App.format("%s=?", TITLE), title);
+      return getIncludeDeleted(TITLE + "=?", title);
    }
 
    /**
-    * Returns a list of books from table {@code prev_books} grouped and ordered by the specified {@code column},
-    * where values are only assigned for column {@code _id} and the specified {@code column}.
+    * Returns a list of books from view {@code prev_books_newest} grouped and ordered by {@code column},
+    * where values are only assigned for columns {@code _id} and the specified {@code column}.
     * This method will be called e. g. to populate lists in {@link AutoCompleteTextView}s.
     *
     * @param column
     *       the requested column.
     * @param isbn
     *       if not {@code null}, select only rows with the specified isbn.
-    * @return a list of books from table {@code prev_books} grouped and ordered by the specified {@code column}.
+    * @return a list of books from view {@code prev_books_newest} grouped and ordered by {@code column}.
     *
     * @throws IllegalArgumentException
     *       if the specified {@code column} is not one of
@@ -233,11 +297,11 @@ public final class Book extends Row {
       if (!acceptedColumns.contains(column)) {
          throw new IllegalArgumentException(column + " not allowed");
       }
-      Values columns = new Values().add(OID).add(column);
+      Values columns = new Values(OID, column);
       if (isbn == null) {
-         return SQLite.get(Book.class, MOST_RECENT_SUBQUERY, columns, column, column, null);
+         return SQLite.get(Book.class, VIEW, columns, column, column, null);
       } else {
-         return SQLite.get(Book.class, MOST_RECENT_SUBQUERY, columns, column, column, ISBN + "=?", isbn.getValue());
+         return SQLite.get(Book.class, VIEW, columns, column, column, ISBN + "=?", isbn.getValue());
       }
    }
 
@@ -245,15 +309,14 @@ public final class Book extends Row {
 
    /**
     * Returns a list of books from table {@code books} grouped and ordered by column {@code SHELF},
-    * where values are only assigned for column {@code _id} and column {@code SHELF}.
+    * where values are only assigned for columns {@code _id} and column {@code SHELF}.
     * This method will be called e. g. to populate lists in {@link AutoCompleteTextView}s.
     *
     * @return a list of books from table {@code books} grouped and ordered by column {@code SHELF}.
     */
    @NonNull
    public static ArrayList<Book> getShelfValues() {
-      Values columns = new Values().add(OID).add(SHELF);
-      return SQLite.get(Book.class, TAB, columns, SHELF, SHELF, null);
+      return SQLite.get(Book.class, TAB, new Values(OID, SHELF), SHELF, SHELF, null);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
@@ -269,8 +332,7 @@ public final class Book extends Row {
    @NonNull
    public static ArrayList<Integer> getNumbers(@NonNull String shelf) {
       // SELECT number FROM books WHERE shelf='$shelf' ORDER BY number ;
-      String where = App.format("%s=?", SHELF);
-      ArrayList<Book> books = SQLite.get(Book.class, TAB, new Values().add(NUMBER), null, NUMBER, where, shelf);
+      ArrayList<Book> books = SQLite.get(Book.class, TAB, new Values(NUMBER), null, NUMBER, SHELF + "=?", shelf);
 
       ArrayList<Integer> numbers = new ArrayList<>(books.size());
       for (Book book : books) {
@@ -287,10 +349,9 @@ public final class Book extends Row {
     * @return a list of all books, ordered by {@code shelf} and {@code number}.
     */
    @NonNull
-   public static ArrayList<Book> get() {
-      // SELECT <TAB_COLUMNS> FROM books ORDER BY shelf, number ;
-      String order = App.format("%s, %s", SHELF, NUMBER);
-      return SQLite.get(Book.class, TAB, TAB_COLUMNS, null, order, null);
+   public static ArrayList<Book> getAll() {
+      // SELECT * FROM books ORDER BY shelf, number ;
+      return SQLite.get(Book.class, TAB, TAB_COLUMNS, null, SHELF + ", " + NUMBER, null);
    }
 
    /* ============================================================================================================== */
@@ -305,12 +366,12 @@ public final class Book extends Row {
 
    @NonNull
    public String getShelf() {
-      return values.getNonNull(SHELF);
+      return values.getText(SHELF);
    }
 
    @NonNull
    public Book setShelf(@NonNull String shelf) {
-      return (Book) setNonNull(SHELF, shelf);
+      return (Book) setText(SHELF, shelf);
    }
 
    public int getNumber() {
@@ -319,57 +380,70 @@ public final class Book extends Row {
 
    @NonNull
    public Book setNumber(int number) {
-      return (Book) setNonNull(NUMBER, number);
+      return (Book) setLong(NUMBER, number);
    }
 
    @NonNull
    public String getTitle() {
-      return values.getNonNull(TITLE);
+      return values.getText(TITLE);
    }
 
    @NonNull
    public Book setTitle(@NonNull String title) {
-      return (Book) setNonNull(TITLE, title);
+      return (Book) setText(TITLE, title);
    }
 
    @NonNull
    public String getPublisher() {
-      return values.getNonNull(PUBLISHER);
+      return values.getText(PUBLISHER);
    }
 
    @NonNull
    public Book setPublisher(@NonNull String publisher) {
-      return (Book) setNonNull(PUBLISHER, publisher);
+      return (Book) setText(PUBLISHER, publisher);
    }
 
    @NonNull
    public String getAuthor() {
-      return values.getNonNull(AUTHOR);
+      return values.getText(AUTHOR);
    }
 
    @NonNull
    public Book setAuthor(@NonNull String author) {
-      return (Book) setNonNull(AUTHOR, author);
+      return (Book) setText(AUTHOR, author);
    }
 
    @NonNull
    public String getKeywords() {
-      return values.getNonNull(KEYWORDS);
+      return values.getText(KEYWORDS);
    }
 
    @NonNull
    public Book setKeywords(@NonNull String keywords) {
-      return (Book) setNonNull(KEYWORDS, keywords);
+      return (Book) setText(KEYWORDS, keywords);
    }
 
+   /**
+    * Returns the date when the book was stocked as a string, formatted {@code DD.MM.YYYY} in the default timezone.
+    *
+    * @return the date when the book was stocked.
+    */
    @NonNull
-   public String getStocked() {
-      return values.getNonNull(STOCKED);
+   public String getStockedDate() {
+      return App.formatDate("dd'.'MM'.'yyyy", false, values.getLong(STOCKED));
    }
 
+   /**
+    * Called only by {@link FirstRun3Activity} to manually set {@code stocked} values read from CSV files.
+    */
    @NonNull
-   public Book setStocked(@NonNull String stocked) {
-      return (Book) setNonNull(STOCKED, stocked);
+   public Book setStocked(String dd, String mm, String yyyy) {
+      // precondition: yyyy matches 2[0-9]{3}
+      // set stocked to the specified date 'yyyy-mm-dd 10:00:00' localtime
+      int d = Integer.parseInt(dd);
+      int m = Integer.parseInt(mm);
+      int y = Integer.parseInt(yyyy);
+      return (Book) setLong(STOCKED, new GregorianCalendar(y, m - 1, d, 10, 0).getTimeInMillis() / 1000);
    }
 
    public int getPeriod() {
@@ -378,17 +452,17 @@ public final class Book extends Row {
 
    @NonNull
    public Book setPeriod(int period) {
-      return (Book) setNonNull(PERIOD, period);
+      return (Book) setLong(PERIOD, period);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
    public boolean hasISBN() {
-      return values.getNullable(ISBN) != null;
+      return values.notNull(ISBN);
    }
 
    public boolean hasLabel() {
-      return values.getNullable(LABEL) != null;
+      return values.notNull(LABEL);
    }
 
    public boolean hasNoScanId() {
@@ -408,7 +482,7 @@ public final class Book extends Row {
 
    @NonNull
    public Book setISBN(@Nullable ISBN isbn) {
-      return (Book) setNullable(ISBN, (isbn == null) ? null : isbn.getValue());
+      return (Book) (isbn == null ? setNull(ISBN) : setLong(ISBN, isbn.getValue()));
    }
 
    /**
@@ -424,7 +498,34 @@ public final class Book extends Row {
 
    @NonNull
    public Book setLabel(@Nullable Label label) {
-      return (Book) setNullable(LABEL, (label == null) ? null : label.getId());
+      return (Book) (label == null ? setNull(LABEL) : setLong(LABEL, label.getId()));
+   }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   /**
+    * Returns {@code true} if the book has vanished, otherwise {@code false}.
+    *
+    * @return {@code true} if the book has vanished.
+    */
+   public final boolean hasVanished() {
+      return values.notNull(VANISHED);
+   }
+
+   /**
+    * Returns the date when the book has vanished as a string, formatted {@code DD.MM.YYYY} in the default timezone.
+    * <p> Precondition: {@link #hasVanished()} must be {@code true}. </p>
+    *
+    * @return the date when the book has vanished.
+    */
+   @NonNull
+   public String getVanished() {
+      return App.formatDate("dd'.'MM'.'yyyy", false, values.getLong(VANISHED));
+   }
+
+   @NonNull
+   public final Book setVanished(boolean vanished) {
+      return (Book) (vanished ? setLong(VANISHED, App.posixTime()) : setNull(VANISHED));
    }
 
    /* ============================================================================================================== */

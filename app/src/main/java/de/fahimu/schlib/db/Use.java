@@ -12,12 +12,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 
-import java.util.List;
-
+import de.fahimu.android.app.App;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Values;
+
+import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
 
 /**
  * A in-memory representation of one row of table {@code uses}.
@@ -34,22 +35,38 @@ public final class Use extends Row {
    static final private String LOGIN  = "login";
    static final private String LOGOUT = "logout";
 
-   // SELECT uses._id AS _id, uid, login, logout
-   static final private Values TAB_COLUMNS = new Values().add(SQLite.alias(TAB, OID, OID), UID, LOGIN, LOGOUT);
+   /* -------------------------------------------------------------------------------------------------------------- */
 
    static void create(SQLiteDatabase db) {
-      Table tab = new Table(TAB, 6, OID, true);
-      tab.addRefCol(UID, true).addIndex();
-      tab.addColumn(LOGIN, Table.TYPE_TIME, true).addDefault("CURRENT_TIMESTAMP");
-      tab.addColumn(LOGOUT, Table.TYPE_TIME, false);
-      tab.addConstraint("logout_after_login").addCheck("IFNULL(" + LOGOUT + ">=" + LOGIN + ", 1)");
+      createTableUses(db);
+   }
+
+   static void upgrade(SQLiteDatabase db, int oldVersion) {
+      if (oldVersion < 2) {
+         upgradeTableUsesV2(db);
+      }
+   }
+
+   private static void createTableUses(SQLiteDatabase db) {
+      Table tab = new Table(TAB, 6, true);
+      tab.addReferences(UID, true).addIndex();           // essential to group rows by uid
+      tab.addTimeColumn(LOGIN, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();
+      tab.addTimeColumn(LOGOUT, false).addCheckPosixTime(MIN_TSTAMP);
+      tab.addConstraint().addCheck(LOGOUT + ">=" + LOGIN);
       tab.create(db);
+   }
+
+   private static void upgradeTableUsesV2(SQLiteDatabase db) {
+      Table.dropIndex(db, TAB, UID);
+      SQLite.alterTablePrepare(db, TAB);
+      createTableUses(db);
+      SQLite.alterTableExecute(db, TAB, OID, UID, SQLite.datetimeToPosix(LOGIN), SQLite.datetimeToPosix(LOGOUT));
    }
 
    /* ============================================================================================================== */
 
    public static void login(@NonNull User user) {
-      SQLite.insert(TAB, new Values().add(UID, user.getUid()));
+      SQLite.insert(null, TAB, new Values().addLong(UID, user.getUid()));
    }
 
    /**
@@ -59,15 +76,32 @@ public final class Use extends Row {
     */
    @Nullable
    public static Use getLoggedInNullable() {
-      List<Use> list = SQLite.get(Use.class, TAB, TAB_COLUMNS, null, LOGIN + " DESC", LOGOUT + " ISNULL");
-      return (list.size() == 0) ? null : list.get(0);
+      Use use = getLoggedIn();
+      return use.values.notNull(OID) ? use : null;
    }
 
+   /**
+    * Returns the most recently inserted {@code Use} where {@code logout ISNULL}
+    * or throws an Exception if there is no such row in the table.
+    *
+    * @return the most recently inserted {@code Use} where {@code logout ISNULL}.
+    *
+    * @throws RuntimeException
+    *       if there is no such row in the table.
+    */
    @NonNull
    public static Use getLoggedInNonNull() {
-      Use use = getLoggedInNullable();
-      if (use == null) { throw new RuntimeException("no user logged in"); }
-      return use;
+      Use use = getLoggedIn();
+      if (use.values.notNull(OID)) {
+         return use;
+      } else {
+         throw new RuntimeException("no user logged in");
+      }
+   }
+
+   private static Use getLoggedIn() {
+      Values columns = new Values(App.format("MAX(%1$s) AS %1$s", OID), UID, LOGIN, LOGOUT);
+      return SQLite.get(Use.class, TAB, columns, null, null, LOGOUT + " ISNULL").get(0);
    }
 
    /* ============================================================================================================== */
@@ -81,9 +115,12 @@ public final class Use extends Row {
       return User.getNonNull(values.getLong(UID));
    }
 
-   @NonNull
-   public Use setLogoutToNow() {
-      return (Use) setNonNull(LOGOUT, SQLite.getDatetimeNow());
+   /**
+    * Updates the value of column {@code logout} to the current
+    * <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>.
+    */
+   public void logout() {
+      setLong(LOGOUT, App.posixTime()).update();
    }
 
 }
