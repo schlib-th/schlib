@@ -193,6 +193,20 @@ public abstract class App extends android.app.Application {
       return (calendar.getTimeInMillis() + diff) / 1000 / 86400;
    }
 
+   /**
+    * Returns the POSIX time of the begin of current day in the {@link TimeZone#getDefault() default} timezone.
+    *
+    * @return the POSIX time of the begin of current day in the {@link TimeZone#getDefault() default} timezone.
+    */
+   public static long beginOfDay() {
+      Calendar calendar = new GregorianCalendar();
+      calendar.set(Calendar.HOUR_OF_DAY, 0);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      return calendar.getTimeInMillis() / 1000;
+   }
+
    private static final HashMap<String,SimpleDateFormat> UTC   = new HashMap<>();
    private static final HashMap<String,SimpleDateFormat> LOCAL = new HashMap<>();
 
@@ -222,6 +236,10 @@ public abstract class App extends android.app.Application {
       String string = sdf.format(new Date(posixTime * 1000));
       Log.d(posixTime + " -> " + string);
       return string;
+   }
+
+   public static String formatDate(@StringRes int resId, boolean utc, long posixTime) {
+      return formatDate(getStr(resId), utc, posixTime);
    }
 
 }

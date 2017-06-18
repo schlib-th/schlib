@@ -7,17 +7,13 @@
 package de.fahimu.schlib.app;
 
 import android.animation.Animator;
-import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -31,7 +27,6 @@ import java.util.List;
 
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.SmartAnimator;
-import de.fahimu.android.app.TaskRegistry;
 import de.fahimu.schlib.anw.ISBN;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
@@ -239,14 +234,6 @@ public final class TutorActivity extends SchlibActivity {
       createBeepAnimator();
       createShowAnimator();
       createStopAnimator();
-
-      findView(View.class, R.id.tutor_main_view).setOnTouchListener(new OnTouchListener() {
-         @Override
-         public boolean onTouch(View v, MotionEvent event) {
-            restartAutoLogoutTimer();
-            return false;      // we didn't consume the event, we just wanted to be notified
-         }
-      });
    }
 
    @Override
@@ -268,7 +255,7 @@ public final class TutorActivity extends SchlibActivity {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          initAnimator.start();
          scannedBook = null;
-         restartAutoLogoutTimer();
+         message1.setText(""); message2.setText("");
       }
    }
 
@@ -284,71 +271,12 @@ public final class TutorActivity extends SchlibActivity {
       }
    }
 
-   @Override
-   protected void onDestroy() {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         super.onDestroy();
-         autoLogoutTimerRegistry.cancel();
-      }
-   }
-
-   /* ============================================================================================================== */
-
-   // must be static, because cancel can be called from another instance of TutorActivity,
-   // e. g. if the scanner is plugged in or unplugged (a new instance will then be created).
-   private static final TaskRegistry autoLogoutTimerRegistry = new TaskRegistry();
-
-   private void restartAutoLogoutTimer() {
-      message1.setText("");
-      message2.setText("");
-      autoLogoutTimerRegistry.cancel();     // cancel the former timer task, if any
-      autoLogoutTimerRegistry.add(new AutoLogoutTimer());
-   }
-
-   private class AutoLogoutTimer extends AsyncTask<Void,Void,Void> {
-      private static final long LOGOUT_AFTER_SECS = 5 * 60;     // automatic logout after 5 minutes
-
-      @Override
-      protected Void doInBackground(Void... voids) {
-         long logoutTime = System.currentTimeMillis() + LOGOUT_AFTER_SECS * 1000;
-         try {
-            for (int secondsToLogout = 60; secondsToLogout >= 10; secondsToLogout -= 10) {
-               sleepAndNotifyUser(logoutTime, secondsToLogout);
-            }
-            for (int secondsToLogout = 9; secondsToLogout >= 0; secondsToLogout -= 1) {
-               sleepAndNotifyUser(logoutTime, secondsToLogout);
-            }
-         } catch (InterruptedException e) { /* IGNORE */ }
-         autoLogoutTimerRegistry.remove(this);
-         return null;
-      }
-
-      private void sleepAndNotifyUser(long logoutTime, final int secondsToLogout) throws InterruptedException {
-         long sleep = logoutTime - secondsToLogout * 1000 - System.currentTimeMillis();
-         if (sleep > 10) { Thread.sleep(sleep); }
-         TutorActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-               App.playSound(R.raw.beep);
-               message1.setText(App.getStr(R.string.tutor_message_1_auto_logout, secondsToLogout));
-               message2.setText(R.string.tutor_message_2_auto_logout);
-            }
-         });
-      }
-
-      @Override
-      protected void onPostExecute(Void aVoid) {
-         startActivity(new Intent(TutorActivity.this, LoginActivity.class));
-      }
-
-   }
-
    /* ============================================================================================================== */
 
    @Override
    public void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         restartAutoLogoutTimer();
+         message1.setText(""); message2.setText("");
          Idcard idcard = Idcard.parse(barcode);
          if (idcard != null) {
             onIdcardScanned(idcard);
@@ -430,8 +358,8 @@ public final class TutorActivity extends SchlibActivity {
       if (scannedBook != null) {
          setError(R.string.tutor_message_1_expected_user, R.string.tutor_message_2_book_before_user);
       } else {
-         if (book.hasVanished()) {
-            book.setVanished(false);      // book re-emerged magically after being set to vanished
+         if (book.isVanished()) {
+            book.setVanished(false).update();      // book re-emerged magically after being set to vanished
          }
          ArrayList<Lending> lendings = Lending.getByBook(book, true);
          if (lendings.isEmpty()) {

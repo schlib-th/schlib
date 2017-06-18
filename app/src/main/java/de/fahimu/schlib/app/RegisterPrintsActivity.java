@@ -207,7 +207,6 @@ public final class RegisterPrintsActivity extends SchlibActivity {
       return firstRun != 2;
    }
 
-
    /* -------------------------------------------------------------------------------------------------------------- */
 
    @Override

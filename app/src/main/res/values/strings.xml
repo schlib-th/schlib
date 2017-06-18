@@ -7,12 +7,19 @@
     <string name="app_back">Zurück</string>
     <string name="app_cont">Weiter</string>
     <string name="app_done">Fertig</string>
+    <string name="app_cancel">Abbrechen</string>
     <string name="app_pdf_icon">Eine PDF-Datei</string>
     <string name="app_book_icon">Ein Buch</string>
     <string name="app_user_icon">Ein Nutzer</string>
     <string name="app_animation">Eine Animation</string>
     <string name="app_step_tab_optional">Optional</string>
     <string name="app_step_tab_clear_input">Eingaben löschen</string>
+
+    <!-- App.formatDate -->
+
+    <string name="app_time">"HH':'mm"</string>
+    <string name="app_date">"dd'.'MM'.'yyyy"</string>
+    <string name="app_month">"MM'/'yyyy"</string>
 
     <!-- CSVParser -->
 
@@ -57,7 +64,14 @@
     <string name="book_period">Leihfrist</string>
     <string name="book_isbn">ISBN</string>
     <string name="book_label">Klebeetikett</string>
-    <string name="book_lost">Buch fehlt seit %1$s</string>
+    <string name="book_display_vanished">Buch fehlt seit %1$s</string>
+
+    <!-- Lending -->
+
+    <string name="lending_display_issue">Ausgeliehen am %1$s</string>
+    <string name="lending_display_delay_0">*** Noch kein Verzug ***</string>
+    <string name="lending_display_delay_n">%1$d Tage im Verzug seit %2$s</string>
+    <string name="lending_display_dun">Mahnschreiben erstellt am %1$s</string>
 
     <!-- PDF documents -->
 
@@ -101,6 +115,123 @@
     <string name="pdf_pupil_list_column_1">Nr.</string>
     <string name="pdf_pupil_list_column_2">Ausweis</string>
     <string name="pdf_pupil_list_column_3">Name des Schülers</string>
+
+    <string name="pdf_reminder_title">Mahnliste vom %1$s</string>
+    <string name="pdf_reminder_subject">Mahnliste zum Ausdrucken</string>
+    <string name="pdf_reminder_text">
+        Liebe Lehrkräfte, liebe Mitarbeiter,
+        \n\n\n
+        in der Regel sollen Bücher nicht länger als 14 Tage ausgeliehen werden, da insbesondere
+        bei stark nachge|fragten Titeln andere Kinder häufig schon auf diese Bücher warten. Die nachfolgend
+        aufgeführten Bücher sind zum Stichtag {DATE} bereits deutlich länger als 14 Tage ausgeliehen
+        und müssen schnellstens wie|der in die Bücherei zurückgebracht werden. Bitte helfen Sie uns dabei.
+        \n\n
+        Zum besseren Verständnis: Ein Verzug von 21 Tagen bedeutet nicht, dass der Nutzer das Buch 21 Tage
+        aus|geliehen hat, sondern dass die Rückgabe zum Stichtag bereits 21 Tage überfällig war.
+        \n\n
+        Beachten Sie auch, dass wir bei der Berechnung des letztmöglichen Rückgabetags Schließungszeiten
+        auf|grund von Ferien berücksichtigt haben. Ein Buch, das zwei Wochen vor den Ferien ausgeliehen
+        wurde, müsste gleich nach den Ferien zurückgegeben werden. Bei einem Verzug von 21 Tagen
+        und einer Ferien|dauer von 2 Wochen hat der Nutzer das Buch also schon über 7 Wochen ausgeliehen!
+        \n\n\n
+        Wir danken Ihnen herzlich für Ihre Mithilfe,
+        \n\n\n\n\n
+        Ihre Büchereiverwaltung
+    </string>
+    <string name="pdf_reminder_headline_tutor">Verwalter und Mitarbeiter</string>
+    <string name="pdf_reminder_headline_pupil">Klasse %1$s (Schuljahr %2$s)</string>
+    <string name="pdf_reminder_column_1_head_tutor">Name</string>
+    <string name="pdf_reminder_column_1_body_tutor">%1$s %2$s</string>
+    <string name="pdf_reminder_column_1_head_pupil">Nr.</string>
+    <string name="pdf_reminder_column_1_body_pupil">%02d</string>
+    <string name="pdf_reminder_column_2_head">Verzug</string>
+    <string name="pdf_reminder_column_2_body">%d Tage</string>
+    <string name="pdf_reminder_column_3_head">Kategorie</string>
+    <string name="pdf_reminder_column_4_head">Buchtitel</string>
+
+    <string name="pdf_dunning_letters_title">Mahnschreiben vom %1$s</string>
+    <string name="pdf_dunning_letters_subject">Mahnschreiben zum Ausdrucken</string>
+    <string name="pdf_dunning_letters_headline_no_term">Erinnerung vom %1$s</string>
+    <string name="pdf_dunning_letters_headline_delayed">Mahnung vom %1$s</string>
+    <string name="pdf_dunning_letters_salutation_tutor">Liebe(r) %1$s %2$s,</string>
+    <string name="pdf_dunning_letters_salutation_pupil">Liebe Schülerin, lieber Schüler</string>
+    <string name="pdf_dunning_letters_annotation_pupil">%1$s - Name von der Lehrkraft zu ergänzen</string>
+    <string name="pdf_dunning_letters_text_1_tutor">
+        Sie haben am {ISSUE-DATE} um {ISSUE-TIME} Uhr
+        in der Bücherei der Grundschule Hildegard-von-Bingen-Anger das folgende Buch ausgeliehen:
+    </string>
+    <string name="pdf_dunning_letters_text_1_pupil">
+        du hast am {ISSUE-DATE} um {ISSUE-TIME} Uhr
+        in der Bücherei der Grundschule Hildegard-von-Bingen-Anger das folgende Buch ausgeliehen:
+    </string>
+
+    <string name="pdf_dunning_letters_text_2_no_term_tutor">
+        Bitte bringen Sie das Buch so schnell wie möglich wieder zurück.
+        \n\n\n
+        Mit freundlichen Grüßen,
+        \n\n\n
+        Ihre Büchereiverwaltung\nder Grundschule Hildegard-von-Bingen-Anger
+    </string>
+    <string name="pdf_dunning_letters_text_2_no_term_pupil">
+        Bitte bringe das Buch so schnell wie möglich wieder zurück.
+        \n\n\n
+        Viele Grüße,
+        \n\n\n
+        Deine Büchereiverwaltung\nder Grundschule Hildegard-von-Bingen-Anger
+    </string>
+    <string name="pdf_dunning_letters_text_2_delayed_tutor">
+        Dieses Buch dürfen Sie höchstens {PERIOD} Tage behalten. Sie hätten
+        es also spätestens am {TERM} wieder zurückbringen müssen, das war vor {DELAY} Tagen.
+        Bitte bringen Sie das Buch so schnell wie möglich wieder zu|rück!
+        \n\n
+        Sollten Sie das Buch aus unserer Bücherei nicht mehr finden, müssen Sie es umgehend ersetzen.
+        Bei neu|wertigen Büchern, insbesondere bei stark nachgefragten Titeln, können wir nur das gleiche Buch
+        als Ersatz akzeptieren, bei älteren gebrauchten Büchern dürfen Sie uns auch ein anderes gebrauchtes
+        Kinderbuch aus Ihren Beständen geben, das Sie vielleicht nicht mehr benötigen.
+        \n\n
+        Bei Fragen können Sie sich an die Mitarbeiter der Bücherei wenden.
+        \n\n\n
+        Mit freundlichen Grüßen,
+        \n\n\n
+        Ihre Büchereiverwaltung\nder Grundschule Hildegard-von-Bingen-Anger
+    </string>
+    <string name="pdf_dunning_letters_text_2_delayed_pupil">
+        Dieses Buch darfst Du höchstens {PERIOD} Tage behalten. Du hättest
+        es also spätestens am {TERM} wieder zurückbringen müssen, das war vor {DELAY} Tagen.
+        Bitte bringe das Buch so schnell wie möglich wieder zurück!
+        \n\n\n
+        Viele Grüße,
+        \n\n\n
+        Deine Büchereiverwaltung\nder Grundschule Hildegard-von-Bingen-Anger
+    </string>
+    <string name="pdf_dunning_letters_salutation_parents">Liebe Eltern,</string>
+    <string name="pdf_dunning_letters_text_3_delayed_pupil">
+        sollte Ihr Kind das Buch aus unserer Bücherei nicht mehr finden, müssen Sie es umgehend ersetzen.
+        Bei neuwertigen Büchern, insbesondere bei stark nachgefragten Titeln, können wir nur das gleiche Buch
+        als Er|satz akzeptieren, bei älteren gebrauchten Büchern dürfen Sie uns auch ein anderes gebrauchtes
+        Kinderbuch aus Ihren Beständen geben, das Sie vielleicht nicht mehr benötigen.
+        \n\n
+        Bei Fragen können Sie sich an die Mitarbeiter der Bücherei wenden.
+        \n\n\n
+        Mit freundlichen Grüßen,
+        \n\n\n
+        Ihre Büchereiverwaltung\nder Grundschule Hildegard-von-Bingen-Anger
+    </string>
+
+    <string name="pdf_dunning_letters_receipt_annotation_line">
+        Diesen Abschnitt bitte sofort Ihrem Kind mitgeben!
+    </string>
+    <string name="pdf_dunning_letters_receipt_text">
+        Ich habe die Mahnung vom {DATE} erhalten und werde das fehlende Buch
+        \n{BOOK} um|ge|hend zu|rück|ge|ben oder er|set|zen.
+    </string>
+    <string name="pdf_dunning_letters_receipt_annotation_date">
+        Datum
+    </string>
+    <string name="pdf_dunning_letters_receipt_annotation_sign">
+        Unterschrift d. Erziehungsberechtigten
+    </string>
+    <string name="pdf_dunning_letters_receipt_bottom_line">%1$s - Ausweis %2$s</string>
 
     <!-- ExternalFile -->
 
@@ -306,6 +437,26 @@
     <string name="dialog_button0_stocktaking_users_confirmation">Nein, bitte nicht löschen</string>
     <string name="dialog_button1_stocktaking_users_confirmation">Konto löschen</string>
 
+    <string name="dialog_message_admin_lendings_delete">
+        Ersatzleistung für Storno prüfen!
+        \nSie dürfen die Ausleihe nur stornieren, nachdem der
+        \n%1$s für das verschwundene Buch
+        \n%2$s Ersatz geleistet hat.
+    </string>
+    <string name="dialog_button0_admin_lendings_delete">Buch wurde noch nicht ersetzt</string>
+    <string name="dialog_button1_admin_lendings_delete">Ersatz wurde geleistet</string>
+    <string name="dialog_message_admin_lendings_printing_list">
+        Mahnliste wird erstellt.
+        \nBitte haben Sie einen Moment Geduld.
+    </string>
+    <string name="dialog_message_admin_lendings_printing_duns">
+        Mahnschreiben werden erstellt.
+        \nBitte haben Sie einen Moment Geduld.
+    </string>
+    <string name="dialog_button1_admin_lendings_printing_init">Seite 1 …</string>
+    <string name="dialog_button1_admin_lendings_printing_list">Seite %1$d …</string>
+    <string name="dialog_button1_admin_lendings_printing_duns">Seite %1$d von %2$d …</string>
+
     <!-- StringType -->
 
     <string name="string_type_error_1">Der Name ist zu kurz.</string>
@@ -315,18 +466,20 @@
 
     <!-- Strings for row layouts -->
 
-    <string name="row_book_action_info">Informationen</string>
+    <string name="row_book_action_info">Informationen anzeigen</string>
 
-    <string name="row_book_first_run_4_action_undo">Widerrufen</string>
+    <string name="row_book_first_run_4_action_undo">Zuweisung widerrufen</string>
     <string name="row_book_first_run_4_action_delete">Buch löschen</string>
+
+    <string name="row_lending_action_delete">Ausleihe stornieren</string>
 
     <string name="row_page_text">"%1$s - Seite %2$d"</string>
 
-    <string name="row_serial_action_info">Informationen</string>
+    <string name="row_serial_action_info">Informationen anzeigen</string>
     <string name="row_serial_action_delete">Aussondern</string>
     <string name="row_serial_action_restore">Aussondern widerrufen</string>
 
-    <string name="row_user_action_info">Informationen</string>
+    <string name="row_user_action_info">Informationen anzeigen</string>
     <string name="row_user_action_delete">Konto löschen</string>
 
     <!-- ======================================================================================================== -->
@@ -362,7 +515,7 @@
         Die PDF-Dateien wurden ins Austauschverzeichnis des Tablets geschrieben und stehen dort zum Download bereit.
     </string>
     <string name="register_prints_explanation">
-        Bitte schließen Sie jetzt das Tablet mit dem USB-Kabel an einen PC an, laden die PDF-Dateien im
+        Bitte schließen Sie jetzt das Tablet mit dem USB-Kabel an einen PC an, kopieren die PDF-Dateien im
         Austauschverzeichnis auf Ihren PC und drucken diese dann auf geeigneten Medien aus.\n
         \nZum Ausdrucken der Ausweiskarten (85 x 54 mm, 10 Stück je DIN A4 Seite) empfehlen sich Visitenkarten
         von Zweckform (Artikelnummer C32010), Klebeetiketten im benötigten Format (70 x 36 mm, 24 Stück je DIN A4
@@ -625,7 +778,7 @@
     <string name="admin_users_add_step_2_pupil_list_hint">
         Hinweis: Nachdem Sie \"FERTIG\" gedrückt haben, wird die Schülerliste im Austauschverzeichnis
         des Tablets als PDF-Datei erstellt.
-        \nSchließen Sie danach das Tablet mit dem USB-Kabel an einen PC an, laden die Schülerliste
+        \nSchließen Sie danach das Tablet mit dem USB-Kabel an einen PC an, kopieren die Schülerliste
         auf Ihren PC und drucken diese aus.
     </string>
     <string name="admin_users_add_step_2_status_n">Noch %1$d Ausweiskarten zu scannen …</string>
@@ -746,8 +899,29 @@
 
     <string name="reprint_pupil_lists_label">Schülerlisten nachdrucken</string>
 
-    <!-- PrintReminderActivity -->
+    <!-- AdminLendingsActivity -->
 
-    <string name="print_reminder_label">Mahnschreiben erstellen</string>
+    <string name="admin_lendings_label">Offene Ausleihen verwalten</string>
+    <string name="admin_lendings_explanation">
+        Sie können jetzt mit den Symbolen in der Werkzeugleiste in den Ausleihen suchen oder diese filtern.
+        \nFerner können Sie eine Mahnliste oder individuell adressierte Mahnschreiben als PDF-Dateien erstellen.
+        Diese müssen danach vom Austauschverzeichnis des Tablets auf Ihren PC kopiert und ausgedruckt werden.
+    </string>
+
+    <string name="admin_lendings_action_filter_delay_28">Ausleihen mit mindestens 28 Tagen Verzug anzeigen</string>
+    <string name="admin_lendings_action_filter_delay_21">Ausleihen mit mindestens 21 Tagen Verzug anzeigen</string>
+    <string name="admin_lendings_action_filter_delay_14">Ausleihen mit mindestens 14 Tagen Verzug anzeigen</string>
+    <string name="admin_lendings_action_filter_delay_07">Ausleihen mit mindestens 7 Tagen Verzug anzeigen</string>
+    <string name="admin_lendings_action_filter_no_delay">Alle offenen Ausleihen anzeigen</string>
+
+    <string name="admin_lendings_empty">Keine Ausleihen</string>
+
+    <string name="admin_lendings_print_list_0">Mahnliste erstellen</string>
+    <string name="admin_lendings_print_list_1">Mahnliste mit 1 Ausleihe erstellen</string>
+    <string name="admin_lendings_print_list_n">Mahnliste mit %1$d Ausleihen erstellen</string>
+    <string name="admin_lendings_print_duns_0">Mahnschreiben erstellen</string>
+    <string name="admin_lendings_print_duns_n">%1$d Mahnschreiben erstellen</string>
+
+    <string name="admin_lendings_snackbar_info_deleted">Ausleihe storniert und Buch ausgesondert.</string>
 
 </resources>

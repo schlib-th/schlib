@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.fahimu.android.app.App;
 import de.fahimu.android.db.Row;
@@ -21,6 +22,7 @@ import de.fahimu.android.db.Trigger;
 import de.fahimu.android.db.Trigger.Type;
 import de.fahimu.android.db.Values;
 import de.fahimu.android.db.View;
+import de.fahimu.schlib.app.R;
 
 import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
 
@@ -146,7 +148,7 @@ public final class Lending extends Row {
     * <p>
     * <pre> {@code
     * CREATE VIEW lendings_loc_delay AS
-    *    SELECT lendings_loc._id AS _id, bid, uid, issue, return,
+    *    SELECT lendings_loc._id AS _id, bid, uid, issue, dun, return,
     *           MIN(opening_dates._id)*86400 AS term,
     *           IFNULL(return,CAST(STRFTIME('%s','now','localtime') AS INTEGER))/86400
     *         - IFNULL(MIN(opening_dates._id),issue/86400+period) AS delay
@@ -166,7 +168,7 @@ public final class Lending extends Row {
       String min = App.format("IFNULL(%s,CAST(STRFTIME('%%s','now','localtime') AS INTEGER))/86400", RETURN);
       String sub = App.format("IFNULL(MIN(%s),%s/86400+%s)", opdOid, ISSUE, Book.PERIOD);
       String delay = App.format("%s - %s AS %s", min, sub, DELAY);
-      Values columns = new Values(SQLite.alias(VIEW_LOC, OID), BID, UID, ISSUE, RETURN, term, delay);
+      Values columns = new Values(SQLite.alias(VIEW_LOC, OID), BID, UID, ISSUE, DUN, RETURN, term, delay);
 
       String table = App.format("%s JOIN %s USING (%s) LEFT JOIN %s ON %s>=%s/86400+%s",
             VIEW_LOC, Book.TAB, BID, TAB_OPD, opdOid, ISSUE, Book.PERIOD);
@@ -218,7 +220,7 @@ public final class Lending extends Row {
    }
 
    private static ArrayList<Lending> get(String where, Object... args) {
-      Values columns = new Values(OID, BID, UID, ISSUE, RETURN);
+      Values columns = new Values(OID, BID, UID, ISSUE, DUN, RETURN);
       return SQLite.get(Lending.class, TAB, columns, null, OID, where, args);
    }
 
@@ -253,19 +255,67 @@ public final class Lending extends Row {
     * Returns the {@link Lending}s from {@code lendings_loc_delay} as specified by {@code where} and {@code args}.
     * <p>
     * <pre> {@code
-    * SELECT _id, bid, uid, issue, return, term, delay FROM lendings_loc_delay ORDER BY _id ;
+    * SELECT _id, bid, uid, issue, return, term, delay FROM lendings_loc_delay WHERE $where ORDER BY $order ;
     * }
     * </pre>
     *
+    * @param order
+    *       a {@code String} specifying how to sort the result set or {@code null}.
     * @param where
     *       a filter declaring which rows to return.
     * @param args
     *       the values, which will replace the {@code '?'} characters in {@code where}.
     * @return the {@link Lending}s
     */
-   private static ArrayList<Lending> getLocalizedLendingsWithDelay(String where, Object... args) {
-      Values columns = new Values(OID, BID, UID, ISSUE, RETURN, TERM, DELAY);
-      return SQLite.get(Lending.class, VIEW_DEL, columns, null, OID, where, args);
+   private static ArrayList<Lending> getLocalizedLendingsWithDelay(String order, String where, Object... args) {
+      Values columns = new Values(OID, BID, UID, ISSUE, DUN, RETURN, TERM, DELAY);
+      return SQLite.get(Lending.class, VIEW_DEL, columns, null, order, where, args);
+   }
+
+   public static ArrayList<Lending> getIssuedOnly() {
+      return getLocalizedLendingsWithDelay(DELAY + " DESC, " + OID, RETURN + " ISNULL");
+   }
+
+   public static ArrayList<Lending> getByOids(List<Long> oids) {
+      return getLocalizedLendingsWithDelay(DELAY + " DESC, " + OID, buildWhereClauseOidInList(VIEW_DEL, oids));
+   }
+
+   /**
+    * Returns
+    * <pre> {@code
+    * WHERE $table._id IN (oid0,oid1, ... ,oidN)
+    * }
+    * </pre>
+    */
+   private static String buildWhereClauseOidInList(String table, List<Long> oids) {
+      StringBuilder b = new StringBuilder(50);
+      b.append(table).append('.').append(OID).append(" IN (").append(oids.get(0));
+      for (int i = 1; i < oids.size(); i++) {
+         b.append(',').append(oids.get(i));
+      }
+      return b.append(")").toString();
+   }
+
+   /**
+    * <p>
+    * <pre> {@code
+    * UPDATE lendings SET dun=NULL WHERE dun>=$beginOfDay ;
+    * }
+    * </pre>
+    */
+   public static void resetDunned() {
+      SQLite.update(TAB, new Values(DUN), DUN + ">=" + App.beginOfDay());
+   }
+
+   /**
+    * <p>
+    * <pre> {@code
+    * UPDATE lendings SET dun=$posixTime WHERE lendings_loc_delay._id IN (oid0,oid1, ... ,oidN)
+    * }
+    * </pre>
+    */
+   public static void setDunned(List<Long> oids) {
+      SQLite.update(TAB, new Values().addLong(DUN, App.posixTime()), buildWhereClauseOidInList(TAB, oids));
    }
 
    /* ============================================================================================================== */
@@ -281,8 +331,10 @@ public final class Lending extends Row {
     */
    @NonNull
    public Book getBook() {
-      return Book.getNonNull(values.getLong(BID));
+      return book != null ? book : (book = Book.getNonNull(values.getLong(BID)));
    }
+
+   private Book book;
 
    /**
     * Returns the user of this issue.
@@ -291,8 +343,10 @@ public final class Lending extends Row {
     */
    @NonNull
    public User getUser() {
-      return User.getNonNull(values.getLong(UID));
+      return user != null ? user : (user = User.getNonNull(values.getLong(UID)));
    }
+
+   private User user;
 
    /**
     * Returns the POSIX time when the book was issued.
@@ -303,6 +357,14 @@ public final class Lending extends Row {
     */
    private long getIssue() {
       return values.getLong(ISSUE);
+   }
+
+   public String getIssueDate() {
+      return App.formatDate(R.string.app_date, true, getIssue());
+   }
+
+   public String getIssueTime() {
+      return App.formatDate(R.string.app_time, true, getIssue());
    }
 
    private boolean isDunned() {
@@ -321,6 +383,10 @@ public final class Lending extends Row {
       return values.getLong(DUN);
    }
 
+   private String getDunDate() {
+      return App.formatDate(R.string.app_date, true, getDun());
+   }
+
    private boolean isReturned() {
       return values.notNull(RETURN);
    }
@@ -337,7 +403,7 @@ public final class Lending extends Row {
       return values.getLong(RETURN);
    }
 
-   private boolean hasTerm() {
+   public boolean hasTerm() {
       return values.notNull(TERM);
    }
 
@@ -356,6 +422,10 @@ public final class Lending extends Row {
       return values.getLong(TERM);
    }
 
+   public String getTermDate() {
+      return App.formatDate(R.string.app_date, true, getTerm());
+   }
+
    /**
     * Returns the difference in calendar days between return of the book and the term.
     * <p>
@@ -369,7 +439,7 @@ public final class Lending extends Row {
     *
     * @return the difference in calendar days between return of the book and the term.
     */
-   private int getDelay() {
+   public int getDelay() {
       return values.getInt(DELAY);
    }
 
@@ -392,8 +462,24 @@ public final class Lending extends Row {
          return 0;
       } else {
          setLong(RETURN, now).update();
-         return getLocalizedLendingsWithDelay(OID + "=?", getOid()).get(0).getDelay();
+         return getLocalizedLendingsWithDelay(null, OID + "=?", getOid()).get(0).getDelay();
       }
+   }
+
+   /* ============================================================================================================== */
+
+   @NonNull
+   public String getDisplayMultilineIssueDelayDun() {
+      StringBuilder b = new StringBuilder(App.getStr(R.string.lending_display_issue, getIssueDate()));
+      if (hasTerm() && getDelay() >= 2) {
+         b.append('\n').append(App.getStr(R.string.lending_display_delay_n, getDelay(), getTermDate()));
+      } else if (isDunned()) {
+         b.append('\n').append(App.getStr(R.string.lending_display_delay_0));
+      }
+      if (isDunned()) {
+         b.append('\n').append(App.getStr(R.string.lending_display_dun, getDunDate()));
+      }
+      return b.toString();
    }
 
 }

@@ -208,8 +208,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:onClick="onPrintReminderClicked"
-                    android:text="@string/print_reminder_label" />
+                    android:onClick="onAdminLendingsClicked"
+                    android:text="@string/admin_lendings_label" />
 
             </LinearLayout>
 

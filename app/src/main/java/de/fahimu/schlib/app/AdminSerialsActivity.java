@@ -165,10 +165,10 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
       SerialItemFilter() {
          if (searchView != null) {          // safety net if updateMenuItems is called before onCreateOptionsMenu
-            this.isFilterPrintedChecked = filterPrinted.isChecked();
-            this.isFilterStockedChecked = filterStocked.isChecked();
-            this.isFilterUsedChecked = filterUsed.isChecked();
-            this.isFilterLostChecked = filterLost.isChecked();
+            isFilterPrintedChecked = filterPrinted.isChecked();
+            isFilterStockedChecked = filterStocked.isChecked();
+            isFilterUsedChecked = filterUsed.isChecked();
+            isFilterLostChecked = filterLost.isChecked();
          }
       }
 

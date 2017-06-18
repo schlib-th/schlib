@@ -207,6 +207,12 @@ public final class ListView extends RecyclerView {
       @Override
       public final int getItemCount() { return list.size(); }
 
+      public final List<Long> getFilteredRids() {
+         ArrayList<Long> rids = new ArrayList<>(list.size());
+         for (I item : list) { rids.add(item.rid); }
+         return Collections.unmodifiableList(rids);
+      }
+
       protected abstract VH createViewHolder(LayoutInflater inflater, ViewGroup parent);
 
       @Override

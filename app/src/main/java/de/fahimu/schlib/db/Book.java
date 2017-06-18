@@ -31,6 +31,7 @@ import de.fahimu.schlib.anw.ISBN;
 import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.AdminUsersAddStep2;
 import de.fahimu.schlib.app.FirstRun3Activity;
+import de.fahimu.schlib.app.R;
 
 import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
 import static de.fahimu.schlib.anw.ISBN.MAX;
@@ -430,7 +431,7 @@ public final class Book extends Row {
     */
    @NonNull
    public String getStockedDate() {
-      return App.formatDate("dd'.'MM'.'yyyy", false, values.getLong(STOCKED));
+      return App.formatDate(R.string.app_date, false, values.getLong(STOCKED));
    }
 
    /**
@@ -504,23 +505,23 @@ public final class Book extends Row {
    /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
-    * Returns {@code true} if the book has vanished, otherwise {@code false}.
+    * Returns {@code true} if the book is vanished, otherwise {@code false}.
     *
-    * @return {@code true} if the book has vanished.
+    * @return {@code true} if the book is vanished.
     */
-   public final boolean hasVanished() {
+   public final boolean isVanished() {
       return values.notNull(VANISHED);
    }
 
    /**
-    * Returns the date when the book has vanished as a string, formatted {@code DD.MM.YYYY} in the default timezone.
-    * <p> Precondition: {@link #hasVanished()} must be {@code true}. </p>
+    * Returns the date when the book has vanished as a string, formatted {@code MM/YYYY} in the default timezone.
+    * <p> Precondition: {@link #isVanished()} must be {@code true}. </p>
     *
     * @return the date when the book has vanished.
     */
    @NonNull
-   public String getVanished() {
-      return App.formatDate("dd'.'MM'.'yyyy", false, values.getLong(VANISHED));
+   private String getVanishedMonth() {
+      return App.formatDate(R.string.app_month, false, values.getLong(VANISHED));
    }
 
    @NonNull
@@ -533,6 +534,10 @@ public final class Book extends Row {
    @NonNull
    public String getDisplayNumber() {
       return App.format("%03d", getNumber());
+   }
+
+   public String getDisplayShelfNumber() {
+      return App.format("%s %03d", getShelf(), getNumber());
    }
 
    @NonNull
@@ -549,6 +554,11 @@ public final class Book extends Row {
    public String getDisplayMultilineISBNLabel() {
       String isbn = getDisplayISBN(), label = getDisplayLabel();
       return isbn.isEmpty() ? label : label.isEmpty() ? isbn : isbn + '\n' + label;
+   }
+
+   @NonNull
+   public String getDisplayVanished() {
+      return App.getStr(R.string.book_display_vanished, getVanishedMonth());
    }
 
    @NonNull

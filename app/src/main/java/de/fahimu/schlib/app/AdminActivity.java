@@ -82,28 +82,24 @@ public final class AdminActivity extends SchlibActivity {
 
    public void onAdminIdcardsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
          startActivity(new Intent(this, AdminIdcardsActivity.class));
       }
    }
 
    public void onAdminLabelsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
          startActivity(new Intent(this, AdminLabelsActivity.class));
       }
    }
 
    public void onAdminUsersClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
          startActivity(new Intent(this, AdminUsersActivity.class));
       }
    }
 
    public void onAdminBooksClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
          startActivity(new Intent(this, AdminBooksActivity.class));
       }
    }
@@ -112,21 +108,18 @@ public final class AdminActivity extends SchlibActivity {
 
    public void onStocktakingIdcardsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
          startActivity(new Intent(this, StocktakingIdcardsActivity.class));
       }
    }
 
    public void onStocktakingLabelsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
          startActivity(new Intent(this, StocktakingLabelsActivity.class));
       }
    }
 
    public void onStocktakingUsersClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
          startActivity(new Intent(this, StocktakingUsersActivity.class));
       }
    }
@@ -147,10 +140,9 @@ public final class AdminActivity extends SchlibActivity {
       }
    }
 
-   public void onPrintReminderClicked(View view) {
+   public void onAdminLendingsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
-         // TODO startActivity(new Intent(this, PrintReminderActivity.class));
+         startActivity(new Intent(this, AdminLendingsActivity.class));
       }
    }
 

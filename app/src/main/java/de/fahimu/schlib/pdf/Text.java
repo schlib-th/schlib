@@ -51,7 +51,7 @@ final class Text extends Element {
     * @param vertical
     *       the vertical alignment of the text.
     */
-   Text(String text, double gray, double size, Align horizontal, Align vertical) {
+   Text(String text, double gray, int size, Align horizontal, Align vertical) {
       this(text, gray, gray, gray, size, horizontal, vertical);
    }
 
@@ -73,11 +73,11 @@ final class Text extends Element {
     * @param vertical
     *       the vertical alignment of the text.
     */
-   Text(String text, int red, int green, int blue, double size, Align horizontal, Align vertical) {
+   Text(String text, int red, int green, int blue, int size, Align horizontal, Align vertical) {
       this(text, red / 255.0, green / 255.0, blue / 255.0, size, horizontal, vertical);
    }
 
-   private Text(String text, double red, double green, double blue, double size, Align horizontal, Align vertical) {
+   private Text(String text, double red, double green, double blue, int size, Align horizontal, Align vertical) {
       this.red = red;
       this.green = green;
       this.blue = blue;
@@ -146,6 +146,15 @@ final class Text extends Element {
     */
    double getWidth() {
       return width;
+   }
+
+   /**
+    * Returns the offset from TOP to BASELINE of this Text in pt.
+    *
+    * @return the offset from TOP to BASELINE of this Text in pt.
+    */
+   double getOffsetTop() {
+      return size * getFont().getFontBBoxURY() / 1000.0;
    }
 
    /**

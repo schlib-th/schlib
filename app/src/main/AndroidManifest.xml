@@ -165,6 +165,14 @@
             android:parentActivityName=".AdminActivity"
             android:screenOrientation="userLandscape">
         </activity>
+
+        <activity
+            android:name=".AdminLendingsActivity"
+            android:label="@string/admin_lendings_label"
+            android:parentActivityName=".AdminActivity"
+            android:screenOrientation="userLandscape"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+        </activity>
     </application>
 
 </manifest>

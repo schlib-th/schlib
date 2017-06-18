@@ -364,7 +364,7 @@ public abstract class Serial extends Row {
     */
    @NonNull
    private String getLostDate() {
-      return App.formatDate("dd'.'MM'.'yyyy", false, values.getLong(LOST));
+      return App.formatDate(R.string.app_date, false, values.getLong(LOST));
    }
 
    @NonNull

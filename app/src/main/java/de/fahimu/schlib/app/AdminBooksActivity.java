@@ -50,7 +50,7 @@ public final class AdminBooksActivity extends SchlibActivity {
          super(book,
                book.getShelf(), book.getDisplayNumber(),
                book.getTitle(), book.getAuthor(),
-               book.hasVanished() ? App.getStr(R.string.book_lost, book.getVanished()) : book.getKeywords(),
+               book.isVanished() ? book.getDisplayVanished() : book.getKeywords(),
                book.getPublisher(), book.getDisplayMultilineISBNLabel());
       }
    }

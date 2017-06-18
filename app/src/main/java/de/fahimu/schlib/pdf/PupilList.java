@@ -19,6 +19,8 @@ import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.db.User;
 
+import static de.fahimu.schlib.pdf.Text.Align.CENTER;
+
 /**
  * A {@code PupilList} object represents a DIN A4 (210 x 297 mm) PDF document with a list of pupils on it.
  * Each time new pupils are added to a class, such a document must be generated, printed and given to the teacher
@@ -59,7 +61,7 @@ public final class PupilList extends TextDocument {
          this.users = User.getPupilList(name2, name1, localDate);
          this.name2 = name2;
          this.name1 = name1;
-         this.date = App.formatDate("dd'.'MM'.'yyyy", true, localDate * 86400);
+         this.date = App.formatDate(R.string.app_date, true, localDate * 86400);
          String title = App.getStr(R.string.pdf_pupil_list_title, name1, name2, this.date);
          String subject = App.getStr(R.string.pdf_pupil_list_subject);
          open(title, subject);
@@ -79,35 +81,38 @@ public final class PupilList extends TextDocument {
          String headline1 = App.getStr(R.string.pdf_pupil_list_headline_1);
          String headline2 = App.getStr(R.string.pdf_pupil_list_headline_2, name1, name2);
          String headline3 = App.getStr(R.string.pdf_pupil_list_headline_3, date, users.size());
-         add(new SingleCenteredLine(headline1, 0.0, 20, 22 + 11));
+         add(new SingleLine(0.0, 20, 22 + 11, CENTER, headline1));
          if (firstList) {
-            add(new SingleCenteredLine(headline2, 0.0, 20, 22 + 33));
+            add(new SingleLine(0.0, 20, 22 + 33, CENTER, headline2));
          } else {
-            add(new SingleCenteredLine(headline2, 0.0, 20, 22 + 11));
-            add(new SingleCenteredLine(headline3, 0.0, 10, 12 + 33));
+            add(new SingleLine(0.0, 20, 22 + 11, CENTER, headline2));
+            add(new SingleLine(0.0, 10, 12 + 33, CENTER, headline3));
          }
 
          String info = getInfoText();
          info = replaceUserVariables(info, "DATE", date, "SCHOOL-YEAR", name2, "CLASS-NAME", name1);
          for (String line : info.split("\n")) {
-            add(line.isEmpty() ? new Line(8) : new MultiLine(line, 0.0, 10, 12, true));
+            add(line.isEmpty() ? new EmptyLine(8) : new MultiLine(0.0, 10, 12, true, line));
          }
-         add(new Line(24));
+         add(new EmptyLine(24));
 
          String column1 = App.getStr(R.string.pdf_pupil_list_column_1);
          String column2 = App.getStr(R.string.pdf_pupil_list_column_2);
          String column3 = App.getStr(R.string.pdf_pupil_list_column_3);
          add(new TableRow(0.0, 10, 24, column1, column2, column3));
 
-         for (User pupil : users) {
+         for (int row = 0; row < users.size(); row++) {
+            User pupil = users.get(row);
             String serial = App.format("%02d", pupil.getSerial());
             String idcard = SerialNumber.getDisplay(pupil.getIdcard());
-            add(new TableRow(0.0, 10, 24, serial, idcard));
+            TableRow line = new TableRow(0.0, 10, 24, serial, idcard);
+            add(line.setSticky(row == 0 || row >= users.size() - 2));
          }
-         finalizeTable(3, 0.75, 0.5);
+         finalizeTable(0.75, 0.5, 0, 10, CENTER, CENTER, CENTER);
       }
    }
 
+   @WorkerThread
    private String getInfoText() {
       return App.getStr(R.string.pdf_pupil_list_text_1) +
             App.getStr(firstList ? R.string.pdf_pupil_list_text_2a : R.string.pdf_pupil_list_text_2b) +

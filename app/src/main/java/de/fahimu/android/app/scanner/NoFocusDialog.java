@@ -112,11 +112,45 @@ public final class NoFocusDialog {
     * and react to key events from a barcode scanner. </p>
     */
    @MainThread
-   public synchronized void show() {
+   public synchronized NoFocusDialog show() {
       alertDialog = builder.create();
       alertDialog.show();              // must be called BEFORE findViewById is called
       ViewGroup group = (ViewGroup) alertDialog.findViewById(android.R.id.content);
       group.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+      return this;
+   }
+
+   /**
+    * Changes the button's text after showing the dialog.
+    *
+    * @param id
+    *       0 to change button 0, 1 to change button 1.
+    * @param resId
+    *       resource id for the format string
+    * @param formatArgs
+    *       the format arguments that will be used for substitution.
+    */
+   public synchronized NoFocusDialog setButtonText(int id, @StringRes int resId, Object... formatArgs) {
+      String text = App.getStr(resId, formatArgs);
+      switch (id) {
+      case 0: alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setText(text); break;
+      case 1: alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(text); break;
+      }
+      return this;
+   }
+
+   /**
+    * Enables or disables a button after showing the dialog.
+    *
+    * @param id
+    *       0 to change button 0, 1 to change button 1.
+    */
+   public synchronized NoFocusDialog setButtonEnabled(int id, boolean enabled) {
+      switch (id) {
+      case 0: alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setEnabled(enabled); break;
+      case 1: alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(enabled); break;
+      }
+      return this;
    }
 
    /**

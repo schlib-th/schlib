@@ -79,7 +79,7 @@ public final class OpenHelper extends SQLiteOpenHelper {
    public void onConfigure(SQLiteDatabase db) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          db.setForeignKeyConstraintsEnabled(false);
-         scope.d("PRAGMA foreign_keys = OFF;");
+         scope.d("PRAGMA foreign_keys = OFF; version=" + db.getVersion());
       }
    }
 

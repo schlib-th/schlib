@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="@string/action_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always">
+    </item>
+    <item
+        android:id="@+id/action_filter"
+        android:icon="@drawable/ic_filter_list_black_24dp"
+        android:title="@string/action_filter"
+        android:visible="false"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/action_filter_delay_28"
+                    android:checked="true"
+                    android:onClick="onFilterItemClicked"
+                    android:title="@string/admin_lendings_action_filter_delay_28">
+                </item>
+                <item
+                    android:id="@+id/action_filter_delay_21"
+                    android:checked="true"
+                    android:onClick="onFilterItemClicked"
+                    android:title="@string/admin_lendings_action_filter_delay_21">
+                </item>
+                <item
+                    android:id="@+id/action_filter_delay_14"
+                    android:onClick="onFilterItemClicked"
+                    android:title="@string/admin_lendings_action_filter_delay_14">
+                </item>
+                <item
+                    android:id="@+id/action_filter_delay_07"
+                    android:checked="true"
+                    android:onClick="onFilterItemClicked"
+                    android:title="@string/admin_lendings_action_filter_delay_07">
+                </item>
+                <item
+                    android:id="@+id/action_filter_no_delay"
+                    android:checked="true"
+                    android:onClick="onFilterItemClicked"
+                    android:title="@string/admin_lendings_action_filter_no_delay">
+                </item>
+            </group>
+        </menu>
+    </item>
+
+</menu>
