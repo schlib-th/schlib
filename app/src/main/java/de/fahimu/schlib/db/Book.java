@@ -509,7 +509,7 @@ public final class Book extends Row {
     *
     * @return {@code true} if the book is vanished.
     */
-   public final boolean isVanished() {
+   public boolean isVanished() {
       return values.notNull(VANISHED);
    }
 
@@ -525,8 +525,8 @@ public final class Book extends Row {
    }
 
    @NonNull
-   public final Book setVanished(boolean vanished) {
-      return (Book) (vanished ? setLong(VANISHED, App.posixTime()) : setNull(VANISHED));
+   public Book setVanished(Long vanished) {
+      return (Book) (vanished == null ? setNull(VANISHED) : setLong(VANISHED, vanished));
    }
 
    /* ============================================================================================================== */

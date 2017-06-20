@@ -270,7 +270,7 @@ public final class FirstRun4Activity extends SchlibActivity {
 
    private void bufferISBN(ISBN isbn) {
       bufferedISBN = isbn;
-      showUndoSnackbar(App.getStr(R.string.first_run_4_snackbar_undo_isbn_action_discard), new OnClickListener() {
+      showUndoSnackbar(App.getStr(R.string.first_run_4_snackbar_undo_action_discard), new OnClickListener() {
          @Override
          public void onClick(View v) { discardBufferedISBN(); }
       }, R.string.first_run_4_snackbar_undo_isbn_buffered, isbn.getDisplay());

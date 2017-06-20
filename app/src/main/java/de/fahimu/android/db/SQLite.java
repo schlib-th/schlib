@@ -196,7 +196,7 @@ public final class SQLite {
    /* ============================================================================================================== */
 
    /**
-    * {@code INSERT OR ABORT INTO} the specified {@code table} a new row with the specified {@code values}.
+    * {@code INSERT INTO} the specified {@code table} a new row with the specified {@code values}.
     * <p> The SQL INSERT statement and the result {@code id} are logged with level verbose. </p>
     *
     * @param table
@@ -209,10 +209,10 @@ public final class SQLite {
     *       if an error occurred.
     */
    public static long insert(@Nullable SQLiteDatabase db, String table, Values values) {
-      Log.d(App.format("INSERT OR ABORT INTO %s VALUES %s", table, values));
+      Log.d(App.format("INSERT INTO %s VALUES %s", table, values));
       if (db == null) { db = App.getDb(); }
-      long oid = db.insertWithOnConflict(table, null, values.cv, SQLiteDatabase.CONFLICT_ABORT);
-      if (oid == -1) { throw new SQLException("INSERT OR ABORT returned -1"); }
+      long oid = db.insertOrThrow(table, null, values.cv);
+      if (oid == -1) { throw new SQLException("INSERT returned -1"); }
       Log.d("oid=" + oid);
       return oid;
    }

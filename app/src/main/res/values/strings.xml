@@ -561,7 +561,7 @@
     <string name="first_run_4_empty">Allen Büchern wurde eine eindeutige Nummer zugewiesen</string>
 
     <string name="first_run_4_snackbar_undo_isbn_buffered">ISBN %1$s gemerkt.</string>
-    <string name="first_run_4_snackbar_undo_isbn_action_discard">Verwerfen</string>
+    <string name="first_run_4_snackbar_undo_action_discard">Verwerfen</string>
     <string name="first_run_4_snackbar_info_isbn_discarded">ISBN verworfen.</string>
 
     <!-- LoginActivity -->
@@ -922,6 +922,8 @@
     <string name="admin_lendings_print_duns_0">Mahnschreiben erstellen</string>
     <string name="admin_lendings_print_duns_n">%1$d Mahnschreiben erstellen</string>
 
-    <string name="admin_lendings_snackbar_info_deleted">Ausleihe storniert und Buch ausgesondert.</string>
+    <string name="admin_lendings_snackbar_undo_lending_canceled">Ausleihe storniert und Buch ausgesondert.</string>
+    <string name="admin_lendings_snackbar_undo_action_restore">Rückgängig machen</string>
+    <string name="admin_lendings_snackbar_info_lending_restored">Ausleihe und Buch wiederhergestellt.</string>
 
 </resources>

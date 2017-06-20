@@ -359,7 +359,7 @@ public final class TutorActivity extends SchlibActivity {
          setError(R.string.tutor_message_1_expected_user, R.string.tutor_message_2_book_before_user);
       } else {
          if (book.isVanished()) {
-            book.setVanished(false).update();      // book re-emerged magically after being set to vanished
+            book.setVanished(null).update();    // book re-emerged magically after being set to vanished
          }
          ArrayList<Lending> lendings = Lending.getByBook(book, true);
          if (lendings.isEmpty()) {

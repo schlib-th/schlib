@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 25
-        versionName '1.06'
-        versionCode 7
+        versionName '1.07'
+        versionCode 8
     }
     buildTypes {
         release {

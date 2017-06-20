@@ -403,6 +403,15 @@ public final class Lending extends Row {
       return values.getLong(RETURN);
    }
 
+   @NonNull
+   public Lending setCanceled(Long canceled) {
+      return (Lending) (canceled == null ? setNull(RETURN) : setLong(RETURN, canceled));
+   }
+
+   public long getMinReturn() {
+      return get(OID + "=?", getOid()).get(0).getIssue() + MIN_LENDING_TIME;
+   }
+
    public boolean hasTerm() {
       return values.notNull(TERM);
    }

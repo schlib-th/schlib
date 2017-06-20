@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
@@ -287,14 +288,27 @@ public final class AdminLendingsActivity extends SchlibActivity {
          dialog.setButton0(R.string.dialog_button0_admin_lendings_delete, null);
          dialog.setButton1(R.string.dialog_button1_admin_lendings_delete, new ButtonListener() {
             @Override
-            public void onClick() {
-               lending.returnBook();
-               lending.getBook().setVanished(true).update();
-               lendingsAdapter.updateAsync(Adapter.RELOAD_DATA, new LendingItemFilter());
-               showInfoSnackbar(R.string.admin_lendings_snackbar_info_deleted);
-            }
+            public void onClick() { cancel(lending); }
          }).show(R.raw.horn);
       }
+   }
+
+   private void cancel(final Lending lending) {
+      long canceled = Math.max(lending.getMinReturn(), App.posixTime());
+      lending.setCanceled(canceled).update();
+      lending.getBook().setVanished(canceled).update();
+      lendingsAdapter.updateAsync(Adapter.RELOAD_DATA, new LendingItemFilter());
+      showUndoSnackbar(App.getStr(R.string.admin_lendings_snackbar_undo_action_restore), new OnClickListener() {
+         @Override
+         public void onClick(View v) { restore(lending); }
+      }, R.string.admin_lendings_snackbar_undo_lending_canceled);
+   }
+
+   private void restore(Lending lending) {
+      lending.setCanceled(null).update();
+      lending.getBook().setVanished(null).update();
+      lendingsAdapter.updateAsync(Adapter.RELOAD_DATA, new LendingItemFilter());
+      showInfoSnackbar(R.string.admin_lendings_snackbar_info_lending_restored);
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
