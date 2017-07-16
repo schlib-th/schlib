@@ -126,23 +126,22 @@ public final class AdminActivity extends SchlibActivity {
 
    public void onStocktakingBooksClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         scope.d("clicked");
-         // TODO startActivity(new Intent(this, StocktakingBooksActivity.class));
+         startActivity(new Intent(this, StocktakingBooksActivity.class));
       }
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
+   public void onAdminLendingsClicked(View view) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         startActivity(new Intent(this, AdminLendingsActivity.class));
+      }
+   }
+
    public void onReprintPupilListClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          scope.d("clicked");
          // TODO startActivity(new Intent(this, ReprintPupilListActivity.class));
-      }
-   }
-
-   public void onAdminLendingsClicked(View view) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         startActivity(new Intent(this, AdminLendingsActivity.class));
       }
    }
 

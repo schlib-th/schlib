@@ -14,8 +14,8 @@ import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 
@@ -31,6 +31,9 @@ import de.fahimu.android.app.ListView.Item;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
 import de.fahimu.schlib.db.Serial;
+
+import static de.fahimu.android.app.ListView.Adapter.RELOAD_DATA;
+import static de.fahimu.android.app.ListView.Adapter.SHOW_DELAYED;
 
 /**
  * Base class for {@link StocktakingLabelsActivity} and {@link StocktakingIdcardsActivity}.
@@ -49,25 +52,16 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
 
    private final class SerialItemViewHolder extends ViewHolder<SerialItem> {
       private final TextView key, info;
-      private final ImageButton action;
 
       SerialItemViewHolder(LayoutInflater inflater, ViewGroup parent) {
          super(inflater, parent, R.layout.row_serial);
          key = App.findView(itemView, TextView.class, R.id.row_serial_key);
          info = App.findView(itemView, TextView.class, R.id.row_serial_info);
-         action = App.findView(itemView, ImageButton.class, R.id.row_serial_action);
       }
 
       protected void bind(SerialItem item) {
          key.setText(item.getText(0));
          info.setText(item.getText(1));
-         if (item.row.isLost()) {
-            action.setImageResource(R.drawable.ic_restore_black_24dp);
-            action.setContentDescription(App.getStr(R.string.row_serial_action_restore));
-         } else {       // item.row.isStocked()
-            action.setImageResource(R.drawable.ic_delete_black_24dp);
-            action.setContentDescription(App.getStr(R.string.row_serial_action_delete));
-         }
       }
    }
 
@@ -93,15 +87,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       }
 
       @Override
-      protected void onUpdated(int flags, List<SerialItem> data) {
-         if ((flags & DATA_INITIALIZED) == DATA_INITIALIZED) {
-            // The SerialsFilter shows stocked and lost serials, but we don't want lost serials to be shown
-            // that were already lost onResume(), so these serials must be added to the hiddenRows set.
-            for (SerialItem item : data) {
-               if (item.row.isLost()) { hiddenSerials.add(item.row.getId()); }
-            }
-         }
-      }
+      protected void onUpdated(int flags, List<SerialItem> data) { }
    }
 
    @IdRes
@@ -116,22 +102,19 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    /* -------------------------------------------------------------------------------------------------------------- */
 
    /**
-    * Shows only serials that are stocked or lost and not an element of the {@link #hiddenSerials} set.
+    * Shows only serials that are not an element of the {@link #scannedSerials} set.
     */
    private final class SerialItemFilter implements Filter<SerialItem> {
-      /** Clone the {@link #hiddenSerials} set to prevent {@link ConcurrentModificationException}s */
-      private final Set<Integer> hidden = new HashSet<>(hiddenSerials);
+      /** Clone the {@link #scannedSerials} set to prevent {@link ConcurrentModificationException}s */
+      private final Set<Long> serials = new HashSet<>(scannedSerials);
 
       @Override
       public boolean matches(SerialItem item) {
-         return !item.row.isUsed() && !item.row.isPrinted() && !hidden.contains(item.row.getId());
+         return !serials.contains(item.rid);
       }
    }
 
-   /**
-    * Stores the {@link Serial#getId() ID} of serials that are scanned or lost {@link #onResume()}.
-    */
-   private final Set<Integer> hiddenSerials = new HashSet<>();
+   private final Set<Long> scannedSerials = new HashSet<>();      // OID of scanned serials
 
    /* ============================================================================================================== */
 
@@ -153,19 +136,10 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    @Override
    protected final void onPermissionGranted() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         hiddenSerials.clear();
-         // After resuming, we only show the stocked serials (not the lost ones).
-         Filter<SerialItem> initializeFilter = new Filter<SerialItem>() {
-            @Override
-            public boolean matches(SerialItem item) { return item.row.isStocked(); }
-         };
-         serialsAdapter.updateAsync(DATA_INITIALIZED | Adapter.RELOAD_DATA, initializeFilter);
+         scannedSerials.clear();
+         serialsAdapter.updateAsync(RELOAD_DATA);
       }
    }
-
-   private final static int DATA_NOT_CHANGED = 0x00;
-   private final static int DATA_WAS_CHANGED = 0x01;
-   private final static int DATA_INITIALIZED = DATA_WAS_CHANGED | 0x02;
 
    @Override
    protected final void onPause() {
@@ -182,18 +156,20 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
       } else if (serial.isUsed()) {
          showErrorDialog(serial);
       } else {
-         hiddenSerials.add(serial.getId());
+         boolean added = scannedSerials.add(serial.getOid());
          if (serial.isLost()) {
             serial.setLost(false).update();       // Surprise! The serial isn't lost, set this serial to 'Stocked'.
             showInfoSnackbar(getSnackbarIds()[1]);
-            serialsAdapter.updateAsync(DATA_WAS_CHANGED | Adapter.RELOAD_DATA, new SerialItemFilter());
+            serialsAdapter.updateAsync(RELOAD_DATA, new SerialItemFilter());
          } else if (serial.isPrinted()) {
             // Promote all serials from 'Printed' to 'Stocked' which are on the same page as the scanned serial.
             Serial.setStocked(serial);
             showInfoSnackbar(getSnackbarIds()[2]);
-            serialsAdapter.updateAsync(DATA_WAS_CHANGED | Adapter.RELOAD_DATA, new SerialItemFilter());
+            serialsAdapter.updateAsync(RELOAD_DATA, new SerialItemFilter());
          } else {          // isStocked()
-            serialsAdapter.updateAsync(DATA_NOT_CHANGED, new SerialItemFilter());
+            showInfoSnackbar(getSnackbarIds()[added ? 3 : 4], serial.getDisplayId());
+            serialsAdapter.setSelection(serial.getOid());
+            serialsAdapter.updateAsync(SHOW_DELAYED, new SerialItemFilter());
          }
       }
    }
@@ -216,11 +192,19 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    /* -------------------------------------------------------------------------------------------------------------- */
 
    public void onListItemClicked(@NonNull View view) {
-      SerialItem item = serialsAdapter.getItemByView(view);
-      // Assertion: item.row.isLost() || item.row.isStocked()
-      item.row.setLost(!item.row.isLost()).update();           // toggle lost <-> stocked
-      serialsAdapter.setData(item);
-      serialsAdapter.updateAsync(DATA_WAS_CHANGED, new SerialItemFilter());
+      final S serial = serialsAdapter.getItemByView(view).row;
+      serial.setLost(true).update();
+      serialsAdapter.updateAsync(RELOAD_DATA, new SerialItemFilter());
+      showUndoSnackbar(App.getStr(R.string.snackbar_undo_action), new OnClickListener() {
+         @Override
+         public void onClick(View v) { restore(serial); }
+      }, getSnackbarIds()[5], serial.getDisplayId());
+   }
+
+   private void restore(S serial) {
+      serial.setLost(false).update();
+      serialsAdapter.updateAsync(RELOAD_DATA, new SerialItemFilter());
+      showInfoSnackbar(getSnackbarIds()[6], serial.getDisplayId());
    }
 
 }

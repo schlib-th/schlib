@@ -48,10 +48,10 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       }
    }
 
-   private final class UserViewHolder extends ViewHolder<UserItem> {
+   private final class UserItemViewHolder extends ViewHolder<UserItem> {
       private final TextView roleName, idcard;
 
-      UserViewHolder(LayoutInflater inflater, ViewGroup parent) {
+      UserItemViewHolder(LayoutInflater inflater, ViewGroup parent) {
          super(inflater, parent, R.layout.row_user);
          roleName = App.findView(itemView, TextView.class, R.id.row_user_role_name);
          idcard = App.findView(itemView, TextView.class, R.id.row_user_idcard);
@@ -67,15 +67,15 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       }
    }
 
-   private final class UsersAdapter extends Adapter<User,UserItem,UserViewHolder> {
+   private final class UsersAdapter extends Adapter<User,UserItem,UserItemViewHolder> {
 
       UsersAdapter() {
          super(StocktakingUsersActivity.this, R.id.stocktaking_users_list, R.string.stocktaking_users_empty);
       }
 
       @Override
-      protected UserViewHolder createViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         return new UserViewHolder(inflater, parent);
+      protected UserItemViewHolder createViewHolder(LayoutInflater inflater, ViewGroup parent) {
+         return new UserItemViewHolder(inflater, parent);
       }
 
       @Override

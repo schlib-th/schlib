@@ -41,7 +41,7 @@ public final class StocktakingLabelsActivity extends StocktakingSerialsActivity<
 
    @Override
    @WorkerThread
-   ArrayList<Label> loadData() { return Label.get(); }
+   ArrayList<Label> loadData() { return Label.getStocked(); }
 
    @Override
    Label getSerial(String barcode) { return Label.parse(barcode); }
@@ -50,7 +50,11 @@ public final class StocktakingLabelsActivity extends StocktakingSerialsActivity<
    private static final int[] SNACKBAR_IDS = {
          R.string.snackbar_error_not_a_label,
          R.string.snackbar_info_label_was_lost,
-         R.string.snackbar_info_label_registered
+         R.string.snackbar_info_label_registered,
+         R.string.stocktaking_labels_snackbar_info_scanned,
+         R.string.stocktaking_labels_snackbar_info_already_scanned,
+         R.string.stocktaking_labels_snackbar_undo_lost,
+         R.string.stocktaking_labels_snackbar_info_stocked
    };
 
    @Override

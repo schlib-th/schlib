@@ -76,7 +76,6 @@ public final class ListView extends RecyclerView {
       }
       super.setAdapter(newAdapter);
       newAdapter.registerAdapterDataObserver(observer);
-      checkIfEmpty();
    }
 
    private View emptyView;
@@ -104,19 +103,21 @@ public final class ListView extends RecyclerView {
       textView.setVisibility(GONE);                      // for the first time, make the text view gone
 
       ViewGroup parent = (ViewGroup) getParent();
-      parent.addView(this.emptyView = progressLayout);   // for the first time, show the progress bar
-      parent.addView(this.emptyTextView = textView);     // the text view replaces the progress bar later on
-      checkIfEmpty();
+      parent.addView(emptyView = progressLayout);        // for the first time, show the progress bar
+      parent.addView(emptyTextView = textView);          // the text view replaces the progress bar later on
+
+      setVisibility(GONE); emptyView.setVisibility(VISIBLE);
    }
 
    private void checkIfEmpty() {
-      if (emptyView != null && getAdapter() != null) {
-         if (getAdapter().getItemCount() == 0) {
-            setVisibility(GONE); emptyView.setVisibility(VISIBLE);
-         } else {
-            setVisibility(VISIBLE); emptyView.setVisibility(GONE);
-            emptyView = emptyTextView;                   // now replace the progress bar by the text view
-         }
+      if (emptyView != emptyTextView) {
+         emptyView.setVisibility(GONE);
+         emptyView = emptyTextView;             // now replace the progress bar by the text view
+      }
+      if (getAdapter().getItemCount() == 0) {
+         setVisibility(GONE); emptyView.setVisibility(VISIBLE);
+      } else {
+         setVisibility(VISIBLE); emptyView.setVisibility(GONE);
       }
    }
 
@@ -124,7 +125,7 @@ public final class ListView extends RecyclerView {
 
    public static abstract class Item<R extends Row> {
       final public  R        row;
-      final         long     rid;         // cached row.getOid()
+      final public  long     rid;         // cached row.getOid()
       final private String[] columns;
 
       @WorkerThread
@@ -199,6 +200,7 @@ public final class ListView extends RecyclerView {
          this.listView = activity.findView(ListView.class, listViewId);
          this.inflater = LayoutInflater.from(listView.getContext());
          this.layoutManager = new LinearLayoutManager(activity);
+         setHasStableIds(true);
          listView.setLayoutManager(layoutManager);
          listView.setAdapter(this);
          listView.setEmptyText(emptyStringId);
@@ -207,10 +209,9 @@ public final class ListView extends RecyclerView {
       @Override
       public final int getItemCount() { return list.size(); }
 
-      public final List<Long> getFilteredRids() {
-         ArrayList<Long> rids = new ArrayList<>(list.size());
-         for (I item : list) { rids.add(item.rid); }
-         return Collections.unmodifiableList(rids);
+      @Override
+      public final long getItemId(int position) {
+         return list.get(position).rid;
       }
 
       protected abstract VH createViewHolder(LayoutInflater inflater, ViewGroup parent);
@@ -230,9 +231,14 @@ public final class ListView extends RecyclerView {
       @Nullable
       private I selectedItem = null;
 
-      protected final void setSelection(@Nullable I dataItem) {
+      public final void setSelection(long rid) {
          int oldListPos = list.indexOf(selectedItem);
-         selectedItem = dataItem;
+         selectedItem = null;
+         for (I item : data) {
+            if (item.rid == rid) {
+               selectedItem = item; break;
+            }
+         }
          int newListPos = list.indexOf(selectedItem);
 
          if (oldListPos != newListPos) {
@@ -318,8 +324,9 @@ public final class ListView extends RecyclerView {
 
       private boolean firstRun = true;
 
-      public static final  int RELOAD_DATA = 0x1000000;
-      private static final int RELOAD_MASK = 0x0ffffff;
+      static final public  int RELOAD_DATA  = 0x0100_0000;
+      static final public  int SHOW_DELAYED = 0x0200_0000;
+      static final private int USER_FLAGS   = 0x00ff_ffff;
 
       @MainThread
       protected abstract void onUpdated(int flags, @Nullable List<I> data);
@@ -333,8 +340,8 @@ public final class ListView extends RecyclerView {
                   long start = SystemClock.uptimeMillis();
                   if ((flags & RELOAD_DATA) == RELOAD_DATA) { reloadData(); }
                   calculateModifications(filter);
-                  if (firstRun) {          // on first run, display the ProgressBar for at least 800 ms
-                     long sleep = start + 800 - SystemClock.uptimeMillis();
+                  if (firstRun || (flags & SHOW_DELAYED) == SHOW_DELAYED) {
+                     long sleep = start + 1000 - SystemClock.uptimeMillis();
                      if (sleep >= 10) { SystemClock.sleep(sleep); }
                      firstRun = false;
                   }
@@ -350,7 +357,7 @@ public final class ListView extends RecyclerView {
                   for (Adapter.Mod mod : mods) {
                      offset = mod.apply(offset);
                   }
-                  if (!list.isEmpty() && list.get(0) instanceof SearchableItem) {
+                  if (list.isEmpty() || list.get(0) instanceof SearchableItem) {
                      // searchString changed, so redraw complete list after 500 ms (after mods are applied)
                      new Handler().postDelayed(new Runnable() {
                         @Override
@@ -359,7 +366,7 @@ public final class ListView extends RecyclerView {
                   }
                   mods = null;      // let the GC do it's work
 
-                  onUpdated(flags & RELOAD_MASK, Collections.unmodifiableList(data));
+                  onUpdated(flags & USER_FLAGS, Collections.unmodifiableList(data));
                   executeNext();
                }
             }

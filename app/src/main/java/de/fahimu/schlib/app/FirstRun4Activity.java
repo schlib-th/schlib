@@ -101,14 +101,14 @@ public final class FirstRun4Activity extends SchlibActivity {
 
       @Override
       protected void onUpdated(int flags, List<BookItem> data) {
-         BookItem selection = null;
+         long rid = -1;
          for (BookItem item : data) {
             if (item.row.hasNoScanId()) {
-               selection = item; break;
+               rid = item.rid; break;
             }
          }
-         setSelection(selection);
-         if (selection == null) {
+         setSelection(rid);
+         if (rid == -1) {
             showInfoSnackbar(R.string.first_run_4_empty);
          }
       }

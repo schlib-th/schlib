@@ -18,8 +18,8 @@ public final class ISBN {
 
    public static final int LENGTH = 13;
 
-   public static final long MIN = 9780000000000L;
-   public static final long MAX = 9799999999999L;
+   public static final long MIN = 9_780000_000000L;
+   public static final long MAX = 9_799999_999999L;
 
    private final long value;
 

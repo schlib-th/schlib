@@ -267,6 +267,8 @@
     <string name="snackbar_info_idcard_deleted">%1$s Ausweise verworfen (%2$s sind noch erstellt).</string>
     <string name="snackbar_info_idcard_deleted_last">Alle erstellten Ausweise verworfen.</string>
 
+    <string name="snackbar_undo_action">Rückgängig machen</string>
+
     <!-- Dialog -->
 
     <string name="dialog_message_idcard_used">
@@ -471,6 +473,8 @@
     <string name="row_book_first_run_4_action_undo">Zuweisung widerrufen</string>
     <string name="row_book_first_run_4_action_delete">Buch löschen</string>
 
+    <string name="row_book_stocktaking_action_delete">Buch als fehlend markieren</string>
+
     <string name="row_lending_action_delete">Ausleihe stornieren</string>
 
     <string name="row_page_text">"%1$s - Seite %2$d"</string>
@@ -506,9 +510,9 @@
 
     <!-- RegisterPrintsActivity -->
 
-    <string name="register_prints_label">PDF-Dateien schreiben und Ausdrucke registrieren</string>
+    <string name="register_prints_label">Ausweise und Etiketten erstellen und registrieren</string>
     <string name="register_prints_writing_pdf">
-        Die PDF-Dateien werden geschrieben …
+        Ausweise und Etiketten werden als PDF-Dateien erstellt …
         \n(noch %1$d Seiten)
     </string>
     <string name="register_prints_writing_done">
@@ -520,15 +524,15 @@
         \nZum Ausdrucken der Ausweiskarten (85 x 54 mm, 10 Stück je DIN A4 Seite) empfehlen sich Visitenkarten
         von Zweckform (Artikelnummer C32010), Klebeetiketten im benötigten Format (70 x 36 mm, 24 Stück je DIN A4
         Seite) gibt es u. a. von Herma (No. 10905).\n
-        \nUm eine Seite Ihrer Ausdrucke zu registrieren genügt es, wenn Sie einen beliebigen Barcode auf dieser
-        Seite scannen. Die anderen Barcodes auf dieser Seite sind dann automatisch auch registriert.
+        \nUm die Ausweise und Etiketten auf einer Seite zu registrieren genügt es, einen beliebigen Barcode auf dieser
+        Seite zu scannen. Die anderen Ausweise und Etiketten auf dieser Seite sind dann automatisch auch registriert.
     </string>
 
     <string name="register_prints_ok">Die Seite wurde registriert.</string>
     <string name="register_prints_error_invalid">Der gescannte Barcode ist ungültig!</string>
     <string name="register_prints_info_not_printed">Der gescannte Barcode wurde bereits registriert.</string>
-    <string name="register_prints_empty">Alle Ausdrucke sind registriert</string>
-    <string name="register_prints_write_again">PDF-Dateien nochmals ins Austauschverzeichnis schreiben</string>
+    <string name="register_prints_empty">Alle Ausweise und Etiketten sind registriert</string>
+    <string name="register_prints_write_again">Ausweise und Etiketten nochmals erstellen</string>
 
     <!-- FirstRun3Activity -->
 
@@ -857,6 +861,10 @@
         \nAndernfalls können Sie die verbliebenen Ausweise mit dem Papierkorb als ausgesondert markieren.
     </string>
     <string name="stocktaking_idcards_empty">Alle Ausweiskarten erfasst</string>
+    <string name="stocktaking_idcards_snackbar_info_scanned">Ausweiskarte %1$s erfasst.</string>
+    <string name="stocktaking_idcards_snackbar_info_already_scanned">Ausweiskarte %1$s wurde bereits erfasst.</string>
+    <string name="stocktaking_idcards_snackbar_undo_lost">Ausweiskarte %1$s ausgesondert.</string>
+    <string name="stocktaking_idcards_snackbar_info_stocked">Ausweiskarte %1$s wieder im Vorrat.</string>
 
     <!-- StocktakingLabelsActivity -->
 
@@ -870,6 +878,10 @@
         \nAndernfalls können Sie die verbliebenen Etiketten mit dem Papierkorb als ausgesondert markieren.
     </string>
     <string name="stocktaking_labels_empty">Alle Klebeetiketten erfasst</string>
+    <string name="stocktaking_labels_snackbar_info_scanned">Klebeetikett %1$s erfasst.</string>
+    <string name="stocktaking_labels_snackbar_info_already_scanned">Klebeetikett %1$s wurde bereits erfasst.</string>
+    <string name="stocktaking_labels_snackbar_undo_lost">Klebeetikett %1$s ausgesondert.</string>
+    <string name="stocktaking_labels_snackbar_info_stocked">Klebeetikett %1$s wieder im Vorrat.</string>
 
     <!-- StocktakingUsersActivity -->
 
@@ -886,12 +898,27 @@
     <string name="stocktaking_users_empty">Alle Schülerkonten gelöscht</string>
     <string name="stocktaking_users_snackbar_error_no_pupil">Dieser Ausweis ist dem %1$s zugewiesen!</string>
     <string name="stocktaking_users_snackbar_info_deleted">Konto von %1$s gelöscht.</string>
-    <string name="stocktaking_users_snackbar_info_stocked">Dieser Ausweis war bereits im Vorrat.</string>
+    <string name="stocktaking_users_snackbar_info_stocked">Dieser Ausweis ist bereits im Vorrat.</string>
     <string name="stocktaking_users_snackbar_info_deleted_lost">Konto gelöscht und Ausweis ausgesondert.</string>
 
     <!-- StocktakingBooksActivity -->
 
     <string name="stocktaking_books_label">Bücherbestand-Inventur</string>
+    <string name="stocktaking_books_explanation">
+        Sie können jetzt überprüfen, ob Ihr Bestand an Büchern
+        mit den Angaben in der Bücherei-Verwaltung übereinstimmt.\n
+        \nWählen Sie zuerst die Kategorie aus und scannen Sie dann alle Bücher der gewählten Kategorie,
+        die sich zur Zeit im Regal befinden. Jedes erfasste Buch wird aus der Liste rechts gelöscht.\n
+        \nNachdem alle Bücher gescannt wurden, sollte die Liste rechts leer sein.\n
+        \nAndernfalls können Sie die verbliebenen Bücher mit dem Papierkorb als fehlend markieren.
+    </string>
+    <string name="stocktaking_books_empty">Alle Bücher erfasst</string>
+    <string name="stocktaking_books_snackbar_error_not_found">Dieses Buch ist nicht im Bestand!</string>
+    <string name="stocktaking_books_snackbar_error_wrong_shelf">Dieses Buch gehört zur Kategorie \"%1$s\"!</string>
+    <string name="stocktaking_books_snackbar_info_scanned">Buch \"%1$s\" erfasst.</string>
+    <string name="stocktaking_books_snackbar_info_already_scanned">Buch \"%1$s\" wurde bereits erfasst.</string>
+    <string name="stocktaking_books_snackbar_undo_book_vanished">Buch \"%1$s\" als fehlend markiert.</string>
+    <string name="stocktaking_books_snackbar_info_book_restored">Buch \"%1$s\" wiederhergestellt.</string>
 
     <!-- ======================================================================================================== -->
 
@@ -914,7 +941,7 @@
     <string name="admin_lendings_action_filter_delay_07">Ausleihen mit mindestens 7 Tagen Verzug anzeigen</string>
     <string name="admin_lendings_action_filter_no_delay">Alle offenen Ausleihen anzeigen</string>
 
-    <string name="admin_lendings_empty">Keine Ausleihen</string>
+    <string name="admin_lendings_empty">Keine offenen Ausleihen</string>
 
     <string name="admin_lendings_print_list_0">Mahnliste erstellen</string>
     <string name="admin_lendings_print_list_1">Mahnliste mit 1 Ausleihe erstellen</string>
@@ -922,8 +949,7 @@
     <string name="admin_lendings_print_duns_0">Mahnschreiben erstellen</string>
     <string name="admin_lendings_print_duns_n">%1$d Mahnschreiben erstellen</string>
 
-    <string name="admin_lendings_snackbar_undo_lending_canceled">Ausleihe storniert und Buch ausgesondert.</string>
-    <string name="admin_lendings_snackbar_undo_action_restore">Rückgängig machen</string>
+    <string name="admin_lendings_snackbar_undo_lending_canceled">Ausleihe storniert, Buch als fehlend markiert.</string>
     <string name="admin_lendings_snackbar_info_lending_restored">Ausleihe und Buch wiederhergestellt.</string>
 
 </resources>

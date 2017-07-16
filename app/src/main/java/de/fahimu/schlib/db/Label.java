@@ -158,6 +158,18 @@ public final class Label extends Serial {
    }
 
    /**
+    * Returns a list of all stocked labels, ordered by {@code _id}.
+    *
+    * @return a list of all stocked labels, ordered by {@code _id}.
+    */
+   @NonNull
+   public static ArrayList<Label> getStocked() {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         return getStocked(Label.class, JOINED_TABLE, JOIN_COLUMNS, Book.BID);
+      }
+   }
+
+   /**
     * Returns a ascending ordered list of all page numbers in table {@code labels}.
     * <p> Called before registering 'Printed' PDF documents ({@link de.fahimu.schlib.app.RegisterPrintsActivity}). </p>
     *

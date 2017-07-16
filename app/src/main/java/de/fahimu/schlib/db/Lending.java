@@ -35,7 +35,7 @@ import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
  */
 public final class Lending extends Row {
 
-   static final private String TAB      = "lendings";
+   static final         String TAB      = "lendings";
    static final private String TAB_OPD  = "opening_dates";
    static final private String VIEW_LOC = "lendings_loc";
    static final private String VIEW_DEL = "lendings_loc_delay";
@@ -45,7 +45,7 @@ public final class Lending extends Row {
    static final private String UID    = "uid";
    static final private String ISSUE  = "issue";
    static final private String DUN    = "dun";
-   static final private String RETURN = "return";
+   static final         String RETURN = "return";
    static final private String TERM   = "term";
    static final private String DELAY  = "delay";
 

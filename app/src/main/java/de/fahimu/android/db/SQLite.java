@@ -25,7 +25,7 @@ import de.fahimu.android.app.Log;
  */
 public final class SQLite {
 
-   public static final long MIN_TSTAMP = 1000000000L;       // '2001-09-09 01:46:40' UTC
+   public static final long MIN_TSTAMP = 1_000_000_000L;       // '2001-09-09 01:46:40' UTC
 
    /* ============================================================================================================== */
 

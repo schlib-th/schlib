@@ -298,7 +298,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
       lending.setCanceled(canceled).update();
       lending.getBook().setVanished(canceled).update();
       lendingsAdapter.updateAsync(Adapter.RELOAD_DATA, new LendingItemFilter());
-      showUndoSnackbar(App.getStr(R.string.admin_lendings_snackbar_undo_action_restore), new OnClickListener() {
+      showUndoSnackbar(App.getStr(R.string.snackbar_undo_action), new OnClickListener() {
          @Override
          public void onClick(View v) { restore(lending); }
       }, R.string.admin_lendings_snackbar_undo_lending_canceled);
@@ -313,10 +313,18 @@ public final class AdminLendingsActivity extends SchlibActivity {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
+   private List<Long> getFilteredRids() {
+      int size = lendingsAdapter.getItemCount();
+      ArrayList<Long> rids = new ArrayList<>(size);
+      for (int pos = 0; pos < size; pos++) {
+         rids.add(lendingsAdapter.getItemId(pos));
+      }
+      return rids;
+   }
+
    public void onPrintListClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         List<Long> rids = lendingsAdapter.getFilteredRids();
-         printDocument(new Reminder(rids), 0,
+         printDocument(new Reminder(getFilteredRids()), 0,
                R.string.dialog_message_admin_lendings_printing_list,
                R.string.dialog_button1_admin_lendings_printing_list,
                new ButtonListener() {
@@ -328,7 +336,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
 
    public void onPrintDunsClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         List<Long> rids = lendingsAdapter.getFilteredRids();
+         List<Long> rids = getFilteredRids();
          Lending.resetDunned(); Lending.setDunned(rids);
          lendingsAdapter.updateAsync(Adapter.RELOAD_DATA, new LendingItemFilter());
 

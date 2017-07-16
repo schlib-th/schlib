@@ -355,6 +355,22 @@ public final class Book extends Row {
       return SQLite.get(Book.class, TAB, TAB_COLUMNS, null, SHELF + ", " + NUMBER, null);
    }
 
+   /**
+    * Returns a list of all non-vanished and non-issued books, ordered by {@code shelf} and {@code number}.
+    *
+    * @return a list of all non-vanished and non-issued books, ordered by {@code shelf} and {@code number}.
+    */
+   @NonNull
+   public static ArrayList<Book> getNonVanishedNonIssued() {
+      // SELECT _id, bid, title, shelf, number, vanished FROM books
+      //    WHERE vanished ISNULL AND bid NOT IN (SELECT bid FROM lendings WHERE return ISNULL)
+      //    ORDER BY shelf, number ;
+      Values columns = new Values(SQLite.alias(TAB, OID), BID, TITLE, SHELF, NUMBER, VANISHED);
+      String where = App.format("%s ISNULL AND %s NOT IN (SELECT %s FROM %s WHERE %s ISNULL)",
+            VANISHED, BID, BID, Lending.TAB, Lending.RETURN);
+      return SQLite.get(Book.class, TAB, columns, null, SHELF + ", " + NUMBER, where);
+   }
+
    /* ============================================================================================================== */
 
    @NonNull

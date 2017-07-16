@@ -265,6 +265,26 @@ public abstract class Serial extends Row {
    }
 
    /**
+    * Returns a list of all stocked serials in the specified {@code table}, ordered by {@code _id}.
+    *
+    * @param cls
+    *       either {@link Idcard} or {@link Label}.
+    * @param table
+    *       the table name (left join).
+    * @param columns
+    *       the column names.
+    * @param uidOrBid
+    *       either {@link User#UID} or {@link Book#BID}.
+    * @return a list of all stocked serials in the specified {@code table}, ordered by {@code _id}.
+    */
+   @NonNull
+   static <S extends Serial> ArrayList<S> getStocked(Class<S> cls, String table, Values columns, String uidOrBid) {
+      // SELECT $columns FROM $table WHERE page ISNULL AND lost ISNULL AND $uidOrBid ISNULL ORDER BY _id ;
+      String where = App.format("%s ISNULL AND %s ISNULL AND %s ISNULL", PAGE, LOST, uidOrBid);
+      return SQLite.get(cls, table, columns, null, OID, where);
+   }
+
+   /**
     * Returns a ascending ordered list of all page numbers in the specified {@code table}.
     * <p> Called before registering 'Printed' PDF documents ({@link de.fahimu.schlib.app.RegisterPrintsActivity}). </p>
     *

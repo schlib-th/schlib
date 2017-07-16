@@ -158,6 +158,18 @@ public final class Idcard extends Serial {
    }
 
    /**
+    * Returns a list of all stocked idcards, ordered by {@code _id}.
+    *
+    * @return a list of all stocked idcards, ordered by {@code _id}.
+    */
+   @NonNull
+   public static ArrayList<Idcard> getStocked() {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         return getStocked(Idcard.class, JOINED_TABLE, JOIN_COLUMNS, User.UID);
+      }
+   }
+
+   /**
     * Returns a ascending ordered list of all page numbers in table {@code idcards}.
     * <p> Called before registering 'Printed' PDF documents ({@link de.fahimu.schlib.app.RegisterPrintsActivity}). </p>
     *

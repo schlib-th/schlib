@@ -41,7 +41,7 @@ public final class StocktakingIdcardsActivity extends StocktakingSerialsActivity
 
    @Override
    @WorkerThread
-   ArrayList<Idcard> loadData() { return Idcard.get(); }
+   ArrayList<Idcard> loadData() { return Idcard.getStocked(); }
 
    @Override
    Idcard getSerial(String barcode) { return Idcard.parse(barcode); }
@@ -50,7 +50,11 @@ public final class StocktakingIdcardsActivity extends StocktakingSerialsActivity
    private static final int[] SNACKBAR_IDS = {
          R.string.snackbar_error_not_a_idcard,
          R.string.snackbar_info_idcard_was_lost,
-         R.string.snackbar_info_idcard_registered
+         R.string.snackbar_info_idcard_registered,
+         R.string.stocktaking_idcards_snackbar_info_scanned,
+         R.string.stocktaking_idcards_snackbar_info_already_scanned,
+         R.string.stocktaking_idcards_snackbar_undo_lost,
+         R.string.stocktaking_idcards_snackbar_info_stocked
    };
 
    @Override
