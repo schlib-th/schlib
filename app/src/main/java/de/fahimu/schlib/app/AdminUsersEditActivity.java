@@ -32,13 +32,13 @@ public final class AdminUsersEditActivity extends SchlibActivity {
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      user = User.getNonNull(getIntent().getLongExtra("uid", -1L));
    }
 
    @Override
    protected void onResume() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onResume();
+         user = User.getNonNull(getIntent().getLongExtra("uid", -1L));
          scope.d("user=" + user.getDisplay());
       }
    }

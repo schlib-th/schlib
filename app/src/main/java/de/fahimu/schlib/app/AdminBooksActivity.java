@@ -235,7 +235,7 @@ public final class AdminBooksActivity extends SchlibActivity {
 
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         long bid = booksAdapter.getItemByView(view).row.getBid();
+         long bid = booksAdapter.getRowByView(view).getBid();
          // TODO startActivity(new Intent(this, AdminBooksEditActivity.class).putExtra("bid", bid));
       }
    }

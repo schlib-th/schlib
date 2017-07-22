@@ -51,13 +51,11 @@ public final class Preference extends Row {
    }
 
    static void upgrade(SQLiteDatabase db, int oldVersion) {
-      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         if (oldVersion < 2) {
-            upgradeTablePreferencesV2(db);
-            // Mandatory entry 'opened' and view 'opened' introduced with version 2
-            insertOpened(db);
-            createViewOpened(db);
-         }
+      if (oldVersion < 2) {
+         upgradeTablePreferencesV2(db);
+         // Mandatory entry 'opened' and view 'opened' introduced with version 2
+         insertOpened(db);
+         createViewOpened(db);
       }
    }
 

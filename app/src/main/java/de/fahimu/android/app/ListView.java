@@ -207,7 +207,9 @@ public final class ListView extends RecyclerView {
       }
 
       @Override
-      public final int getItemCount() { return list.size(); }
+      public final int getItemCount() {
+         return list.size();
+      }
 
       @Override
       public final long getItemId(int position) {
@@ -251,25 +253,27 @@ public final class ListView extends RecyclerView {
       }
 
       @Nullable
-      public final I getSelectedItem() { return selectedItem; }
+      public final R getSelectedRow() {
+         return selectedItem == null ? null : selectedItem.row;
+      }
 
       /**
-       * Returns the {@code Item} from list, currently displayed by the specified {@code view}s parent.
+       * Returns the {@code Row} from the list, currently displayed by the specified {@code view}s parent.
        * The {@link View#getParent() parent} of the view must be the view hierarchy inflated by
        * {@link #onCreateViewHolder(ViewGroup, int) onCreateViewHolder}, and its parent in turn must be
        * the {@link #listView}.
        *
        * @param view
        *       the view to search for.
-       * @return the {@code Item} from list, currently displayed by the specified {@code view}s parent.
+       * @return the {@code Row} from the list, currently displayed by the specified {@code view}s parent.
        */
       @NonNull
-      public final I getItemByView(@NonNull View view) {
-         return list.get(layoutManager.getPosition((View) view.getParent()));
+      public final R getRowByView(@NonNull View view) {
+         return list.get(layoutManager.getPosition((View) view.getParent())).row;
       }
 
-      public void setData(@NonNull I listItem) {
-         data.set(dIdx.get(listItem.rid), createItem(listItem.row));
+      public void setData(@NonNull R row) {
+         data.set(dIdx.get(row.getOid()), createItem(row));
       }
 
       /* ----------------------------------------------------------------------------------------------------------- */

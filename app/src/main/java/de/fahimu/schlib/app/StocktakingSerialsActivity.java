@@ -192,7 +192,7 @@ abstract class StocktakingSerialsActivity<S extends Serial> extends SchlibActivi
    /* -------------------------------------------------------------------------------------------------------------- */
 
    public void onListItemClicked(@NonNull View view) {
-      final S serial = serialsAdapter.getItemByView(view).row;
+      final S serial = serialsAdapter.getRowByView(view);
       serial.setLost(true).update();
       serialsAdapter.updateAsync(RELOAD_DATA, new SerialItemFilter());
       showUndoSnackbar(App.getStr(R.string.snackbar_undo_action), new OnClickListener() {

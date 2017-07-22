@@ -95,7 +95,7 @@
         android:layout_gravity="center_vertical"
         android:contentDescription="@string/row_book_first_run_4_action_delete"
         android:onClick="onListItemClicked"
-        android:scaleType="fitXY"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_delete_black_24dp" />
 
 </LinearLayout>

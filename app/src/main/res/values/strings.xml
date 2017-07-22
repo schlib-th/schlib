@@ -18,8 +18,8 @@
     <!-- App.formatDate -->
 
     <string name="app_time">"HH':'mm"</string>
-    <string name="app_date">"dd'.'MM'.'yyyy"</string>
-    <string name="app_month">"MM'/'yyyy"</string>
+    <string name="app_date">"dd'.'MM'.'HHmm"</string>   <!-- "dd'.'MM'.'yyyy" -->
+    <string name="app_month">"MM'/'HHmm"</string>       <!-- "MM'/'yyyy" -->
 
     <!-- CSVParser -->
 
@@ -52,6 +52,8 @@
     <string name="user_display_admin">Verwalter \"%1$s %2$s\"</string>
     <string name="user_display_tutor">Mitarbeiter \"%1$s %2$s\"</string>
     <string name="user_display_pupil">Schüler #%1$02d der Klasse %2$s (%3$s)</string>
+    <string name="user_display_idcard_n_a">n.&#x00a0;v.</string>
+    <string name="user_display_has_books">hat Bücher</string>
 
     <!-- Book -->
 
@@ -417,27 +419,30 @@
     <string name="dialog_button0_admin_books_add_step_3_inconsistent_isbn">Ich habe die falsche ISBN gescannt</string>
     <string name="dialog_button1_admin_books_add_step_3_inconsistent_isbn">ISBN und Titel passen</string>
 
-    <string name="dialog_message_stocktaking_users_book_issued">
-        Konto kann nicht gelöscht werden!
-        \n%1$s hat das Buch %2$s noch nicht zurückgegeben.\n
-        \nDas Konto kann erst gelöscht werden, nachdem alle Bücher zurückgegeben wurden.
-    </string>
-    <string name="dialog_message_stocktaking_users_books_issued">
-        Konto kann nicht gelöscht werden!
-        \n%1$s hat noch %3$d Bücher ausgeliehen, u. a. %2$s.\n
-        \nDas Konto kann erst gelöscht werden, nachdem alle Bücher zurückgegeben wurden.
-    </string>
-    <string name="dialog_message_stocktaking_users_confirmation_scanned">
-        Schülerkonto löschen?
+    <string name="dialog_message_stocktaking_users_scanned">
+        Konto löschen?
         \nWollen Sie wirklich das Konto von %1$s löschen? Sie können diese Aktion nicht widerrufen.\n
-        \nBitte beachten: Weitere Schülerkonten werden OHNE erneute Rückfrage gelöscht!
+        \nACHTUNG: Weitere Konten werden OHNE erneute Rückfrage gelöscht!
     </string>
-    <string name="dialog_message_stocktaking_users_confirmation_clicked">
-        Schülerkonto löschen?
-        \nWollen Sie das Konto wirklich löschen? Sie können diese Aktion nicht widerrufen.
+    <string name="dialog_message_stocktaking_users_clicked_lost">
+        Ausweis für verloren erklären?
+        \nWollen Sie wirklich den Ausweis von %1$s für verloren erklären? Sie können diese Aktion nicht widerrufen.
     </string>
-    <string name="dialog_button0_stocktaking_users_confirmation">Nein, bitte nicht löschen</string>
-    <string name="dialog_button1_stocktaking_users_confirmation">Konto löschen</string>
+    <string name="dialog_message_stocktaking_users_clicked_lost_deleted">
+        Konto löschen und Ausweis für verloren erklären?
+        \nWollen Sie wirklich das Konto von %1$s löschen und seinen Ausweis für verloren erklären?
+        Sie können diese Aktion nicht widerrufen.
+    </string>
+    <string name="dialog_message_stocktaking_users_clicked_deleted">
+        Konto löschen?
+        \nWollen Sie wirklich das Konto von %1$s löschen? Sie können diese Aktion nicht widerrufen.
+    </string>
+    <string name="dialog_message_stocktaking_users_printing_list">
+        Mahnliste wird erstellt.
+        \nBitte haben Sie einen Moment Geduld.
+    </string>
+    <string name="dialog_button1_stocktaking_users_printing_init">Seite 1 …</string>
+    <string name="dialog_button1_stocktaking_users_printing_list">Seite %1$d …</string>
 
     <string name="dialog_message_admin_lendings_delete">
         Ersatzleistung für Storno prüfen!
@@ -484,7 +489,8 @@
     <string name="row_serial_action_restore">Aussondern widerrufen</string>
 
     <string name="row_user_action_info">Informationen anzeigen</string>
-    <string name="row_user_action_delete">Konto löschen</string>
+
+    <string name="row_user_stocktaking_action_delete">Schülerkonto löschen</string>
 
     <!-- ======================================================================================================== -->
 
@@ -575,7 +581,7 @@
         Bitte melden Sie sich an, indem Sie den Barcode Ihrer Ausweiskarte scannen.
     </string>
 
-    <string name="login_message_1_lost">Dieser Ausweis wurde als verloren gemeldet!</string>
+    <string name="login_message_1_lost">Dieser Ausweis wurde für verloren erklärt!</string>
     <string name="login_message_1_printed">Dieser Ausweis darf noch nicht verwendet werden!</string>
     <string name="login_message_1_stocked">Dieser Ausweis ist keinem Nutzer zugewiesen!</string>
     <string name="login_message_2_please_return_idcard">
@@ -896,10 +902,18 @@
         zugehörige Konto mit dem Papierkorb löschen, der Ausweis wird dann als ausgesondert markiert.
     </string>
     <string name="stocktaking_users_empty">Alle Schülerkonten gelöscht</string>
+
+    <string name="stocktaking_users_print_list_0">Mahnliste erstellen</string>
+    <string name="stocktaking_users_print_list_1">Mahnliste für den fehlenden Ausweis erstellen</string>
+    <string name="stocktaking_users_print_list_n">Mahnliste für die %1$d fehlenden Ausweise erstellen</string>
+
     <string name="stocktaking_users_snackbar_error_no_pupil">Dieser Ausweis ist dem %1$s zugewiesen!</string>
-    <string name="stocktaking_users_snackbar_info_deleted">Konto von %1$s gelöscht.</string>
-    <string name="stocktaking_users_snackbar_info_stocked">Dieser Ausweis ist bereits im Vorrat.</string>
-    <string name="stocktaking_users_snackbar_info_deleted_lost">Konto gelöscht und Ausweis ausgesondert.</string>
+    <string name="stocktaking_users_snackbar_info_stocked_already">Dieser Ausweis ist bereits im Vorrat.</string>
+    <string name="stocktaking_users_snackbar_info_stocked">Ausweiskarte %1$s wieder im Vorrat.</string>
+    <string name="stocktaking_users_snackbar_info_deleted_stocked">Konto von %1$s gelöscht, Ausweis im Vorrat.</string>
+    <string name="stocktaking_users_snackbar_info_lost">Ausweis für verloren erklärt.</string>
+    <string name="stocktaking_users_snackbar_info_lost_deleted">Konto gelöscht, Ausweis für verloren erklärt.</string>
+    <string name="stocktaking_users_snackbar_info_deleted">Konto gelöscht.</string>
 
     <!-- StocktakingBooksActivity -->
 

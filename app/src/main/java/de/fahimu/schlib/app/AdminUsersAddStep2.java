@@ -102,10 +102,10 @@ public final class AdminUsersAddStep2 extends StepFragment<AdminUsersAddActivity
                NoFocusDialog dialog = new NoFocusDialog(activity);
                dialog.setMessage(R.string.dialog_message_idcard_used, User.getNonNull(idcard.getUid()).getDisplay());
                dialog.show(R.raw.horn);
-            } else if (activity.scanned.contains(idcard.getId())) {
+            } else if (activity.scanned.contains(idcard)) {
                activity.showInfoSnackbar(R.string.admin_users_add_step_2_snackbar_info_scanned);
             } else {
-               activity.scanned.add((lastScanned = idcard).getId());
+               activity.scanned.add(lastScanned = idcard);
                if (activity.getRemaining() == 0) {
                   App.playSound(R.raw.bell);
                }

@@ -119,7 +119,7 @@ public final class SQLite {
    }
 
    /**
-    * Executes the SQL statement {@code DROP [TABLE|INDEX|TRIGGER|VIEW] $names1_$names2;}.
+    * Executes the SQL statement {@code DROP [TABLE|INDEX|TRIGGER|VIEW] IF EXISTS $names1_$names2;}.
     *
     * @param db
     *       the database.
@@ -131,7 +131,7 @@ public final class SQLite {
     *       if an error occurred.
     */
    static void drop(SQLiteDatabase db, String what, String... names) {
-      execSQL(db, App.format("DROP %s %s;", what, catToString("_", names)));
+      execSQL(db, App.format("DROP %s IF EXISTS %s;", what, catToString("_", names)));
    }
 
    /**

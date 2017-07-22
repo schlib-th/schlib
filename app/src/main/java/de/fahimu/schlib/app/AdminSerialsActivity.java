@@ -340,12 +340,12 @@ abstract class AdminSerialsActivity<S extends Serial> extends SchlibActivity {
 
    public final void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         SerialItem item = serialsAdapter.getItemByView(view);
-         if (item.row.isUsed() || item.row.isPrinted()) {
-            showErrorDialog(item.row);
+         S serial = serialsAdapter.getRowByView(view);
+         if (serial.isUsed() || serial.isPrinted()) {
+            showErrorDialog(serial);
          } else {
-            item.row.setLost(!item.row.isLost()).update();           // toggle lost <-> stocked
-            serialsAdapter.setData(item);
+            serial.setLost(!serial.isLost()).update();           // toggle lost <-> stocked
+            serialsAdapter.setData(serial);
             serialsAdapter.updateAsync(DATA_WAS_CHANGED, new SerialItemFilter());
          }
       }

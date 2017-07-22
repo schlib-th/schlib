@@ -219,7 +219,7 @@ public final class StocktakingBooksActivity extends SchlibActivity implements On
    }
 
    public void onListItemClicked(@NonNull View view) {
-      final Book book = booksAdapter.getItemByView(view).row;
+      final Book book = booksAdapter.getRowByView(view);
       book.setVanished(App.posixTime()).update();
       booksAdapter.updateAsync(RELOAD_DATA, new BookItemFilter());
       showUndoSnackbar(App.getStr(R.string.snackbar_undo_action), new OnClickListener() {

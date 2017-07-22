@@ -25,11 +25,14 @@ import de.fahimu.android.db.Trigger;
 import de.fahimu.android.db.Trigger.Type;
 import de.fahimu.android.db.Values;
 import de.fahimu.android.db.View;
+import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.app.StocktakingUsersActivity;
 import de.fahimu.schlib.pdf.PupilList;
 
 import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
+import static de.fahimu.schlib.db.Lending.ISSUE;
+import static de.fahimu.schlib.db.Lending.RETURN;
 
 /**
  * A in-memory representation of one row of table {@code users}.
@@ -85,14 +88,15 @@ public final class User extends Row {
    }
 
    static void upgrade(SQLiteDatabase db, int oldVersion) {
-      if (oldVersion < 2) {
+      if (oldVersion < 3) {
          Trigger.drop(db, TAB, Type.AFTER_INSERT);
          Trigger.drop(db, TAB, Type.AFTER_UPDATE);
          Trigger.drop(db, TAB, Type.AFTER_DELETE);
 
-         upgradeTableUsersV2(db);
-         SQLite.delete(db, PREV, IDCARD + " ISNULL");      // null forbidden since V2
-         upgradeTablePrevUsersV2(db);
+         View.drop(db, VIEW);
+
+         upgradeTableUsers(db);
+         upgradeTablePrevUsers(db, oldVersion);
 
          createTrigger(db, Type.AFTER_INSERT);
          createTrigger(db, Type.AFTER_UPDATE);
@@ -114,7 +118,7 @@ public final class User extends Row {
       tab.addTextColumn(NAME1, true).addCheckLength(">=1");
       tab.addLongColumn(SERIAL, true).addCheckBetween(0, 99);
       tab.addLongColumn(NBOOKS, true).addCheckBetween(0, 99);
-      tab.addReferences(IDCARD, true).addUnique();
+      tab.addReferences(IDCARD, false).addUnique();
       tab.addConstraint().addUnique(NAME2, NAME1, SERIAL);
       tab.create(db);
    }
@@ -127,7 +131,7 @@ public final class User extends Row {
       prev.addTextColumn(NAME1, true).addCheckLength(">=1");
       prev.addLongColumn(SERIAL, true).addCheckBetween(0, 99);
       prev.addLongColumn(NBOOKS, true).addCheckBetween(0, 99);
-      prev.addReferences(IDCARD, true);
+      prev.addReferences(IDCARD, false);
       prev.addTimeColumn(TSTAMP, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();
       prev.create(db);
    }
@@ -156,18 +160,18 @@ public final class User extends Row {
       view.create(db);
    }
 
-   private static void upgradeTableUsersV2(SQLiteDatabase db) {
+   private static void upgradeTableUsers(SQLiteDatabase db) {
       Table.dropIndex(db, TAB, NAME1, NAME2, SERIAL, ROLE);
       SQLite.alterTablePrepare(db, TAB);
       createTableUsers(db);
       SQLite.alterTableExecute(db, TAB, OID, UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD);
    }
 
-   private static void upgradeTablePrevUsersV2(SQLiteDatabase db) {
+   private static void upgradeTablePrevUsers(SQLiteDatabase db, int oldVersion) {
       Table.dropIndex(db, PREV, UID);
       SQLite.alterTablePrepare(db, PREV);
       createTablePrevUsers(db);
-      String tstamp = SQLite.datetimeToPosix(TSTAMP);
+      String tstamp = oldVersion < 2 ? SQLite.datetimeToPosix(TSTAMP) : TSTAMP;
       SQLite.alterTableExecute(db, PREV, OID, UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD, tstamp);
    }
 
@@ -202,17 +206,17 @@ public final class User extends Row {
    /* ============================================================================================================== */
 
    @NonNull
-   public static User insertAdminOrTutor(Role role, String name2, String name1, int idcard) {
+   public static User insertAdminOrTutor(Role role, String name2, String name1, Idcard idcard) {
       if (role == Role.PUPIL) {
          throw new IllegalArgumentException("role PUPIL not allowed");
       }
       return insert(role, name2, name1, 0, 5, idcard);
    }
 
-   public static void insertPupils(String name2, String name1, @NonNull List<Integer> idcards) {
+   public static void insertPupils(String name2, String name1, @NonNull List<Idcard> idcards) {
       try (SQLite.Transaction transaction = new SQLite.Transaction()) {
          int serial = getNextAvailableSerial(name2, name1);
-         for (int idcard : idcards) {
+         for (Idcard idcard : idcards) {
             insert(Role.PUPIL, name2, name1, serial++, 1, idcard);
          }
          transaction.setSuccessful();
@@ -220,7 +224,7 @@ public final class User extends Row {
    }
 
    @NonNull
-   private static User insert(Role role, String name2, String name1, int serial, int nbooks, int idcard) {
+   private static User insert(Role role, String name2, String name1, int serial, int nbooks, Idcard idcard) {
       return new User().setRole(role).setName2(name2).setName1(name1).setSerial(serial)
             .setNbooks(nbooks).setIdcard(idcard).insert();
    }
@@ -283,15 +287,22 @@ public final class User extends Row {
 
    /**
     * Returns a list of all pupils, ordered by {@code name2}, {@code name1} and {@code serial}.
+    * An additional column {@link Lending#ISSUE} is added which is not null if any book is issued to this pupil.
     * <p> This method will be called to populate the list in {@link StocktakingUsersActivity}. </p>
     *
     * @return a list of all pupils, ordered by {@code name2}, {@code name1} and {@code serial}.
     */
    @NonNull
-   public static ArrayList<User> getPupils() {
-      // SELECT * FROM users WHERE role='pupil' ORDER BY name2, name1, serial ;
+   public static ArrayList<User> getPupilsForStocktaking() {
+      // SELECT users._id AS _id, users.uid AS uid, role, name2, name1, serial, nbooks, idcard, issue
+      //    FROM users LEFT JOIN lendings ON users.uid=lendings.uid AND return ISNULL
+      //    WHERE role='pupil' GROUP BY users.uid ORDER BY name2, name1, serial ;
+      Values columns = new Values(SQLite.alias(TAB, OID), SQLite.alias(TAB, UID),
+            ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD, ISSUE);
+      String table = App.format("%1$s LEFT JOIN %2$s ON %1$s.%3$s=%2$s.%3$s AND %4$s ISNULL",
+            TAB, Lending.TAB, UID, RETURN);
       String order = App.format("%s, %s, %s", NAME2, NAME1, SERIAL);
-      return SQLite.get(User.class, TAB, TAB_COLUMNS, null, order, ROLE + "=?", PUPIL);
+      return SQLite.get(User.class, table, columns, TAB + "." + UID, order, ROLE + "=?", PUPIL);
    }
 
    /**
@@ -470,13 +481,28 @@ public final class User extends Row {
       return (User) setLong(NBOOKS, nbooks);
    }
 
-   public int getIdcard() {
-      return values.getInt(IDCARD);
+   public boolean hasIdcard() {
+      return values.notNull(IDCARD);
+   }
+
+   /**
+    * Returns the {@code Idcard} number of this {@code User}.
+    * <p> Precondition: {@link #hasIdcard()} must be {@code true}. </p>
+    *
+    * @return the {@code Idcard} number of this {@code User}.
+    */
+   @NonNull
+   public Idcard getIdcard() {
+      return Idcard.getNonNull(values.getInt(IDCARD));
    }
 
    @NonNull
-   public User setIdcard(int idcard) {
-      return (User) setLong(IDCARD, idcard);
+   public User setIdcard(@Nullable Idcard idcard) {
+      return (User) (idcard == null ? setNull(IDCARD) : setLong(IDCARD, idcard.getId()));
+   }
+
+   public boolean hasBooks() {
+      return values.notNull(ISSUE);
    }
 
    public int getMinSerial() {
@@ -502,6 +528,26 @@ public final class User extends Row {
       } else {
          return App.getStr(R.string.user_display_admin, getName1(), getName2());
       }
+   }
+
+   @NonNull
+   public String getDisplaySerial() {
+      return App.format("%02d", getSerial());
+   }
+
+   @NonNull
+   public String getDisplayIdcard() {
+      return hasIdcard() ? SerialNumber.getDisplay(values.getInt(IDCARD)) :
+             App.getStr(R.string.user_display_idcard_n_a);
+   }
+
+   @NonNull
+   public String getDisplayMultilineIdcardIssued() {
+      StringBuilder b = new StringBuilder(getDisplayIdcard());
+      if (hasBooks()) {
+         b.append('\n').append(App.getStr(R.string.user_display_has_books));
+      }
+      return b.toString();
    }
 
 }

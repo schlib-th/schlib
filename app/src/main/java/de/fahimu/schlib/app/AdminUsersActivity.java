@@ -46,7 +46,7 @@ public final class AdminUsersActivity extends SchlibActivity {
 
    private final class UserItem extends SearchableItem<User> {
       UserItem(@NonNull User user) {
-         super(user, user.getDisplay(), SerialNumber.getDisplay(user.getIdcard()));
+         super(user, user.getDisplay(), user.getDisplayIdcard());
       }
    }
 
@@ -211,7 +211,7 @@ public final class AdminUsersActivity extends SchlibActivity {
 
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         long uid = usersAdapter.getItemByView(view).row.getUid();
+         long uid = usersAdapter.getRowByView(view).getUid();
          // TODO startActivity(new Intent(this, AdminUsersEditActivity.class).putExtra("uid", uid));
       }
    }

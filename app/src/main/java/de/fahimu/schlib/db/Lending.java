@@ -43,7 +43,7 @@ public final class Lending extends Row {
    static final private String OID    = BaseColumns._ID;
    static final private String BID    = "bid";
    static final private String UID    = "uid";
-   static final private String ISSUE  = "issue";
+   static final         String ISSUE  = "issue";
    static final private String DUN    = "dun";
    static final         String RETURN = "return";
    static final private String TERM   = "term";

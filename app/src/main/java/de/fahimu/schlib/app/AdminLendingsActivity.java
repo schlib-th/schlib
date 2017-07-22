@@ -57,7 +57,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
       LendingItem(@NonNull Lending lending) {
          super(lending,
                lending.getBook().getDisplayShelfNumber(),
-               SerialNumber.getDisplay(lending.getUser().getIdcard()),
+               lending.getUser().getDisplayIdcard(),
                lending.getBook().getTitle(), lending.getUser().getDisplay(),
                lending.getDisplayMultilineIssueDelayDun());
       }
@@ -280,7 +280,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
 
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         final Lending lending = lendingsAdapter.getItemByView(view).row;
+         final Lending lending = lendingsAdapter.getRowByView(view);
 
          NoFocusDialog dialog = new NoFocusDialog(this);
          dialog.setMessage(R.string.dialog_message_admin_lendings_delete,

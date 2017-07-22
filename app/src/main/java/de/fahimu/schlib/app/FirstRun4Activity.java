@@ -163,28 +163,28 @@ public final class FirstRun4Activity extends SchlibActivity {
    public final void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          bufferedISBN = null;
-         BookItem item = booksAdapter.getItemByView(view);
-         if (item.row.hasNoScanId()) {
-            showDialogDelete(item);
+         Book book = booksAdapter.getRowByView(view);
+         if (book.hasNoScanId()) {
+            showDialogDelete(book);
          } else {
-            if (item.row.hasLabel()) {
-               item.row.getLabel().setLost(true).update();
+            if (book.hasLabel()) {
+               book.getLabel().setLost(true).update();
             }
-            item.row.setISBN(null).setLabel(null).update();
-            booksAdapter.setData(item);
+            book.setISBN(null).setLabel(null).update();
+            booksAdapter.setData(book);
             booksAdapter.updateAsync(0);
          }
       }
    }
 
-   private void showDialogDelete(final BookItem item) {
+   private void showDialogDelete(final Book book) {
       NoFocusDialog dialog = new NoFocusDialog(this);
-      dialog.setMessage(R.string.dialog_message_first_run_4_delete_book, item.row.getDisplay());
+      dialog.setMessage(R.string.dialog_message_first_run_4_delete_book, book.getDisplay());
       dialog.setButton0(R.string.dialog_button0_first_run_4_delete_book, null);
       dialog.setButton1(R.string.dialog_button1_first_run_4_delete_book, new ButtonListener() {
          @Override
          public void onClick() {
-            item.row.delete();
+            book.delete();
             booksAdapter.updateAsync(Adapter.RELOAD_DATA);
          }
       }).show();
@@ -237,18 +237,18 @@ public final class FirstRun4Activity extends SchlibActivity {
    @Override
    public void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         BookItem item = booksAdapter.getSelectedItem();
-         if (item != null) {
+         Book book = booksAdapter.getSelectedRow();
+         if (book != null) {
             if (barcode.length() == ISBN.LENGTH) {
-               processISBN(item, barcode);
+               processISBN(book, barcode);
             } else {
-               processLabel(item, barcode);
+               processLabel(book, barcode);
             }
          }
       }
    }
 
-   private void processISBN(@NonNull BookItem item, String barcode) {
+   private void processISBN(@NonNull Book scannedBook, String barcode) {
       bufferedISBN = null;
       final ISBN isbn = ISBN.parse(barcode);
       if (isbn == null) {
@@ -256,7 +256,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       } else {
          Book book = Book.getIdentifiedByISBN(isbn);
          if (book == null) {
-            updateISBNLabel(item, isbn, null);
+            updateISBNLabel(scannedBook, isbn, null);
          } else {
             NoFocusDialog dialog = new NoFocusDialog(this);
             dialog.setMessage(R.string.dialog_message_first_run_4_isbn_used, book.getDisplay());
@@ -281,7 +281,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       showInfoSnackbar(R.string.first_run_4_snackbar_info_isbn_discarded);
    }
 
-   private void processLabel(@NonNull BookItem item, String barcode) {
+   private void processLabel(@NonNull Book scannedBook, String barcode) {
       Label label = Label.parse(barcode);
       if (label == null) {
          showErrorSnackbar(R.string.snackbar_error_not_a_label);
@@ -299,27 +299,27 @@ public final class FirstRun4Activity extends SchlibActivity {
             showInfoSnackbar(R.string.snackbar_info_label_registered);
          }
          if (bufferedISBN == null) {
-            showDialogNoISBN(item, label);
+            showDialogNoISBN(scannedBook, label);
          } else {
-            updateISBNLabel(item, bufferedISBN, label);
+            updateISBNLabel(scannedBook, bufferedISBN, label);
          }
       }
       bufferedISBN = null;
    }
 
-   private void showDialogNoISBN(@NonNull final BookItem item, @NonNull final Label label) {
+   private void showDialogNoISBN(@NonNull final Book book, @NonNull final Label label) {
       NoFocusDialog dialog = new NoFocusDialog(this);
       dialog.setMessage(R.string.dialog_message_first_run_4_no_isbn);
       dialog.setButton0(R.string.dialog_button0_first_run_4_no_isbn, null);
       dialog.setButton1(R.string.dialog_button1_first_run_4_no_isbn, new ButtonListener() {
          @Override
-         public void onClick() { updateISBNLabel(item, null, label); }
+         public void onClick() { updateISBNLabel(book, null, label); }
       }).show(R.raw.horn);
    }
 
-   private void updateISBNLabel(@NonNull BookItem item, @Nullable ISBN isbn, @Nullable Label label) {
-      item.row.setISBN(isbn).setLabel(label).update();
-      booksAdapter.setData(item);
+   private void updateISBNLabel(@NonNull Book book, @Nullable ISBN isbn, @Nullable Label label) {
+      book.setISBN(isbn).setLabel(label).update();
+      booksAdapter.setData(book);
       booksAdapter.updateAsync(0);
    }
 

@@ -15,7 +15,6 @@ import java.util.List;
 
 import de.fahimu.android.app.App;
 import de.fahimu.android.app.Log;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Lending;
@@ -125,7 +124,7 @@ public final class DunningLetters extends TextDocument {
                   add(signatureLine).add(new EmptyLine(18));
 
                   text = App.getStr(R.string.pdf_dunning_letters_receipt_bottom_line,
-                        user.getDisplay(), SerialNumber.getDisplay(user.getIdcard()));
+                        user.getDisplay(), user.getDisplayIdcard());
                   add(new SingleLine(0.75, 8, 10, CENTER, text));
                } else {
                   addText(lending, 8, 10, 12, R.string.pdf_dunning_letters_text_2_delayed_tutor);

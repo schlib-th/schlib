@@ -28,7 +28,6 @@ import java.util.List;
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.SmartAnimator;
 import de.fahimu.schlib.anw.ISBN;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.Label;
@@ -208,8 +207,7 @@ public final class TutorActivity extends SchlibActivity {
 
       User user = Use.getLoggedInNonNull().getUser();
       TextView loggedIn = findView(TextView.class, R.id.tutor_logged_in);
-      loggedIn.setText(App.getStr(R.string.tutor_logged_in,
-            user.getDisplay(), SerialNumber.getDisplay(user.getIdcard())));
+      loggedIn.setText(App.getStr(R.string.tutor_logged_in, user.getDisplay(), user.getDisplayIdcard()));
 
       scan = findView(View.class, R.id.tutor_scan);
       item0 = findView(View.class, R.id.tutor_item_0);

@@ -14,6 +14,7 @@ import java.util.List;
 
 import de.fahimu.android.app.Log;
 import de.fahimu.android.app.TaskRegistry;
+import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.db.User.Role;
 import de.fahimu.schlib.pdf.Document;
@@ -29,11 +30,11 @@ import de.fahimu.schlib.pdf.PupilList;
  */
 public final class AdminUsersAddActivity extends StepperActivity {
 
-   Role          role    = null;
-   String        name1   = "";
-   String        name2   = "";
-   int           count   = 0;
-   List<Integer> scanned = null;
+   Role         role    = null;
+   String       name1   = "";
+   String       name2   = "";
+   int          count   = 0;
+   List<Idcard> scanned = null;
 
    int getRemaining() {
       return count - scanned.size();

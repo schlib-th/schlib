@@ -101,7 +101,7 @@ public final class FirstRun1Activity extends SchlibActivity {
             }
             Preference.insert(Preference.CIPHER_KEY, IntCipher.createKey());
             Preference.getNonNull(Preference.FIRST_RUN).setValue("2").update();
-            Use.login(User.insertAdminOrTutor(Role.ADMIN, name2, name1, Idcard.MIN));
+            Use.login(User.insertAdminOrTutor(Role.ADMIN, name2, name1, Idcard.getNonNull(Idcard.MIN)));
             transaction.setSuccessful();
          }
          startActivity(new Intent(this, RegisterPrintsActivity.class));

@@ -27,7 +27,6 @@ import de.fahimu.android.share.ExternalFile;
 import de.fahimu.android.share.ExternalInputStream;
 import de.fahimu.android.share.ExternalOutputStream;
 import de.fahimu.schlib.anw.CSVParser;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.anw.StringType;
 import de.fahimu.schlib.db.Book;
 import de.fahimu.schlib.db.Preference;
@@ -80,7 +79,7 @@ public final class FirstRun3Activity extends SchlibActivity {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          super.onResume();
 
-         String serialNumber = SerialNumber.getDisplay(Use.getLoggedInNonNull().getUser().getIdcard());
+         String serialNumber = Use.getLoggedInNonNull().getUser().getDisplayIdcard();
          explanation.setText(getString(R.string.first_run_3_explanation, serialNumber, ""));
       }
    }
@@ -91,7 +90,7 @@ public final class FirstRun3Activity extends SchlibActivity {
          new BackupDatabase(FileType.BACKUP).execute();
          ExternalFile importDir = createImportDir();
 
-         String serialNumber = SerialNumber.getDisplay(Use.getLoggedInNonNull().getUser().getIdcard());
+         String serialNumber = Use.getLoggedInNonNull().getUser().getDisplayIdcard();
          explanation.setText(getString(R.string.first_run_3_explanation, serialNumber, importDir.getName()));
 
          importCSV.setEnabled(true);

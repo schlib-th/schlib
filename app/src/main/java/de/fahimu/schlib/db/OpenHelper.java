@@ -34,7 +34,7 @@ import de.fahimu.schlib.share.FileType;
 public final class OpenHelper extends SQLiteOpenHelper {
 
    public OpenHelper() {
-      super(App.getInstance(), "database", null, 2);
+      super(App.getInstance(), "database", null, 3);
       restoreDatabaseFile();
    }
 

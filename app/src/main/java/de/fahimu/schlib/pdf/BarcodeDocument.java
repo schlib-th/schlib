@@ -67,7 +67,7 @@ abstract class BarcodeDocument extends Document {
             writeNewPage();
             count = 0; currentPage = serial.getPage();
          }
-         writeSerial(count, SerialNumber.getCode128(serial.getId()), SerialNumber.getDisplay(serial.getId()));
+         writeSerial(count, SerialNumber.getCode128(serial.getId()), serial.getDisplayId());
          count += 1;
       }
       finishPage(pagePrefix, currentPage);

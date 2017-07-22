@@ -14,6 +14,7 @@ import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -25,13 +26,19 @@ import de.fahimu.android.app.ListView.Adapter;
 import de.fahimu.android.app.ListView.Item;
 import de.fahimu.android.app.ListView.ViewHolder;
 import de.fahimu.android.app.Log;
+import de.fahimu.android.app.TaskRegistry;
 import de.fahimu.android.app.scanner.NoFocusDialog;
 import de.fahimu.android.app.scanner.NoFocusDialog.ButtonListener;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.db.Idcard;
 import de.fahimu.schlib.db.Lending;
 import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.db.User.Role;
+import de.fahimu.schlib.pdf.Document;
+import de.fahimu.schlib.pdf.Document.WriterListener;
+import de.fahimu.schlib.pdf.Reminder;
+
+import static de.fahimu.android.app.ListView.Adapter.RELOAD_DATA;
+import static de.fahimu.android.app.ListView.Adapter.SHOW_DELAYED;
 
 /**
  * Activity for stocktaking {@link User}s where {@link User#getRole()} is {@link Role#PUPIL}.
@@ -44,26 +51,27 @@ public final class StocktakingUsersActivity extends SchlibActivity {
 
    private final class UserItem extends Item<User> {
       UserItem(@NonNull User user) {
-         super(user, user.getDisplay(), SerialNumber.getDisplay(user.getIdcard()));
+         super(user, user.getDisplay(), user.getDisplayMultilineIdcardIssued());
       }
    }
 
    private final class UserItemViewHolder extends ViewHolder<UserItem> {
-      private final TextView roleName, idcard;
+      private final TextView roleName, idcardIssued;
+      private final ImageButton action;
 
       UserItemViewHolder(LayoutInflater inflater, ViewGroup parent) {
-         super(inflater, parent, R.layout.row_user);
-         roleName = App.findView(itemView, TextView.class, R.id.row_user_role_name);
-         idcard = App.findView(itemView, TextView.class, R.id.row_user_idcard);
-
-         ImageButton action = App.findView(itemView, ImageButton.class, R.id.row_user_action);
-         action.setImageResource(R.drawable.ic_delete_black_24dp);
-         action.setContentDescription(App.getStr(R.string.row_user_action_delete));
+         super(inflater, parent, R.layout.row_user_stocktaking);
+         roleName = App.findView(itemView, TextView.class, R.id.row_user_stocktaking_role_name);
+         idcardIssued = App.findView(itemView, TextView.class, R.id.row_user_stocktaking_idcard_issued);
+         action = App.findView(itemView, ImageButton.class, R.id.row_user_stocktaking_action);
       }
 
       protected void bind(UserItem item) {
          roleName.setText(item.getText(0));
-         idcard.setText(item.getText(1));
+         idcardIssued.setText(item.getText(1));
+         boolean enabled = item.row.hasIdcard() || !item.row.hasBooks();
+         action.setEnabled(enabled);
+         action.setImageAlpha(enabled ? 255 : 51);
       }
    }
 
@@ -79,18 +87,35 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<User> loadData() { return User.getPupils(); }
+      protected ArrayList<User> loadData() { return User.getPupilsForStocktaking(); }
 
       @Override
       protected UserItem createItem(User user) { return new UserItem(user); }
 
       @Override
-      protected void onUpdated(int flags, List<UserItem> data) { }
+      protected void onUpdated(int flags, List<UserItem> data) {
+         usersWithIdcards.clear();
+         for (UserItem item : data) {
+            if (item.row.hasIdcard()) {
+               usersWithIdcards.add(item.row);
+            }
+         }
+         int count = usersWithIdcards.size();
+         printList.setEnabled(count > 0);
+         printList.setText(App.getStr(count == 0 ? R.string.stocktaking_users_print_list_0 :
+                                      count == 1 ? R.string.stocktaking_users_print_list_1 :
+                                      R.string.stocktaking_users_print_list_n, count));
+      }
    }
 
    /* ============================================================================================================== */
 
    private UsersAdapter usersAdapter;
+   private Button       printList;
+
+   private final List<User> usersWithIdcards = new ArrayList<>();
+
+   private final TaskRegistry taskRegistry = new TaskRegistry();
 
    @Override
    @LayoutRes
@@ -100,6 +125,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
    protected final void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       usersAdapter = new UsersAdapter();
+      printList = findView(Button.class, R.id.stocktaking_users_print_list);
    }
 
    @Override
@@ -112,7 +138,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
    @Override
    protected void onPermissionGranted() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         usersAdapter.updateAsync(Adapter.RELOAD_DATA);
+         usersAdapter.updateAsync(RELOAD_DATA);
       }
    }
 
@@ -125,6 +151,11 @@ public final class StocktakingUsersActivity extends SchlibActivity {
 
    private boolean deleteNoConfirmation;
 
+   private final ButtonListener noButtonListener = new ButtonListener() {
+      @Override
+      public void onClick() { usersAdapter.setSelection(-1); }
+   };
+
    @Override
    protected void onBarcode(String barcode) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
@@ -135,18 +166,19 @@ public final class StocktakingUsersActivity extends SchlibActivity {
             final User user = User.getNonNull(idcard.getUid());
             if (user.getRole() != Role.PUPIL) {
                showErrorSnackbar(R.string.stocktaking_users_snackbar_error_no_pupil, user.getDisplay());
-            } else if (noPendingLendings(user)) {
+            } else {
+               usersAdapter.setSelection(user.getOid());
                if (deleteNoConfirmation) {
-                  deleteUser(user, R.string.stocktaking_users_snackbar_info_deleted);
+                  deleteScanned(user, SHOW_DELAYED);
                } else {
                   NoFocusDialog dialog = new NoFocusDialog(this);
-                  dialog.setMessage(R.string.dialog_message_stocktaking_users_confirmation_scanned, user.getDisplay());
-                  dialog.setButton0(R.string.dialog_button0_stocktaking_users_confirmation, null);
-                  dialog.setButton1(R.string.dialog_button1_stocktaking_users_confirmation, new ButtonListener() {
+                  dialog.setMessage(R.string.dialog_message_stocktaking_users_scanned, user.getDisplay());
+                  dialog.setButton0(R.string.app_no, noButtonListener);
+                  dialog.setButton1(R.string.app_yes, new ButtonListener() {
                      @Override
                      public void onClick() {
                         deleteNoConfirmation = true;
-                        deleteUser(user, R.string.stocktaking_users_snackbar_info_deleted);
+                        deleteScanned(user, 0);
                      }
                   }).show(R.raw.horn);
                }
@@ -159,51 +191,93 @@ public final class StocktakingUsersActivity extends SchlibActivity {
             Idcard.setStocked(idcard);
             showInfoSnackbar(R.string.snackbar_info_idcard_registered);
          } else {
-            showInfoSnackbar(R.string.stocktaking_users_snackbar_info_stocked);
+            showInfoSnackbar(R.string.stocktaking_users_snackbar_info_stocked_already);
          }
       }
+   }
+
+   private void deleteScanned(@NonNull User user, int flags) {
+      // user.hasBooks() can only be called on list items, not on scanned Users
+      if (Lending.getByUser(user, true).size() > 0) {
+         Idcard idcard = user.getIdcard();
+         user.setIdcard(null).update();      // set idcard to stocked
+         showInfoSnackbar(R.string.stocktaking_users_snackbar_info_stocked, idcard.getDisplayId());
+      } else {
+         user.delete();
+         showInfoSnackbar(R.string.stocktaking_users_snackbar_info_deleted_stocked, user.getDisplay());
+      }
+      usersAdapter.updateAsync(flags | RELOAD_DATA);
    }
 
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         final User user = usersAdapter.getItemByView(view).row;
-         if (noPendingLendings(user)) {
-            NoFocusDialog dialog = new NoFocusDialog(this);
-            dialog.setMessage(R.string.dialog_message_stocktaking_users_confirmation_clicked);
-            dialog.setButton0(R.string.dialog_button0_stocktaking_users_confirmation, null);
-            dialog.setButton1(R.string.dialog_button1_stocktaking_users_confirmation, new ButtonListener() {
-               @Override
-               public void onClick() {
-                  deleteUser(user, R.string.stocktaking_users_snackbar_info_deleted_lost);
-                  Idcard.getNonNull(user.getIdcard()).setLost(true).update();
-               }
-            }).show();
+         User user = usersAdapter.getRowByView(view);
+         usersAdapter.setSelection(user.getOid());
+         if (user.hasBooks()) {              //   hasBooks &&   hasIdcard
+            deleteClicked(user, R.string.dialog_message_stocktaking_users_clicked_lost,
+                  true, false, R.string.stocktaking_users_snackbar_info_lost);
+         } else if (user.hasIdcard()) {      // ! hasBooks &&   hasIdcard
+            deleteClicked(user, R.string.dialog_message_stocktaking_users_clicked_lost_deleted,
+                  true, true, R.string.stocktaking_users_snackbar_info_lost_deleted);
+         } else {                            // ! hasBooks && ! hasIdcard
+            deleteClicked(user, R.string.dialog_message_stocktaking_users_clicked_deleted,
+                  false, true, R.string.stocktaking_users_snackbar_info_deleted);
          }
       }
    }
 
-   private boolean noPendingLendings(@NonNull User user) {
-      ArrayList<Lending> lendings = Lending.getByUser(user, true);
-      if (lendings.isEmpty()) {
-         return true;
-      } else {
-         NoFocusDialog dialog = new NoFocusDialog(this);
-         if (lendings.size() == 1) {
-            dialog.setMessage(R.string.dialog_message_stocktaking_users_book_issued,
-                  user.getDisplay(), lendings.get(0).getBook().getDisplay());
-         } else {
-            dialog.setMessage(R.string.dialog_message_stocktaking_users_books_issued,
-                  user.getDisplay(), lendings.get(0).getBook().getDisplay(), lendings.size());
+   private void deleteClicked(@NonNull final User user, @StringRes int messageId,
+         final boolean setLost, final boolean delete, @StringRes final int snackbarId) {
+      NoFocusDialog dialog = new NoFocusDialog(this);
+      dialog.setMessage(messageId, user.getDisplay());
+      dialog.setButton0(R.string.app_no, noButtonListener);
+      dialog.setButton1(R.string.app_yes, new ButtonListener() {
+         @Override
+         public void onClick() {
+            if (setLost) {
+               user.getIdcard().setLost(true).update();
+            }
+            if (delete) {
+               user.delete();
+               usersAdapter.updateAsync(RELOAD_DATA);
+            } else {
+               user.setIdcard(null).update();
+               usersAdapter.setData(user);
+               usersAdapter.updateAsync(0);
+            }
+            showInfoSnackbar(snackbarId);
          }
-         dialog.show(R.raw.horn);
-         return false;
-      }
+      }).show();
    }
 
-   private void deleteUser(@NonNull User user, @StringRes int resId) {
-      user.delete();
-      usersAdapter.updateAsync(Adapter.RELOAD_DATA);
-      showInfoSnackbar(resId, user.getDisplay());
+   /* -------------------------------------------------------------------------------------------------------------- */
+
+   public void onPrintListClicked(View view) {
+      try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
+         final NoFocusDialog dialog = new NoFocusDialog(this);
+         dialog.setMessage(R.string.dialog_message_stocktaking_users_printing_list);
+         dialog.setButton0(R.string.app_cancel, new ButtonListener() {
+            @Override
+            public void onClick() { taskRegistry.cancel(); }
+         });
+         dialog.setButton1(R.string.dialog_button1_stocktaking_users_printing_init, null);
+         dialog.show().setButtonEnabled(1, false);    // show dialog and disable button 1
+
+         Document.writeAsync(taskRegistry, new WriterListener() {
+            private int page = 0;
+
+            @Override
+            public void onPageWrite() {
+               dialog.setButtonText(1, R.string.dialog_button1_stocktaking_users_printing_list, ++page);
+            }
+
+            @Override
+            public void onPostWrite() {
+               dialog.setButtonEnabled(0, false).setButtonEnabled(1, true);
+               dialog.setButtonText(1, R.string.app_done);
+            }
+         }, new Reminder(new ArrayList<Long>() /* TODO */));
+      }
    }
 
 }

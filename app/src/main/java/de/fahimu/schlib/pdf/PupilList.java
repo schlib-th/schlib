@@ -15,7 +15,6 @@ import java.util.TimeZone;
 
 import de.fahimu.android.app.App;
 import de.fahimu.android.app.Log;
-import de.fahimu.schlib.anw.SerialNumber;
 import de.fahimu.schlib.app.R;
 import de.fahimu.schlib.db.User;
 
@@ -103,9 +102,7 @@ public final class PupilList extends TextDocument {
 
          for (int row = 0; row < users.size(); row++) {
             User pupil = users.get(row);
-            String serial = App.format("%02d", pupil.getSerial());
-            String idcard = SerialNumber.getDisplay(pupil.getIdcard());
-            TableRow line = new TableRow(0.0, 10, 24, serial, idcard);
+            TableRow line = new TableRow(0.0, 10, 24, pupil.getDisplaySerial(), pupil.getDisplayIdcard());
             add(line.setSticky(row == 0 || row >= users.size() - 2));
          }
          finalizeTable(0.75, 0.5, 0, 10, CENTER, CENTER, CENTER);
