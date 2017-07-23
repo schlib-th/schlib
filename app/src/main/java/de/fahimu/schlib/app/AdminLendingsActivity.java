@@ -42,7 +42,7 @@ import de.fahimu.schlib.db.Lending;
 import de.fahimu.schlib.pdf.Document;
 import de.fahimu.schlib.pdf.Document.WriterListener;
 import de.fahimu.schlib.pdf.DunningLetters;
-import de.fahimu.schlib.pdf.Reminder;
+import de.fahimu.schlib.pdf.ReminderBooks;
 
 /**
  * Activity to administrate {@link Lending}s.
@@ -324,7 +324,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
 
    public void onPrintListClicked(View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         printDocument(new Reminder(getFilteredRids()), 0,
+         printDocument(new ReminderBooks(getFilteredRids()), 0,
                R.string.dialog_message_admin_lendings_printing_list,
                R.string.dialog_button1_admin_lendings_printing_list,
                new ButtonListener() {

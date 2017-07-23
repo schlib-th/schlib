@@ -82,7 +82,7 @@ public final class DunningLetters extends TextDocument {
                text = App.getStr(R.string.pdf_dunning_letters_annotation_pupil, user.getDisplay());
                add(salutation.appendAnnotatedUnderline(0.5, text, true, 10));
             } else {
-               text = App.getStr(R.string.pdf_dunning_letters_salutation_tutor, user.getName1(), user.getName2());
+               text = App.getStr(R.string.pdf_dunning_letters_salutation_tutor, user.getDisplayName());
                add(new SingleLine(0.0, 12, 14, LEFT, text));
             }
             add(new EmptyLine(14));

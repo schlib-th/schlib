@@ -2,6 +2,7 @@
 
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,62 +12,76 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"
-        android:layout_marginEnd="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:descendantFocusability="blocksDescendants"
-        android:orientation="horizontal">
+        android:descendantFocusability="blocksDescendants">
+
+        <android.support.constraint.Guideline
+            android:id="@+id/stocktaking_users_golden_ratio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.382" />
 
         <TextView
+            android:id="@+id/stocktaking_users_explanation"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_marginBottom="24dp"
-            android:layout_marginEnd="24dp"
-            android:layout_weight="382"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
             android:gravity="center"
             android:text="@string/stocktaking_users_explanation"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/stocktaking_users_golden_ratio"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/stocktaking_users_print_list"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="618"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="0dp"
+            android:enabled="false"
+            android:gravity="center_vertical|end"
+            android:onClick="onPrintListClicked"
+            android:text="@string/stocktaking_users_print_list_0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/stocktaking_users_golden_ratio" />
 
-            <RelativeLayout
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintBottom_toTopOf="@id/stocktaking_users_print_list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/stocktaking_users_golden_ratio"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <de.fahimu.android.app.ListView
+                android:id="@+id/stocktaking_users_list"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                tools:ignore="NestedWeights">
+                android:layout_height="match_parent"
+                android:background="@drawable/sh_rect_transparent"
+                android:listSelector="@android:color/transparent"
+                android:padding="1dp"
+                android:scrollbars="vertical"
+                android:visibility="visible" />
 
-                <de.fahimu.android.app.ListView
-                    android:id="@+id/stocktaking_users_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/sh_rect_transparent"
-                    android:listSelector="@android:color/transparent"
-                    android:padding="1dp"
-                    android:scrollbars="vertical"
-                    android:visibility="visible" />
+        </RelativeLayout>
 
-            </RelativeLayout>
-
-            <Button
-                android:id="@+id/stocktaking_users_print_list"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:enabled="false"
-                android:gravity="center_vertical|end"
-                android:onClick="onPrintListClicked"
-                android:text="@string/stocktaking_users_print_list_0" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
 </RelativeLayout>

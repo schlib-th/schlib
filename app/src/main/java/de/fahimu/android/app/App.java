@@ -233,9 +233,7 @@ public abstract class App extends android.app.Application {
          sdf.setCalendar(new GregorianCalendar(utc ? TimeZone.getTimeZone("UTC") : TimeZone.getDefault()));
          (utc ? UTC : LOCAL).put(format, sdf);
       }
-      String string = sdf.format(new Date(posixTime * 1000));
-      Log.d(posixTime + " -> " + string);
-      return string;
+      return sdf.format(new Date(posixTime * 1000));
    }
 
    public static String formatDate(@StringRes int resId, boolean utc, long posixTime) {

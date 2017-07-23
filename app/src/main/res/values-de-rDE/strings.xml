@@ -18,8 +18,8 @@
     <!-- App.formatDate -->
 
     <string name="app_time">"HH':'mm"</string>
-    <string name="app_date">"dd'.'MM'.'HHmm"</string>   <!-- "dd'.'MM'.'yyyy" -->
-    <string name="app_month">"MM'/'HHmm"</string>       <!-- "MM'/'yyyy" -->
+    <string name="app_date">"dd'.'MM'.'yyyy"</string>   <!-- "dd'.'MM'.'yyyy" -->
+    <string name="app_month">"MM'/'yyyy"</string>       <!-- "MM'/'yyyy" -->
 
     <!-- CSVParser -->
 
@@ -52,6 +52,8 @@
     <string name="user_display_admin">Verwalter \"%1$s %2$s\"</string>
     <string name="user_display_tutor">Mitarbeiter \"%1$s %2$s\"</string>
     <string name="user_display_pupil">Schüler #%1$02d der Klasse %2$s (%3$s)</string>
+    <string name="user_display_name">%1$s %2$s</string>
+    <string name="user_display_serial">%02d</string>
     <string name="user_display_idcard_n_a">n.&#x00a0;v.</string>
     <string name="user_display_has_books">hat Bücher</string>
 
@@ -118,9 +120,35 @@
     <string name="pdf_pupil_list_column_2">Ausweis</string>
     <string name="pdf_pupil_list_column_3">Name des Schülers</string>
 
-    <string name="pdf_reminder_title">Mahnliste vom %1$s</string>
-    <string name="pdf_reminder_subject">Mahnliste zum Ausdrucken</string>
-    <string name="pdf_reminder_text">
+    <string name="pdf_reminder_idcards_title">Liste der fehlenden Ausweise vom %1$s</string>
+    <string name="pdf_reminder_idcards_subject">Mahnliste zum Ausdrucken</string>
+    <string name="pdf_reminder_idcards_text">
+        Liebe Lehrkräfte,
+        \n\n\n
+        das Schuljahr geht zu Ende, und noch immer haben nicht alle Schüler ihre Ausweise zurückgegeben.
+        Bitte unterstützen Sie uns und ermahnen Sie die Schüler Ihrer Klasse, umgehend ihre Ausweise bei
+        Ihnen oder zu den üblichen Öffnungszeiten in der Bücherei abzugeben.
+        \n\n
+        Der Materialwert der Ausweiskarten ist zwar nicht besonders groß, aber für neue Ausweise müssen die
+        Mit|arbeiter der Bücherei-Verwaltung viele Stunden Arbeit aufwenden. Die Ausweise müssen als PDF-Datei
+        er|stellt, doppelseitig farbig bedruckt und zuletzt noch laminiert werden. In dieser Zeit können wir uns
+        auch sinn|volleren Aufgaben zuwenden.
+        \n\n
+        Falls ein Schüler seinen Ausweis nicht mehr findet, bitten wir Sie, dies in der freien Spalte zu
+        vermerken und die Liste an uns zurückzugeben, damit wir den Ausweis als verloren ausbuchen können.
+        \n\n\n
+        Wir danken Ihnen herzlich für Ihre Mithilfe,
+        \n\n\n\n\n
+        Ihre Büchereiverwaltung
+    </string>
+    <string name="pdf_reminder_idcards_headline">Klasse %1$s (Schuljahr %2$s)</string>
+    <string name="pdf_reminder_idcards_column_1">Nr.</string>
+    <string name="pdf_reminder_idcards_column_2">Ausweis</string>
+    <string name="pdf_reminder_idcards_column_3">Bemerkungen der Lehrkraft</string>
+
+    <string name="pdf_reminder_books_title">Mahnliste vom %1$s</string>
+    <string name="pdf_reminder_books_subject">Mahnliste zum Ausdrucken</string>
+    <string name="pdf_reminder_books_text">
         Liebe Lehrkräfte, liebe Mitarbeiter,
         \n\n\n
         in der Regel sollen Bücher nicht länger als 14 Tage ausgeliehen werden, da insbesondere
@@ -140,22 +168,20 @@
         \n\n\n\n\n
         Ihre Büchereiverwaltung
     </string>
-    <string name="pdf_reminder_headline_tutor">Verwalter und Mitarbeiter</string>
-    <string name="pdf_reminder_headline_pupil">Klasse %1$s (Schuljahr %2$s)</string>
-    <string name="pdf_reminder_column_1_head_tutor">Name</string>
-    <string name="pdf_reminder_column_1_body_tutor">%1$s %2$s</string>
-    <string name="pdf_reminder_column_1_head_pupil">Nr.</string>
-    <string name="pdf_reminder_column_1_body_pupil">%02d</string>
-    <string name="pdf_reminder_column_2_head">Verzug</string>
-    <string name="pdf_reminder_column_2_body">%d Tage</string>
-    <string name="pdf_reminder_column_3_head">Kategorie</string>
-    <string name="pdf_reminder_column_4_head">Buchtitel</string>
+    <string name="pdf_reminder_books_headline_tutor">Verwalter und Mitarbeiter</string>
+    <string name="pdf_reminder_books_headline_pupil">Klasse %1$s (Schuljahr %2$s)</string>
+    <string name="pdf_reminder_books_column_1_head_tutor">Name</string>
+    <string name="pdf_reminder_books_column_1_head_pupil">Nr.</string>
+    <string name="pdf_reminder_books_column_2_head">Verzug</string>
+    <string name="pdf_reminder_books_column_2_body">%d Tage</string>
+    <string name="pdf_reminder_books_column_3_head">Kategorie</string>
+    <string name="pdf_reminder_books_column_4_head">Buchtitel</string>
 
     <string name="pdf_dunning_letters_title">Mahnschreiben vom %1$s</string>
     <string name="pdf_dunning_letters_subject">Mahnschreiben zum Ausdrucken</string>
     <string name="pdf_dunning_letters_headline_no_term">Erinnerung vom %1$s</string>
     <string name="pdf_dunning_letters_headline_delayed">Mahnung vom %1$s</string>
-    <string name="pdf_dunning_letters_salutation_tutor">Liebe(r) %1$s %2$s,</string>
+    <string name="pdf_dunning_letters_salutation_tutor">Liebe(r) %1$s,</string>
     <string name="pdf_dunning_letters_salutation_pupil">Liebe Schülerin, lieber Schüler</string>
     <string name="pdf_dunning_letters_annotation_pupil">%1$s - Name von der Lehrkraft zu ergänzen</string>
     <string name="pdf_dunning_letters_text_1_tutor">
@@ -436,6 +462,12 @@
     <string name="dialog_message_stocktaking_users_clicked_deleted">
         Konto löschen?
         \nWollen Sie wirklich das Konto von %1$s löschen? Sie können diese Aktion nicht widerrufen.
+    </string>
+    <string name="dialog_message_stocktaking_users_print_reminder">
+        Mahnliste für fehlende Ausweise erstellen?
+        \nAm Ende des Schuljahres müssen Sie die Ausweise aller Schüler einsammeln und deren Nutzerkonten löschen.\n
+        \nMöchten Sie jetzt ein Mahnschreiben als PDF-Datei erstellen, in dem die Lehrkräfte aufgefordert werden,
+        die noch fehlenden %1$d Ausweise ihrer Schüler einzusammeln und an die Bücherei-Verwaltung zurückzugeben?
     </string>
     <string name="dialog_message_stocktaking_users_printing_list">
         Mahnliste wird erstellt.

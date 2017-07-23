@@ -531,8 +531,13 @@ public final class User extends Row {
    }
 
    @NonNull
+   public String getDisplayName() {
+      return App.getStr(R.string.user_display_name, getName1(), getName2());
+   }
+
+   @NonNull
    public String getDisplaySerial() {
-      return App.format("%02d", getSerial());
+      return App.getStr(R.string.user_display_serial, getSerial());
    }
 
    @NonNull

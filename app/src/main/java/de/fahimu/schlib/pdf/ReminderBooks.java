@@ -1,5 +1,5 @@
 /*
- * Reminder.java
+ * ReminderBooks.java
  *
  * Copyright 2017 by Thomas Hirsch, schlib@fahimu.de
  */
@@ -26,28 +26,28 @@ import static de.fahimu.schlib.pdf.Text.Align.CENTER;
 import static de.fahimu.schlib.pdf.Text.Align.LEFT;
 
 /**
- * A {@code Reminder} object represents a DIN A4 (210 x 297 mm) PDF document with a list of lendings on it.
+ * A {@code ReminderBooks} object represents a DIN A4 (210 x 297 mm) PDF document with a list of lendings on it.
  *
  * @author Thomas Hirsch, schlib@fahimu.de
  * @version 1.0, 01.07.2017
  * @since SchoolLibrary 1.06
  */
-public final class Reminder extends TextDocument {
+public final class ReminderBooks extends TextDocument {
 
    private final List<Long> oids;
 
    private final String date;
 
    /**
-    * Creates a new {@code Reminder} PDF document.
+    * Creates a new {@code ReminderBooks} PDF document.
     */
    @MainThread
-   public Reminder(List<Long> oids) {
+   public ReminderBooks(List<Long> oids) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          this.oids = oids;
          this.date = App.formatDate(R.string.app_date, false, App.posixTime());
-         String title = App.getStr(R.string.pdf_reminder_title, date);
-         String subject = App.getStr(R.string.pdf_reminder_subject);
+         String title = App.getStr(R.string.pdf_reminder_books_title, date);
+         String subject = App.getStr(R.string.pdf_reminder_books_subject);
          open(title, subject);
       }
    }
@@ -62,10 +62,10 @@ public final class Reminder extends TextDocument {
    @WorkerThread
    void addLines() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         String headline = App.getStr(R.string.pdf_reminder_title, date);
+         String headline = App.getStr(R.string.pdf_reminder_books_title, date);
          add(new SingleLine(0.0, 20, 22 + 33, CENTER, headline));
 
-         String info = App.getStr(R.string.pdf_reminder_text);
+         String info = App.getStr(R.string.pdf_reminder_books_text);
          info = replaceUserVariables(info, "DATE", date);
          for (String line : info.split("\n")) {
             add(line.isEmpty() ? new EmptyLine(8) : new MultiLine(0.0, 10, 12, true, line));
@@ -80,15 +80,15 @@ public final class Reminder extends TextDocument {
             User user = lendings.get(0).getUser();
             String subhead, column1, column2, column3, column4;
             if (user.getRole() == Role.PUPIL) {
-               subhead = App.getStr(R.string.pdf_reminder_headline_pupil, user.getName1(), user.getName2());
-               column1 = App.getStr(R.string.pdf_reminder_column_1_head_pupil);
+               subhead = App.getStr(R.string.pdf_reminder_books_headline_pupil, user.getName1(), user.getName2());
+               column1 = App.getStr(R.string.pdf_reminder_books_column_1_head_pupil);
             } else {
-               subhead = App.getStr(R.string.pdf_reminder_headline_tutor);
-               column1 = App.getStr(R.string.pdf_reminder_column_1_head_tutor);
+               subhead = App.getStr(R.string.pdf_reminder_books_headline_tutor);
+               column1 = App.getStr(R.string.pdf_reminder_books_column_1_head_tutor);
             }
-            column2 = App.getStr(R.string.pdf_reminder_column_2_head);
-            column3 = App.getStr(R.string.pdf_reminder_column_3_head);
-            column4 = App.getStr(R.string.pdf_reminder_column_4_head);
+            column2 = App.getStr(R.string.pdf_reminder_books_column_2_head);
+            column3 = App.getStr(R.string.pdf_reminder_books_column_3_head);
+            column4 = App.getStr(R.string.pdf_reminder_books_column_4_head);
 
             add(new SingleLine(0.0, 10, 12 + 6, LEFT, subhead).setSticky(true));
             add(new TableRow(0.0, 9, 16, column1, column2, column3, column4).setSticky(true));
@@ -97,11 +97,11 @@ public final class Reminder extends TextDocument {
                Lending lending = lendings.get(row);
                user = lending.getUser();
                if (user.getRole() == Role.PUPIL) {
-                  column1 = App.getStr(R.string.pdf_reminder_column_1_body_pupil, user.getSerial());
+                  column1 = user.getDisplaySerial();
                } else {
-                  column1 = App.getStr(R.string.pdf_reminder_column_1_body_tutor, user.getName1(), user.getName2());
+                  column1 = user.getDisplayName();
                }
-               column2 = App.getStr(R.string.pdf_reminder_column_2_body, lending.getDelay());
+               column2 = App.getStr(R.string.pdf_reminder_books_column_2_body, lending.getDelay());
                column3 = lending.getBook().getDisplayShelfNumber();
                column4 = lending.getBook().getTitle();
                TableRow line = new TableRow(0.0, 9, 16, column1, column2, column3, column4);

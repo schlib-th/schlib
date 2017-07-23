@@ -35,7 +35,7 @@ import de.fahimu.schlib.db.User;
 import de.fahimu.schlib.db.User.Role;
 import de.fahimu.schlib.pdf.Document;
 import de.fahimu.schlib.pdf.Document.WriterListener;
-import de.fahimu.schlib.pdf.Reminder;
+import de.fahimu.schlib.pdf.ReminderIdcards;
 
 import static de.fahimu.android.app.ListView.Adapter.RELOAD_DATA;
 import static de.fahimu.android.app.ListView.Adapter.SHOW_DELAYED;
@@ -87,10 +87,14 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<User> loadData() { return User.getPupilsForStocktaking(); }
+      protected ArrayList<User> loadData() {
+         return User.getPupilsForStocktaking();
+      }
 
       @Override
-      protected UserItem createItem(User user) { return new UserItem(user); }
+      protected UserItem createItem(User user) {
+         return new UserItem(user);
+      }
 
       @Override
       protected void onUpdated(int flags, List<UserItem> data) {
@@ -253,6 +257,16 @@ public final class StocktakingUsersActivity extends SchlibActivity {
    /* -------------------------------------------------------------------------------------------------------------- */
 
    public void onPrintListClicked(View view) {
+      NoFocusDialog dialog = new NoFocusDialog(this);
+      dialog.setMessage(R.string.dialog_message_stocktaking_users_print_reminder, usersWithIdcards.size());
+      dialog.setButton0(R.string.app_no, null);
+      dialog.setButton1(R.string.app_yes, new ButtonListener() {
+         @Override
+         public void onClick() { printReminder(); }
+      }).show();
+   }
+
+   public void printReminder() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          final NoFocusDialog dialog = new NoFocusDialog(this);
          dialog.setMessage(R.string.dialog_message_stocktaking_users_printing_list);
@@ -276,7 +290,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
                dialog.setButtonEnabled(0, false).setButtonEnabled(1, true);
                dialog.setButtonText(1, R.string.app_done);
             }
-         }, new Reminder(new ArrayList<Long>() /* TODO */));
+         }, new ReminderIdcards(usersWithIdcards));
       }
    }
 
