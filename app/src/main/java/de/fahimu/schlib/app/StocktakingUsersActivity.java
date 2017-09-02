@@ -167,7 +167,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
          if (idcard == null) {
             showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
          } else if (idcard.isUsed()) {
-            final User user = User.getNonNull(idcard.getUid());
+            final User user = User.getByIdcard(idcard);
             if (user.getRole() != Role.PUPIL) {
                showErrorSnackbar(R.string.stocktaking_users_snackbar_error_no_pupil, user.getDisplay());
             } else {

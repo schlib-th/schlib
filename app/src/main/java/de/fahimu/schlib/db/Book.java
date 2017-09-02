@@ -24,7 +24,6 @@ import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Trigger;
-import de.fahimu.android.db.Trigger.Type;
 import de.fahimu.android.db.Values;
 import de.fahimu.android.db.View;
 import de.fahimu.schlib.anw.ISBN;
@@ -34,6 +33,9 @@ import de.fahimu.schlib.app.FirstRun3Activity;
 import de.fahimu.schlib.app.R;
 
 import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
+import static de.fahimu.android.db.Trigger.Type.AFTER_DELETE;
+import static de.fahimu.android.db.Trigger.Type.AFTER_INSERT;
+import static de.fahimu.android.db.Trigger.Type.AFTER_UPDATE;
 import static de.fahimu.schlib.anw.ISBN.MAX;
 import static de.fahimu.schlib.anw.ISBN.MIN;
 import static de.fahimu.schlib.db.Preference.FIRST_RUN;
@@ -48,10 +50,10 @@ import static de.fahimu.schlib.db.Preference.KEY;
  */
 public final class Book extends Row {
 
-   static final private String IDS  = "bids";
-   static final         String TAB  = "books";
-   static final private String PREV = "prev_books";
-   static final private String VIEW = "prev_books_newest";
+   static final private String IDS      = "bids";
+   static final         String TAB      = "books";
+   static final private String PREV     = "prev_books";
+   static final private String PREV_NEW = "prev_books_newest";
 
    static final private String OID       = BaseColumns._ID;
    static final         String BID       = "bid";
@@ -68,8 +70,10 @@ public final class Book extends Row {
    static final private String VANISHED  = "vanished";
    static final private String TSTAMP    = "tstamp";
 
-   static final private Values TAB_COLUMNS = new Values(SQLite.alias(TAB, OID),
+   static final private Values COLUMNS      = new Values(
          BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL, VANISHED);
+   static final private Values TAB_COLUMNS  = new Values(COLUMNS, OID);
+   static final private Values PREV_COLUMNS = new Values(COLUMNS, OID, SQLite.posixToLocal(TSTAMP));
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -78,29 +82,24 @@ public final class Book extends Row {
       createTableBooks(db);
       createTablePrevBooks(db);
 
-      createTrigger(db, Type.AFTER_INSERT);
-      createTrigger(db, Type.AFTER_UPDATE);
-      createTrigger(db, Type.AFTER_DELETE);
+      Trigger.create(db, TAB, PREV, COLUMNS, AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE);
 
       createViewPrevBooksNewest(db);
    }
 
    static void upgrade(SQLiteDatabase db, int oldVersion) {
-      if (oldVersion < 2) {
-         Trigger.drop(db, TAB, Type.AFTER_INSERT);
-         Trigger.drop(db, TAB, Type.AFTER_UPDATE);
-         Trigger.drop(db, TAB, Type.AFTER_DELETE);
+      Trigger.drop(db, TAB, AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE);
 
+      View.drop(db, PREV_NEW);
+
+      if (oldVersion < 2) {
          upgradeTableBooksV2(db);
          deleteTemporaryRowsFromPrevBooks(db);
          upgradeTablePrevBooksV2(db);
-
-         createTrigger(db, Type.AFTER_INSERT);
-         createTrigger(db, Type.AFTER_UPDATE);
-         createTrigger(db, Type.AFTER_DELETE);
-
-         createViewPrevBooksNewest(db);
       }
+      Trigger.create(db, TAB, PREV, COLUMNS, AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE);
+
+      createViewPrevBooksNewest(db);
    }
 
    private static void createTableBids(SQLiteDatabase db) {
@@ -143,24 +142,20 @@ public final class Book extends Row {
       prev.create(db);
    }
 
-   private static void createTrigger(SQLiteDatabase db, Trigger.Type type) {
-      Trigger.create(db, TAB, type, PREV,
-            BID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, STOCKED, SHELF, NUMBER, PERIOD, ISBN, LABEL, VANISHED);
-   }
-
    /**
     * Select the newest row of every book in prev_books (therefore including deleted books).
     * <p>
     * <pre> {@code
     * CREATE VIEW prev_books_newest AS
-    *    SELECT MAX(_id) AS _id, title, publisher, author, keywords, isbn FROM prev_books GROUP BY bid ;
+    *    SELECT _id, bid, title, publisher, author, keywords, stocked, shelf, number, period, isbn, label, vanished,
+    *       CAST(STRFTIME('%s',tstamp,'unixepoch','localtime') AS INTEGER) AS tstamp, MAX(_id)
+    *    FROM prev_books GROUP BY bid ;
     * }
     * </pre>
     */
    private static void createViewPrevBooksNewest(SQLiteDatabase db) {
-      View view = new View(VIEW);
-      String oid = App.format("MAX(%1$s) AS %1$s", OID);
-      view.addSelect(PREV, new Values(oid, TITLE, PUBLISHER, AUTHOR, KEYWORDS, ISBN), BID, null, null);
+      View view = new View(PREV_NEW);
+      view.addSelect(PREV, new Values(PREV_COLUMNS, "MAX(" + OID + ")"), BID, null, null);
       view.create(db);
    }
 
@@ -236,14 +231,19 @@ public final class Book extends Row {
 
    @NonNull
    public static Book getNonNull(long bid) {
-      Book book = Book.get(BID + "=?", bid);
+      Book book = get(BID + "=?", bid);
       if (book == null) { throw new RuntimeException("no book with bid " + bid); }
       return book;
    }
 
+   @NonNull
+   public static Book getByLabel(Label label) {
+      return getNonNull(label.getBid());
+   }
+
    @Nullable
    public static Book getIdentifiedByISBN(@NonNull ISBN isbn) {
-      return Book.get(ISBN + "=? AND " + LABEL + " ISNULL", isbn.getValue());
+      return get(ISBN + "=? AND " + LABEL + " ISNULL", isbn.getValue());
    }
 
    /* -------------------------------------------------------------------------------------------------------------- */
@@ -263,9 +263,15 @@ public final class Book extends Row {
    /* -------------------------------------------------------------------------------------------------------------- */
 
    @NonNull
+   static Book getByBidIncludeDeleted(long bid) {
+      Values columns = new Values(TITLE, SHELF, NUMBER);
+      return SQLite.get(Book.class, PREV_NEW, columns, null, null, BID + "=?", bid).get(0);
+   }
+
+   @NonNull
    private static ArrayList<Book> getIncludeDeleted(String where, Object... args) {
       Values columns = new Values(OID, TITLE, PUBLISHER, AUTHOR, KEYWORDS, ISBN);
-      return SQLite.get(Book.class, VIEW, columns, null, OID + " DESC", where, args);
+      return SQLite.get(Book.class, PREV_NEW, columns, null, OID + " DESC", where, args);
    }
 
    @NonNull
@@ -300,9 +306,9 @@ public final class Book extends Row {
       }
       Values columns = new Values(OID, column);
       if (isbn == null) {
-         return SQLite.get(Book.class, VIEW, columns, column, column, null);
+         return SQLite.get(Book.class, PREV_NEW, columns, column, column, null);
       } else {
-         return SQLite.get(Book.class, VIEW, columns, column, column, ISBN + "=?", isbn.getValue());
+         return SQLite.get(Book.class, PREV_NEW, columns, column, column, ISBN + "=?", isbn.getValue());
       }
    }
 

@@ -308,7 +308,7 @@ public final class TutorActivity extends SchlibActivity {
             }
             setDisplay(3, 0, R.string.tutor_progress_idcard_not_used);
          } else {
-            User user = User.getNonNull(idcard.getUid());
+            User user = User.getByIdcard(idcard);
             ArrayList<Lending> lendings = Lending.getByUser(user, true);
             if (lendings.size() == user.getNbooks()) {
                App.playSound(R.raw.horn);
@@ -348,11 +348,11 @@ public final class TutorActivity extends SchlibActivity {
             setError(R.string.tutor_message_1_label_not_used, R.string.tutor_message_2_please_return_book);
          }
       } else {
-         onBookScanned(Book.getNonNull(label.getBid()));
+         onBookScanned(Book.getByLabel(label));
       }
    }
 
-   private void onBookScanned(Book book) {
+   private void onBookScanned(@NonNull Book book) {
       if (scannedBook != null) {
          setError(R.string.tutor_message_1_expected_user, R.string.tutor_message_2_book_before_user);
       } else {

@@ -100,7 +100,7 @@ public final class AdminUsersAddStep2 extends StepFragment<AdminUsersAddActivity
                activity.showErrorSnackbar(R.string.snackbar_error_not_a_idcard);
             } else if (idcard.isUsed()) {
                NoFocusDialog dialog = new NoFocusDialog(activity);
-               dialog.setMessage(R.string.dialog_message_idcard_used, User.getNonNull(idcard.getUid()).getDisplay());
+               dialog.setMessage(R.string.dialog_message_idcard_used, User.getByIdcard(idcard).getDisplay());
                dialog.show(R.raw.horn);
             } else if (activity.scanned.contains(idcard)) {
                activity.showInfoSnackbar(R.string.admin_users_add_step_2_snackbar_info_scanned);

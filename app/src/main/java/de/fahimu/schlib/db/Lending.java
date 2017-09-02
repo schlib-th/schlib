@@ -272,11 +272,19 @@ public final class Lending extends Row {
       return SQLite.get(Lending.class, VIEW_DEL, columns, null, order, where, args);
    }
 
-   public static ArrayList<Lending> getIssuedOnly() {
+   public static ArrayList<Lending> getByUserWithDelay(User user) {
+      return getLocalizedLendingsWithDelay(OID + " DESC", UID + "=?", user.getUid());
+   }
+
+   public static ArrayList<Lending> getByBookWithDelay(Book book) {
+      return getLocalizedLendingsWithDelay(OID + " DESC", BID + "=?", book.getBid());
+   }
+
+   public static ArrayList<Lending> getIssuedOnlyWithDelay() {
       return getLocalizedLendingsWithDelay(DELAY + " DESC, " + OID, RETURN + " ISNULL");
    }
 
-   public static ArrayList<Lending> getByOids(List<Long> oids) {
+   public static ArrayList<Lending> getByOidsWithDelay(List<Long> oids) {
       return getLocalizedLendingsWithDelay(DELAY + " DESC, " + OID, buildWhereClauseOidInList(VIEW_DEL, oids));
    }
 
@@ -348,21 +356,28 @@ public final class Lending extends Row {
 
    private User user;
 
-   /**
-    * Returns the POSIX time when the book was issued.
-    *
-    * @return the POSIX time when the book was issued.
-    *
-    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
-    */
    private long getIssue() {
       return values.getLong(ISSUE);
    }
 
+   /**
+    * Returns the POSIX time when the book was issued as a formatted date string.
+    *
+    * @return the POSIX time when the book was issued as a formatted date string.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    */
    public String getIssueDate() {
       return App.formatDate(R.string.app_date, true, getIssue());
    }
 
+   /**
+    * Returns the POSIX time when the book was issued as a formatted time string.
+    *
+    * @return the POSIX time when the book was issued as a formatted time string.
+    *
+    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    */
    public String getIssueTime() {
       return App.formatDate(R.string.app_time, true, getIssue());
    }
@@ -372,19 +387,15 @@ public final class Lending extends Row {
    }
 
    /**
-    * Returns the POSIX time when the book was dunned.
+    * Returns the POSIX time when the book was dunned as a formatted date string.
     * <p> Precondition: {@link #isDunned()} ()} must be {@code true}. </p>
     *
-    * @return the POSIX time when the book was dunned.
+    * @return the POSIX time when the book was dunned as a formatted date string.
     *
     * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
     */
-   private long getDun() {
-      return values.getLong(DUN);
-   }
-
    private String getDunDate() {
-      return App.formatDate(R.string.app_date, true, getDun());
+      return App.formatDate(R.string.app_date, true, values.getLong(DUN));
    }
 
    private boolean isReturned() {
@@ -392,15 +403,15 @@ public final class Lending extends Row {
    }
 
    /**
-    * Returns the POSIX time when the book was returned.
+    * Returns the POSIX time when the book was returned as a formatted date string.
     * <p> Precondition: {@link #isReturned()} must be {@code true}. </p>
     *
-    * @return the POSIX time when the book was returned.
+    * @return the POSIX time when the book was returned as a formatted date string.
     *
     * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
     */
-   private long getReturn() {
-      return values.getLong(RETURN);
+   private String getReturnDate() {
+      return App.formatDate(R.string.app_date, true, values.getLong(RETURN));
    }
 
    @NonNull
@@ -412,27 +423,23 @@ public final class Lending extends Row {
       return get(OID + "=?", getOid()).get(0).getIssue() + MIN_LENDING_TIME;
    }
 
-   public boolean hasTerm() {
+   private boolean hasTerm() {
       return values.notNull(TERM);
    }
 
    /**
-    * Returns the term of the lending.
+    * Returns the term of the lending as a formatted date string.
     * <p>
     * Usually a book must be returned not later than the day of issue plus
     * the number of days the book can be lend at most (the period of the book).
-    * The first day from this day when the library is official opened for pupils is called the term.
+    * The first day after this day when the library is official opened for pupils is called the term.
     * </p>
     * <p> Precondition: {@link #hasTerm()} must be {@code true}. </p>
     *
-    * @return the term of the lending.
+    * @return the term of the lending as a formatted date string.
     */
-   private long getTerm() {
-      return values.getLong(TERM);
-   }
-
    public String getTermDate() {
-      return App.formatDate(R.string.app_date, true, getTerm());
+      return App.formatDate(R.string.app_date, true, values.getLong(TERM));
    }
 
    /**
@@ -440,7 +447,7 @@ public final class Lending extends Row {
     * <p>
     * Usually a book must be returned not later than the day of issue plus
     * the number of days the book can be lend at most (the period of the book).
-    * The first day from this day when the library is official opened for pupils is called the term.
+    * The first day after this day when the library is official opened for pupils is called the term.
     * If there is no term, then the day of issue plus the book's period will be used for calculation instead.
     * </p><p>
     * If the book is not returned yet, the current day will be used for calculation instead.
@@ -450,6 +457,17 @@ public final class Lending extends Row {
     */
    public int getDelay() {
       return values.getInt(DELAY);
+   }
+
+   public boolean isDelayed() {
+      return hasTerm() && getDelay() >= 2;
+   }
+
+   public boolean isDelayed(int minDelay) {
+      if (minDelay < 2) {
+         throw new IllegalArgumentException("minDelay=" + minDelay);
+      }
+      return hasTerm() && getDelay() >= minDelay;
    }
 
    /**
@@ -478,15 +496,42 @@ public final class Lending extends Row {
    /* ============================================================================================================== */
 
    @NonNull
+   public String getDisplayPrevBook() {
+      return Book.getByBidIncludeDeleted(values.getLong(BID)).getDisplay();
+   }
+
+   @NonNull
+   public String getDisplayPrevUser() {
+      return User.getByUidIncludeDeleted(values.getLong(UID)).getDisplay();
+   }
+
+   @NonNull
+   public String getDisplayIssueReturnDelay() {
+      if (isReturned()) {
+         if (isDelayed()) {
+            return App.getStr(R.string.lending_display_returned_delay, getDelay(), getIssueDate(), getReturnDate());
+         } else {
+            return App.getStr(R.string.lending_display_returned, getIssueDate(), getReturnDate());
+         }
+      } else {
+         if (isDelayed()) {
+            return App.getStr(R.string.lending_display_issued_delay, getDelay(), getTermDate(), getIssueDate());
+         } else {
+            return App.getStr(R.string.lending_display_issued, getIssueDate());
+         }
+      }
+   }
+
+   @NonNull
    public String getDisplayMultilineIssueDelayDun() {
       StringBuilder b = new StringBuilder(App.getStr(R.string.lending_display_issue, getIssueDate()));
-      if (hasTerm() && getDelay() >= 2) {
+      if (isDelayed()) {
          b.append('\n').append(App.getStr(R.string.lending_display_delay_n, getDelay(), getTermDate()));
       } else if (isDunned()) {
          b.append('\n').append(App.getStr(R.string.lending_display_delay_0));
       }
       if (isDunned()) {
-         b.append('\n').append(App.getStr(R.string.lending_display_dun, getDunDate()));
+         b.append('\n').append(App.getStr(R.string.lending_display_dun, 1, getDunDate()));
       }
       return b.toString();
    }

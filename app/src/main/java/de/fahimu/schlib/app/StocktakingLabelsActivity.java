@@ -64,7 +64,7 @@ public final class StocktakingLabelsActivity extends StocktakingSerialsActivity<
    @Override
    void showErrorDialog(Label label) {
       NoFocusDialog dialog = new NoFocusDialog(this);
-      dialog.setMessage(R.string.dialog_message_label_used, Book.getNonNull(label.getBid()).getDisplay());
+      dialog.setMessage(R.string.dialog_message_label_used, Book.getByLabel(label).getDisplay());
       dialog.show(R.raw.horn);
    }
 

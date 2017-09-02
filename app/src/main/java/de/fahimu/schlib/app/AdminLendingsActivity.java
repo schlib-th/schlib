@@ -96,7 +96,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
       }
 
       @Override
-      protected ArrayList<Lending> loadData() { return Lending.getIssuedOnly(); }
+      protected ArrayList<Lending> loadData() { return Lending.getIssuedOnlyWithDelay(); }
 
       @Override
       protected LendingItem createItem(Lending lending) { return new LendingItem(lending); }
@@ -158,7 +158,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
          if (normalizedQueries.length > 0) {
             return contains;
          } else {
-            return minDelay == 0 || item.row.hasTerm() && item.row.getDelay() >= minDelay;
+            return minDelay == 0 || item.row.isDelayed(minDelay);
          }
       }
    }
@@ -227,9 +227,9 @@ public final class AdminLendingsActivity extends SchlibActivity {
    }
 
    private boolean containsDelay07() {
-      ArrayList<Lending> lendings = Lending.getIssuedOnly();
+      ArrayList<Lending> lendings = Lending.getIssuedOnlyWithDelay();
       for (Lending lending : lendings) {
-         if (lending.hasTerm() && lending.getDelay() >= 7) { return true; }
+         if (lending.isDelayed(7)) { return true; }
       }
       return false;
    }

@@ -22,7 +22,6 @@ import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Trigger;
-import de.fahimu.android.db.Trigger.Type;
 import de.fahimu.android.db.Values;
 import de.fahimu.android.db.View;
 import de.fahimu.schlib.anw.SerialNumber;
@@ -31,6 +30,9 @@ import de.fahimu.schlib.app.StocktakingUsersActivity;
 import de.fahimu.schlib.pdf.PupilList;
 
 import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
+import static de.fahimu.android.db.Trigger.Type.AFTER_DELETE;
+import static de.fahimu.android.db.Trigger.Type.AFTER_INSERT;
+import static de.fahimu.android.db.Trigger.Type.AFTER_UPDATE;
 import static de.fahimu.schlib.db.Lending.ISSUE;
 import static de.fahimu.schlib.db.Lending.RETURN;
 
@@ -47,10 +49,11 @@ import static de.fahimu.schlib.db.Lending.RETURN;
  */
 public final class User extends Row {
 
-   static final private String IDS  = "uids";
-   static final         String TAB  = "users";
-   static final private String PREV = "prev_users";
-   static final private String VIEW = "prev_users_oldest_pupils";
+   static final private String IDS      = "uids";
+   static final         String TAB      = "users";
+   static final private String PREV     = "prev_users";
+   static final private String PREV_NEW = "prev_users_newest";
+   static final private String PREV_OLD = "prev_users_oldest_pupils";
 
    static final private String OID    = BaseColumns._ID;
    static final         String UID    = "uid";
@@ -70,8 +73,9 @@ public final class User extends Row {
    static final private String TUTOR = "tutor";
    static final         String PUPIL = "pupil";
 
-   static final private Values TAB_COLUMNS = new Values(SQLite.alias(TAB, OID),
-         UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD);
+   static final private Values COLUMNS      = new Values(UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD);
+   static final private Values TAB_COLUMNS  = new Values(COLUMNS, OID);
+   static final private Values PREV_COLUMNS = new Values(COLUMNS, OID, SQLite.posixToLocal(TSTAMP));
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -80,30 +84,26 @@ public final class User extends Row {
       createTableUsers(db);
       createTablePrevUsers(db);
 
-      createTrigger(db, Type.AFTER_INSERT);
-      createTrigger(db, Type.AFTER_UPDATE);
-      createTrigger(db, Type.AFTER_DELETE);
+      Trigger.create(db, TAB, PREV, COLUMNS, AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE);
 
+      createViewPrevUsersNewest(db);
       createViewPrevUsersOldestPupils(db);
    }
 
    static void upgrade(SQLiteDatabase db, int oldVersion) {
+      Trigger.drop(db, TAB, AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE);
+
+      View.drop(db, PREV_NEW);
+      View.drop(db, PREV_OLD);
+
       if (oldVersion < 3) {
-         Trigger.drop(db, TAB, Type.AFTER_INSERT);
-         Trigger.drop(db, TAB, Type.AFTER_UPDATE);
-         Trigger.drop(db, TAB, Type.AFTER_DELETE);
-
-         View.drop(db, VIEW);
-
          upgradeTableUsers(db);
          upgradeTablePrevUsers(db, oldVersion);
-
-         createTrigger(db, Type.AFTER_INSERT);
-         createTrigger(db, Type.AFTER_UPDATE);
-         createTrigger(db, Type.AFTER_DELETE);
-
-         createViewPrevUsersOldestPupils(db);
       }
+      Trigger.create(db, TAB, PREV, COLUMNS, AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE);
+
+      createViewPrevUsersNewest(db);
+      createViewPrevUsersOldestPupils(db);
    }
 
    private static void createTableUids(SQLiteDatabase db) {
@@ -136,27 +136,41 @@ public final class User extends Row {
       prev.create(db);
    }
 
-   private static void createTrigger(SQLiteDatabase db, Trigger.Type type) {
-      Trigger.create(db, TAB, type, PREV, UID, ROLE, NAME2, NAME1, SERIAL, NBOOKS, IDCARD);
+   /**
+    * Select the newest row of every user in prev_users (therefore including deleted users).
+    * <p>
+    * <pre> {@code
+    * CREATE VIEW prev_users_newest AS
+    *    SELECT _id, uid, role, name2, name1, serial, nbooks, idcard,
+    *       CAST(STRFTIME('%s',tstamp,'unixepoch','localtime') AS INTEGER) AS tstamp, MAX(_id)
+    *    FROM prev_users GROUP BY uid ;
+    * }
+    * </pre>
+    */
+   private static void createViewPrevUsersNewest(SQLiteDatabase db) {
+      View view = new View(PREV_NEW);
+      view.addSelect(PREV, new Values(PREV_COLUMNS, "MAX(" + OID + ")"), UID, null, null);
+      view.create(db);
    }
 
    /**
-    * Select the oldest row of every pupil in prev_users (therefore including deleted pupils).
-    * That is the row that was inserted in table prev_users when the pupil was inserted in table users.
+    * Select all rows from users where {@code role} is {@code 'pupil'}.
+    * To every row, column {@code tstamp} of the oldest corresponding row from prev_users is added,
+    * holding the POSIX time (converted to local time) when this pupil was inserted into table users.
     * <p>
     * <pre> {@code
     * CREATE VIEW prev_users_oldest_pupils AS
-    *    SELECT MIN(_id) AS _id, name2, name1, serial, idcard,
+    *    SELECT _id, uid, role, name2, name1, serial, nbooks, idcard,
     *           CAST(STRFTIME('%s',tstamp,'unixepoch','localtime') AS INTEGER) AS tstamp
-    *    FROM prev_users WHERE role='pupil' GROUP BY uid ;
+    *    FROM users JOIN (SELECT MIN(_id), uid, tstamp FROM prev_users GROUP BY uid) USING (uid) WHERE role='pupil' ;
     * }
     * </pre>
     */
    private static void createViewPrevUsersOldestPupils(SQLiteDatabase db) {
-      View view = new View(VIEW);
-      String oid = App.format("MIN(%1$s) AS %1$s", OID);
-      String tstamp = SQLite.posixToLocal(TSTAMP);
-      view.addSelect(PREV, new Values(oid, NAME2, NAME1, SERIAL, IDCARD, tstamp), UID, null, ROLE + "=?", PUPIL);
+      View view = new View(PREV_OLD);
+      String query = App.format("SELECT MIN(%s), %s, %s FROM %s GROUP BY %s", OID, UID, TSTAMP, PREV, UID);
+      String table = App.format("%s JOIN (%s) USING (%s)", TAB, query, UID);
+      view.addSelect(table, PREV_COLUMNS, null, null, ROLE + "=?", PUPIL);
       view.create(db);
    }
 
@@ -265,6 +279,11 @@ public final class User extends Row {
       return user;
    }
 
+   @NonNull
+   public static User getByIdcard(Idcard idcard) {
+      return getNonNull(idcard.getUid());
+   }
+
    @Nullable
    public static User getAdminOrTutor(String name2, String name1) {
       return User.get(NAME2 + "=? AND " + NAME1 + "=? AND " + SERIAL + "=0", name2, name1);
@@ -344,6 +363,14 @@ public final class User extends Row {
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
+   @NonNull
+   static User getByUidIncludeDeleted(long uid) {
+      Values columns = new Values(ROLE, NAME2, NAME1, SERIAL);
+      return SQLite.get(User.class, PREV_NEW, columns, null, null, UID + "=?", uid).get(0);
+   }
+
+   /* -------------------------------------------------------------------------------------------------------------- */
+
    /**
     * Returns the pupils list that will be printed as a PDF document, sorted by {@code serial}.
     * Values are only assigned for columns {@code serial} and {@code idcard}.
@@ -360,7 +387,7 @@ public final class User extends Row {
    @NonNull
    public static ArrayList<User> getPupilList(String name2, String name1, long localDate) {
       String where = App.format("%s=? AND %s=? AND %s/86400=%d", NAME2, NAME1, TSTAMP, localDate);
-      return SQLite.get(User.class, VIEW, new Values(SERIAL, IDCARD), null, SERIAL, where, name2, name1);
+      return SQLite.get(User.class, PREV_OLD, new Values(SERIAL, IDCARD), null, SERIAL, where, name2, name1);
    }
 
    @NonNull
@@ -369,17 +396,17 @@ public final class User extends Row {
       String maxSerial = App.format("MAX (%s) AS %s", SERIAL, MAX_SERIAL);
       String localDate = App.format("%s/86400 AS %s", TSTAMP, LOCAL_DATE);
       columns.addNull(minSerial).addNull(maxSerial).addNull(localDate);
-      return SQLite.get(User.class, VIEW, columns, group, order, where, args);
+      return SQLite.get(User.class, PREV_OLD, columns, group, order, where, args);
    }
 
    /**
     * Returns the insert-pupils-events for the specified school class.
     * Values are only assigned for columns
-    * {@code min_serial}, {@code max_serial} and {@code tstamp}.
+    * {@code min_serial}, {@code max_serial} and {@code local_date}.
     * This method will be called by {@link PupilList} to determine which version of pupil list must be printed.
     * <p>
     * <pre> {@code
-    * SELECT MIN(serial) AS min_serial, MAX(serial) AS max_serial, tstamp/86400 AS local_date,
+    * SELECT MIN(serial) AS min_serial, MAX(serial) AS max_serial, tstamp/86400 AS local_date
     * FROM prev_users_oldest_pupils
     * WHERE name2='$name2' AND name1='$name1'
     * GROUP BY local_date

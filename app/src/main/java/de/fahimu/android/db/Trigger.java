@@ -29,14 +29,18 @@ public final class Trigger {
       }
    }
 
-   public static void create(SQLiteDatabase db, String table, Type type, String dstTable, String... columns) {
-      Trigger trigger = new Trigger(table, type);
-      trigger.addInsert(dstTable, columns);
-      trigger.create(db);
+   public static void create(SQLiteDatabase db, String table, String dstTable, Values columns, Type... types) {
+      for (Type type : types) {
+         Trigger trigger = new Trigger(table, type);
+         trigger.addInsert(dstTable, columns.keys());
+         trigger.create(db);
+      }
    }
 
-   public static void drop(SQLiteDatabase db, String table, Type type) {
-      SQLite.drop(db, "TRIGGER", type.prefix, table);
+   public static void drop(SQLiteDatabase db, String table, Type... types) {
+      for (Type type : types) {
+         SQLite.drop(db, "TRIGGER", type.prefix, table);
+      }
    }
 
    /* ============================================================================================================== */

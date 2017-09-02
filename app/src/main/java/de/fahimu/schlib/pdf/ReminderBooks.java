@@ -72,7 +72,7 @@ public final class ReminderBooks extends TextDocument {
          }
          add(new EmptyLine(36));
 
-         TreeMap<String,List<Lending>> groups = groupLendings(Lending.getByOids(oids));
+         TreeMap<String,List<Lending>> groups = groupLendings(Lending.getByOidsWithDelay(oids));
 
          for (Map.Entry<String,List<Lending>> group : groups.entrySet()) {
             List<Lending> lendings = group.getValue();

@@ -2,6 +2,7 @@
 
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,105 +12,216 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"
-        android:layout_margin="24dp"
-        android:baselineAligned="false"
-        android:descendantFocusability="blocksDescendants"
-        android:orientation="horizontal">
+        android:descendantFocusability="blocksDescendants">
 
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+        <Button
+            android:id="@+id/admin_users_edit_reassign_idcard"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="0dp"
+
+            android:onClick="onReassignIdcardClicked"
+            android:text="@string/admin_users_edit_reassign_idcard"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/admin_users_edit_withdraw_idcard"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+
+            android:onClick="onWithdrawIdcardClicked"
+            android:text="@string/admin_users_edit_withdraw_idcard"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/admin_users_edit_delete_account"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="0dp"
             android:layout_marginEnd="24dp"
-            android:layout_weight="382">
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
 
-            <RadioGroup
-                android:id="@+id/admin_users_edit_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerInParent="true"
-                android:orientation="horizontal">
+            android:onClick="onDeleteAccountClicked"
+            android:text="@string/admin_users_edit_delete_account"
 
-                <RadioButton
-                    android:id="@+id/admin_users_edit_tutor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="24dp"
-                    android:text="@string/user_tutor"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-                <RadioButton
-                    android:id="@+id/admin_users_edit_admin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/user_admin"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+        <android.support.constraint.Guideline
+            android:id="@+id/admin_users_edit_golden_ratio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.382" />
 
-            </RadioGroup>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/admin_users_edit_group"
-                android:layout_centerInParent="true"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:lines="2"
-                    android:labelFor="@+id/admin_users_edit_number_picker"
-                    android:text="@string/admin_users_edit_nbooks" />
-
-                <de.fahimu.android.app.NumberPicker
-                    android:id="@+id/admin_users_edit_number_picker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/admin_users_edit_new_idcard"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/admin_users_edit_delete"
-                android:layout_centerInParent="true"
-                android:onClick="onDeleteClicked"
-                android:text="@string/admin_users_edit_new_idcard" />
-
-            <Button
-                android:id="@+id/admin_users_edit_delete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerInParent="true"
-                android:onClick="onDeleteClicked"
-                android:text="@string/admin_users_edit_delete" />
-
-        </RelativeLayout>
-
-        <LinearLayout
+        <RadioGroup
+            android:id="@+id/admin_users_edit_role"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="618"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+
+            android:orientation="horizontal"
+
+            app:layout_constraintBottom_toTopOf="@id/admin_users_edit_reassign_idcard"
+            app:layout_constraintEnd_toStartOf="@id/admin_users_edit_golden_ratio"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <RadioButton
+                android:id="@+id/admin_users_edit_tutor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="@string/user_tutor"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <RadioButton
+                android:id="@+id/admin_users_edit_admin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="@string/user_admin"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </RadioGroup>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/admin_users_edit_nbooks_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="24dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="0dp"
+
+            android:background="@color/color_primary_light"
+            android:elevation="4dp"
+            android:padding="8dp"
+
+            app:layout_constraintBottom_toTopOf="@id/admin_users_edit_role"
+            app:layout_constraintEnd_toStartOf="@id/admin_users_edit_golden_ratio"
+            app:layout_constraintStart_toStartOf="parent">
 
             <TextView
-                android:id="@+id/admin_users_edit_user_display"
-                android:layout_width="match_parent"
+                android:id="@+id/admin_users_edit_nbooks_text_1"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:gravity="center"
-                android:text="@string/user_display_pupil"
+
+                android:text="@string/admin_users_edit_nbooks_text_1"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@android:color/darker_gray" />
+                app:layout_constraintBaseline_toBaselineOf="@+id/admin_users_edit_nbooks_spinner"
+                app:layout_constraintEnd_toStartOf="@id/admin_users_edit_nbooks_spinner"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/admin_users_edit_nbooks_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginBottom="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="0dp"
+
+                app:layout_constraintBaseline_toBaselineOf="@+id/admin_users_edit_nbooks_text_1"
+
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/admin_users_edit_nbooks_text_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                android:text="@string/admin_users_edit_nbooks_text_2"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/admin_users_edit_nbooks_text_1" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/admin_users_edit_explanation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="0dp"
+
+            android:gravity="center"
+            android:text="@string/admin_users_edit_explanation"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+
+            app:layout_constraintBottom_toTopOf="@id/admin_users_edit_nbooks_layout"
+            app:layout_constraintEnd_toStartOf="@id/admin_users_edit_golden_ratio"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/admin_users_edit_user_display"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="24dp"
+
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+
+            android:textColor="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/admin_users_edit_golden_ratio"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Schüler #07 der Klasse 4di (2016/17)" />
+
+        <RelativeLayout
+            android:id="@+id/admin_users_edit_lending_list_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="24dp"
+
+            app:layout_constraintBottom_toTopOf="@id/admin_users_edit_delete_account"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/admin_users_edit_golden_ratio"
+            app:layout_constraintTop_toBottomOf="@id/admin_users_edit_user_display">
 
             <de.fahimu.android.app.ListView
                 android:id="@+id/admin_users_edit_lending_list"
@@ -118,10 +230,11 @@
                 android:background="@drawable/sh_rect_transparent"
                 android:listSelector="@android:color/transparent"
                 android:padding="1dp"
-                android:scrollbars="vertical" />
+                android:scrollbars="vertical"
+                android:visibility="visible" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
 </RelativeLayout>

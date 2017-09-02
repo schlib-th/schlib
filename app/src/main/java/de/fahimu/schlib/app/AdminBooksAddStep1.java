@@ -93,7 +93,7 @@ public final class AdminBooksAddStep1 extends StepFragment<AdminBooksAddActivity
          activity.showErrorSnackbar(R.string.snackbar_error_not_a_label);
       } else if (label.isUsed()) {
          NoFocusDialog dialog = new NoFocusDialog(activity);
-         dialog.setMessage(R.string.dialog_message_label_used, Book.getNonNull(label.getBid()).getDisplay());
+         dialog.setMessage(R.string.dialog_message_label_used, Book.getByLabel(label).getDisplay());
          dialog.show(R.raw.horn);
       } else {
          activity.label = label;

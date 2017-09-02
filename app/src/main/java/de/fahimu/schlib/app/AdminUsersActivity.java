@@ -212,7 +212,7 @@ public final class AdminUsersActivity extends SchlibActivity {
    public void onListItemClicked(@NonNull View view) {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
          long uid = usersAdapter.getRowByView(view).getUid();
-         // TODO startActivity(new Intent(this, AdminUsersEditActivity.class).putExtra("uid", uid));
+         startActivity(new Intent(this, AdminUsersEditActivity.class).putExtra("uid", uid));
       }
    }
 

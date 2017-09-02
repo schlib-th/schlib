@@ -157,7 +157,7 @@ public abstract class Serial extends Row {
    static int deleteOnePage(String table) {
       // UPDATE $table SET page=NULL, lost=1000000000 WHERE page=(SELECT MAX(page) FROM $table) ;
       String where = App.format("%1$s=(SELECT MAX(%1$s) FROM %2$s)", PAGE, table);
-      return SQLite.update(table, new Values().addNull(PAGE).addLong(LOST, MIN_TSTAMP), where);
+      return SQLite.update(table, new Values(PAGE).addLong(LOST, MIN_TSTAMP), where);
    }
 
    /**

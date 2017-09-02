@@ -86,7 +86,7 @@ public final class AdminIdcardsActivity extends AdminSerialsActivity<Idcard> {
          dialog.setMessage(R.string.dialog_message_admin_idcards_printed, idcard.getDisplayId());
       } else {
          dialog.setMessage(R.string.dialog_message_admin_idcards_used, idcard.getDisplayId(),
-               User.getNonNull(idcard.getUid()).getDisplay());
+               User.getByIdcard(idcard).getDisplay());
       }
       dialog.show();
    }

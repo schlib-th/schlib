@@ -72,10 +72,15 @@
 
     <!-- Lending -->
 
+    <string name="lending_display_issued">Ausgeliehen seit %1$s</string>
+    <string name="lending_display_issued_delay">%1$d Tage im Verzug seit %2$s - Ausgeliehen seit %3$s</string>
+    <string name="lending_display_returned">Ausgeliehen vom %1$s bis %2$s</string>
+    <string name="lending_display_returned_delay">Rückgabe %1$d Tage verspätet - Ausgeliehen vom %2$s bis %3$s</string>
+
     <string name="lending_display_issue">Ausgeliehen am %1$s</string>
     <string name="lending_display_delay_0">*** Noch kein Verzug ***</string>
     <string name="lending_display_delay_n">%1$d Tage im Verzug seit %2$s</string>
-    <string name="lending_display_dun">Mahnschreiben erstellt am %1$s</string>
+    <string name="lending_display_dun">%1$d. Mahnschreiben am %2$s</string>
 
     <!-- PDF documents -->
 
@@ -389,7 +394,7 @@
         \nDieser Ausweis ist dem %2$s zugewiesen.\n
         \nWenn Sie den Ausweis aussondern wollen, müssen Sie dem Nutzer zuerst eine neue Ausweiskarte zuweisen
         oder das Nutzerkonto löschen.\n
-        \nBitte wechseln Sie dazu in den Bereich \"Nutzerkonten verwalten\".
+        \nBitte wechseln Sie dazu in die Ansicht \"Nutzerkonten verwalten\".
     </string>
 
     <string name="dialog_message_admin_labels_printed">
@@ -403,7 +408,7 @@
         \nDieses Etikett identifiziert das Buch %2$s.\n
         \nWenn sie das Etikett aussondern wollen, müssen Sie dem Buch zuerst ein neues Klebeetikett zuweisen,
         bzw. das Buch aus dem Bestand nehmen.\n
-        \nBitte wechseln Sie dazu in den Bereich \"Bücherbestand verwalten\".
+        \nBitte wechseln Sie dazu in die Ansicht \"Bücherbestand verwalten\".
     </string>
 
     <string name="dialog_message_admin_books_add_step_2_similar_name">
@@ -689,7 +694,7 @@
 
     <string name="admin_idcards_label">Ausweiskarten verwalten</string>
     <string name="admin_idcards_explanation">
-        In diesem Bereich können Sie:\n
+        In dieser Ansicht können Sie:\n
         \n• Nach Ausweiskarten suchen
         \n(Lupe in der Werkzeugleiste)\n
         \n• Den Listeninhalt einschränken
@@ -719,7 +724,7 @@
 
     <string name="admin_labels_label">Klebeetiketten verwalten</string>
     <string name="admin_labels_explanation">
-        In diesem Bereich können Sie:\n
+        In dieser Ansicht können Sie:\n
         \n• Nach Klebeetiketten suchen
         \n(Lupe in der Werkzeugleiste)\n
         \n• Den Listeninhalt einschränken
@@ -749,7 +754,7 @@
 
     <string name="admin_users_label">Nutzerkonten verwalten</string>
     <string name="admin_users_explanation">
-        In diesem Bereich können Sie:\n
+        In dieser Ansicht können Sie:\n
         \n• Nach Nutzerkonten suchen
         \n(Lupe in der Werkzeugleiste)\n
         \n• Neue Nutzerkonten einrichten
@@ -759,7 +764,7 @@
         \noder das Konto löschen
         \n(Info-Symbol)\n
         \nWenn sie viele Schülerkonten zugleich löschen möchten (z. B. am Ende des Schuljahres),
-        gehen Sie bitte zurück und wechseln in den Bereich \"Schülerkonten löschen\".
+        gehen Sie bitte zurück und wechseln in die Ansicht \"Schülerkonten löschen\".
     </string>
     <string name="admin_users_empty">Kein Nutzer</string>
 
@@ -832,10 +837,21 @@
     <!-- AdminUsersEditActivity -->
 
     <string name="admin_users_edit_label">Nutzerkonto bearbeiten</string>
+    <string name="admin_users_edit_explanation">
+        In dieser Ansicht können Sie:\n
+        \n• Die Anzahl der Bücher festlegen, die der Nutzer gleichzeitig ausleihen darf\n
+        \n• Die Funktion des Nutzers ändern\n
+        \n• Eine neue Ausweiskarte zuweisen oder den Ausweis entziehen\n
+        \n• Das Nutzerkonto löschen
+    </string>
     <string name="admin_users_edit_empty">Keine Bücher ausgeliehen</string>
-    <string name="admin_users_edit_nbooks">Der Schüler kann %1$s\nBücher gleichzeitig ausleihen</string>
-    <string name="admin_users_edit_new_idcard">Neuen Ausweis zuweisen</string>
-    <string name="admin_users_edit_delete">Nutzerkonto löschen</string>
+    <string name="admin_users_edit_nbooks_text_1">Der Nutzer darf höchstens</string>
+    <string name="admin_users_edit_nbooks_text_2">gleichzeitig ausleihen.</string>
+    <string name="admin_users_edit_nbooks_book_1">1 Buch</string>
+    <string name="admin_users_edit_nbooks_book_n">%1$d Bücher</string>
+    <string name="admin_users_edit_reassign_idcard">Neue Ausweiskarte zuweisen</string>
+    <string name="admin_users_edit_withdraw_idcard">Ausweis entziehen</string>
+    <string name="admin_users_edit_delete_account">Nutzerkonto löschen</string>
 
     <!-- AdminBooksActivity -->
 

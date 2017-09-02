@@ -37,13 +37,17 @@ public final class Values {
    }
 
    /**
-    * Creates a new {@code Values} object from the specified one.
+    * Creates a new {@code Values} object from the specified one
+    * and adds an entry with value {@code null} for each key in the specified array.
     *
     * @param other
-    *       the cv to copy.
+    *       the values to copy.
+    * @param keys
+    *       the key array.
     */
-   public Values(@NonNull Values other) {
+   public Values(@NonNull Values other, @NonNull String... keys) {
       cv = new ContentValues(other.cv);
+      addKeys(keys);
    }
 
    /**
@@ -54,7 +58,11 @@ public final class Values {
     *       the key array.
     */
    public Values(@NonNull String... keys) {
-      this();
+      cv = new ContentValues(keys.length);
+      addKeys(keys);
+   }
+
+   private void addKeys(@NonNull String... keys) {
       for (String key : keys) {
          if (key != null) {
             cv.putNull(key);     // assure that no {@code null} keys are stored

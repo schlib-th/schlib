@@ -247,7 +247,7 @@ public final class LoginActivity extends SchlibActivity {
          Idcard idcard = Idcard.parse(barcode);
          if (idcard != null) {
             if (idcard.isUsed()) {
-               User user = User.getNonNull(idcard.getUid());
+               User user = User.getByIdcard(idcard);
                if (user.getRole() == Role.PUPIL) {
                   setError(R.string.login_message_1_idcard_from_pupil, R.string.login_message_2_idcard_from_pupil);
                } else {

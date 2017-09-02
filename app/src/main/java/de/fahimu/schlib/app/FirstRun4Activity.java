@@ -286,7 +286,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       if (label == null) {
          showErrorSnackbar(R.string.snackbar_error_not_a_label);
       } else if (label.isUsed()) {
-         Book book = Book.getNonNull(label.getBid());
+         Book book = Book.getByLabel(label);
          NoFocusDialog dialog = new NoFocusDialog(this);
          dialog.setMessage(R.string.dialog_message_first_run_4_label_used, book.getDisplay()).show(R.raw.horn);
       } else {

@@ -86,7 +86,7 @@ public final class AdminLabelsActivity extends AdminSerialsActivity<Label> {
          dialog.setMessage(R.string.dialog_message_admin_labels_printed, label.getDisplayId());
       } else {
          dialog.setMessage(R.string.dialog_message_admin_labels_used, label.getDisplayId(),
-               Book.getNonNull(label.getBid()).getDisplay());
+               Book.getByLabel(label).getDisplay());
       }
       dialog.show();
    }

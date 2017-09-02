@@ -62,14 +62,14 @@ public final class DunningLetters extends TextDocument {
    @WorkerThread
    void addLines() {
       try (@SuppressWarnings ("unused") Log.Scope scope = Log.e()) {
-         List<Lending> lendings = Lending.getByOids(oids);
+         List<Lending> lendings = Lending.getByOidsWithDelay(oids);
          for (int page = 0; page < lendings.size(); page++) {
             Lending lending = lendings.get(page);
 
             Book book = lending.getBook();
             User user = lending.getUser();
             boolean isPupil = user.getRole() == Role.PUPIL;
-            boolean delayed = lending.hasTerm() && lending.getDelay() >= 2;
+            boolean delayed = lending.isDelayed();
 
             String text = App.getStr(delayed ?
                                      R.string.pdf_dunning_letters_headline_delayed :
@@ -149,7 +149,8 @@ public final class DunningLetters extends TextDocument {
       String text = replaceUserVariables(App.getStr(resId),
             "DATE", date, "BOOK", book.getDisplay(), "PERIOD", Integer.toString(book.getPeriod()),
             "ISSUE-DATE", lending.getIssueDate(), "ISSUE-TIME", lending.getIssueTime(),
-            "TERM", lending.hasTerm() ? lending.getTermDate() : "", "DELAY", Integer.toString(lending.getDelay()));
+            "TERM", lending.isDelayed() ? lending.getTermDate() : "",
+            "DELAY", Integer.toString(lending.getDelay()));
       for (String line : text.split("\n")) {
          add(line.isEmpty() ? new EmptyLine(emptyHeight) : new MultiLine(0.0, size, height, true, line));
       }

@@ -178,7 +178,7 @@ public final class StocktakingBooksActivity extends SchlibActivity implements On
             if (label == null) {
                showErrorSnackbar(R.string.snackbar_error_not_a_label);
             } else {
-               onBookScanned(label.isUsed() ? Book.getNonNull(label.getBid()) : null);
+               onBookScanned(label.isUsed() ? Book.getByLabel(label) : null);
             }
          }
       }

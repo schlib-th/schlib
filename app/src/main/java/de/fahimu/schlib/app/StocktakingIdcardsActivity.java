@@ -64,7 +64,7 @@ public final class StocktakingIdcardsActivity extends StocktakingSerialsActivity
    @Override
    void showErrorDialog(Idcard idcard) {
       NoFocusDialog dialog = new NoFocusDialog(this);
-      dialog.setMessage(R.string.dialog_message_idcard_used, User.getNonNull(idcard.getUid()).getDisplay());
+      dialog.setMessage(R.string.dialog_message_idcard_used, User.getByIdcard(idcard).getDisplay());
       dialog.show(R.raw.horn);
    }
 
