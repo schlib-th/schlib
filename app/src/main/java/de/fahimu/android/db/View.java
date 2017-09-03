@@ -40,8 +40,10 @@ public final class View {
       SQLite.execSQL(db, createView);
    }
 
-   public static void drop(SQLiteDatabase db, String name) {
-      SQLite.drop(db, "VIEW", name);
+   public static void drop(SQLiteDatabase db, String... names) {
+      for (String name : names) {
+         SQLite.drop(db, "VIEW", name);
+      }
    }
 
 }

@@ -100,7 +100,7 @@ public final class SQLite {
    /* ============================================================================================================== */
 
    /**
-    * Execute a single SQL statement that is NOT a SELECT/INSERT/UPDATE/DELETE.
+    * Executes a single SQL statement that is NOT a SELECT.
     * <p> The SQL statement is logged with level verbose. </p>
     *
     * @param db

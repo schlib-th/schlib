@@ -17,6 +17,7 @@ import java.util.List;
 import de.fahimu.android.app.App;
 import de.fahimu.android.db.Row;
 import de.fahimu.android.db.SQLite;
+import de.fahimu.android.db.SQLite.Transaction;
 import de.fahimu.android.db.Table;
 import de.fahimu.android.db.Trigger;
 import de.fahimu.android.db.Trigger.Type;
@@ -25,6 +26,8 @@ import de.fahimu.android.db.View;
 import de.fahimu.schlib.app.R;
 
 import static de.fahimu.android.db.SQLite.MIN_TSTAMP;
+import static de.fahimu.android.db.Trigger.Type.AFTER_INSERT;
+import static de.fahimu.android.db.Trigger.Type.AFTER_UPDATE;
 
 /**
  * A in-memory representation of one row of table {@code lendings}.
@@ -37,6 +40,7 @@ public final class Lending extends Row {
 
    static final         String TAB      = "lendings";
    static final private String TAB_OPD  = "opening_dates";
+   static final private String TAB_DUN  = "dunning_letters";
    static final private String VIEW_LOC = "lendings_loc";
    static final private String VIEW_DEL = "lendings_loc_delay";
 
@@ -44,37 +48,57 @@ public final class Lending extends Row {
    static final private String BID    = "bid";
    static final private String UID    = "uid";
    static final         String ISSUE  = "issue";
-   static final private String DUN    = "dun";
    static final         String RETURN = "return";
-   static final private String TERM   = "term";
-   static final private String DELAY  = "delay";
+
+   static final private String LENDING = "lending";
+   static final private String DUN     = "dun";
+
+   static final private String COUNT = "count";
+   static final private String TERM  = "term";
+   static final private String DELAY = "delay";
 
    static final private int MIN_LENDING_TIME = 60;
 
    /* -------------------------------------------------------------------------------------------------------------- */
 
    static void create(SQLiteDatabase db) {
-      createTableOpeningDates(db);
       createTableLendings(db);
+      createTableOpeningDates(db);
+      createTableDunningLetters(db);
 
       createViewLendingsLoc(db);
-      createTrigger(db, Type.AFTER_INSERT, ISSUE);
-      createTrigger(db, Type.AFTER_UPDATE, RETURN);
       createViewLendingsLocDelay(db);
+      createTrigger(db, AFTER_INSERT, ISSUE);
+      createTrigger(db, AFTER_UPDATE, RETURN);
    }
 
    static void upgrade(SQLiteDatabase db, int oldVersion) {
+      Trigger.drop(db, TAB, AFTER_INSERT, AFTER_UPDATE);
+      View.drop(db, VIEW_LOC, VIEW_DEL);
+
       if (oldVersion < 2) {
          createTableOpeningDates(db);     // new introduced with V2
-
          deleteShortTimeLendings(db);     // rows forbidden since V2 where return - issue < MIN_LENDING_TIME
-         upgradeTableLendingsV2(db);
-
-         createViewLendingsLoc(db);
-         createTrigger(db, Type.AFTER_INSERT, ISSUE);
-         createTrigger(db, Type.AFTER_UPDATE, RETURN);
-         createViewLendingsLocDelay(db);
       }
+      if (oldVersion < 4) {
+         createTableDunningLetters(db);   // new introduced with V4 as an extension of V2's column dun
+         if (oldVersion >= 2) { migrateDunningLetters(db); }
+         upgradeTableLendings(db, oldVersion);
+      }
+      createViewLendingsLoc(db);
+      createViewLendingsLocDelay(db);
+      createTrigger(db, AFTER_INSERT, ISSUE);
+      createTrigger(db, AFTER_UPDATE, RETURN);
+   }
+
+   private static void createTableLendings(SQLiteDatabase db) {
+      Table tab = new Table(TAB, 6, true);
+      tab.addReferences(BID, true).addIndex();           // essential to find all lendings of a given book
+      tab.addReferences(UID, true).addIndex();           // essential to find all lendings of a given user
+      tab.addTimeColumn(ISSUE, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();
+      tab.addTimeColumn(RETURN, false).addCheckPosixTime(MIN_TSTAMP);
+      tab.addConstraint().addCheck(RETURN + "-" + ISSUE + ">=" + MIN_LENDING_TIME);
+      tab.create(db);
    }
 
    /**
@@ -84,37 +108,36 @@ public final class Lending extends Row {
       new Table(TAB_OPD, 3, false).create(db);
    }
 
-   private static void createTableLendings(SQLiteDatabase db) {
-      Table tab = new Table(TAB, 6, true);
-      tab.addReferences(BID, true).addIndex();           // essential to find all lendings of a given book
-      tab.addReferences(UID, true).addIndex();           // essential to find all lendings of a given user
-      tab.addTimeColumn(ISSUE, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();
-      tab.addTimeColumn(DUN, false).addCheckPosixTime(MIN_TSTAMP);                    // new in version V2
-      tab.addTimeColumn(RETURN, false).addCheckPosixTime(MIN_TSTAMP);
-      tab.addConstraint().addCheck(DUN + " BETWEEN " + ISSUE + " AND " + RETURN);
-      tab.addConstraint().addCheck(RETURN + "-" + ISSUE + ">=" + MIN_LENDING_TIME);
+   private static void createTableDunningLetters(SQLiteDatabase db) {
+      Table tab = new Table(TAB_DUN, 7, true);
+      tab.addReferences(LENDING, true).addIndex();       // essential to find all dunning letters of a given lending
+      tab.addTimeColumn(DUN, true).addCheckPosixTime(MIN_TSTAMP).addDefaultPosixTime();   // moved from lendings in V4
       tab.create(db);
    }
 
    /**
-    * Select from {@code lendings} with values of
-    * {@code issue}, {@code dun} and {@code return} converted to localtime.
+    * Select from {@code lendings} and {@code dunning_letters} with values of
+    * {@code issue}, {@code return} and {@code dun} converted to localtime.
     * <p>
     * <pre> {@code
     * CREATE VIEW lendings_loc AS
     * SELECT _id, bid, uid, CAST(STRFTIME('%s',issue ,'unixepoch','localtime') AS INTEGER) AS issue,
-    *                       CAST(STRFTIME('%s',dun   ,'unixepoch','localtime') AS INTEGER) AS dun,
-    *                       CAST(STRFTIME('%s',return,'unixepoch','localtime') AS INTEGER) AS return
-    * FROM lendings ;
+    *                       CAST(STRFTIME('%s',return,'unixepoch','localtime') AS INTEGER) AS return,
+    *                       CAST(STRFTIME('%s',dun   ,'unixepoch','localtime') AS INTEGER) AS dun, count
+    * FROM lendings LEFT JOIN
+    * (SELECT MAX(_id), COUNT(*) AS count, dun, lending AS _id FROM dunning_letters GROUP BY lending) USING(_id) ;
     * }
     * </pre>
     */
    private static void createViewLendingsLoc(SQLiteDatabase db) {
       View view = new View(VIEW_LOC);
       String issueLoc = SQLite.posixToLocal(ISSUE);
-      String dunLoc = SQLite.posixToLocal(DUN);
       String returnLoc = SQLite.posixToLocal(RETURN);
-      view.addSelect(TAB, new Values(OID, BID, UID, issueLoc, dunLoc, returnLoc), null, null, null);
+      String dunLoc = SQLite.posixToLocal(DUN);
+      String query = App.format("SELECT MAX(%1$s), COUNT(*) AS %2$s, %3$s, %4$s AS %1$s FROM %5$s GROUP BY %4$s",
+            OID, COUNT, DUN, LENDING, TAB_DUN);
+      String table = App.format("%s LEFT JOIN (%s) USING (%s)", TAB, query, OID);
+      view.addSelect(table, new Values(OID, BID, UID, issueLoc, returnLoc, dunLoc, COUNT), null, null, null);
       view.create(db);
    }
 
@@ -135,7 +158,7 @@ public final class Lending extends Row {
       for (String column : columns) {
          String table = App.format("%s JOIN %s USING (%s) %s", VIEW_LOC, User.TAB, UID, Preference.joinOpened(column));
          String where = App.format("%s='%s' AND %s.%s=NEW.%s", User.ROLE, User.PUPIL, VIEW_LOC, OID, OID);
-         if (type == Type.AFTER_UPDATE) {
+         if (type == AFTER_UPDATE) {
             where = where + " AND OLD." + column + " ISNULL";
          }
          trigger.addInsertOrIgnoreSelected(TAB_OPD, column + "/86400", table, where);
@@ -148,7 +171,7 @@ public final class Lending extends Row {
     * <p>
     * <pre> {@code
     * CREATE VIEW lendings_loc_delay AS
-    *    SELECT lendings_loc._id AS _id, bid, uid, issue, dun, return,
+    *    SELECT lendings_loc._id AS _id, bid, uid, issue, return, dun, count,
     *           MIN(opening_dates._id)*86400 AS term,
     *           IFNULL(return,CAST(STRFTIME('%s','now','localtime') AS INTEGER))/86400
     *         - IFNULL(MIN(opening_dates._id),issue/86400+period) AS delay
@@ -168,7 +191,7 @@ public final class Lending extends Row {
       String min = App.format("IFNULL(%s,CAST(STRFTIME('%%s','now','localtime') AS INTEGER))/86400", RETURN);
       String sub = App.format("IFNULL(MIN(%s),%s/86400+%s)", opdOid, ISSUE, Book.PERIOD);
       String delay = App.format("%s - %s AS %s", min, sub, DELAY);
-      Values columns = new Values(SQLite.alias(VIEW_LOC, OID), BID, UID, ISSUE, DUN, RETURN, term, delay);
+      Values columns = new Values(SQLite.alias(VIEW_LOC, OID), BID, UID, ISSUE, RETURN, DUN, COUNT, term, delay);
 
       String table = App.format("%s JOIN %s USING (%s) LEFT JOIN %s ON %s>=%s/86400+%s",
             VIEW_LOC, Book.TAB, BID, TAB_OPD, opdOid, ISSUE, Book.PERIOD);
@@ -183,20 +206,29 @@ public final class Lending extends Row {
       SQLite.delete(db, TAB, App.format(cast, RETURN) + " - " + App.format(cast, ISSUE) + " < " + MIN_LENDING_TIME);
    }
 
-   private static void upgradeTableLendingsV2(SQLiteDatabase db) {
-      // Rebuild table lendings to contain integers for issue and return instead of text strings
+   private static void migrateDunningLetters(SQLiteDatabase db) {
+      // INSERT INTO dunning_letters (lending, dun) SELECT _id, dun FROM lendings WHERE dun NOTNULL;
+      SQLite.execSQL(db, App.format("INSERT INTO %1$s (%2$s, %3$s) SELECT %4$s, %3$s FROM %5$s WHERE %3$s NOTNULL;",
+            TAB_DUN, LENDING, DUN, OID, TAB));
+   }
+
+   private static void upgradeTableLendings(SQLiteDatabase db, int oldVersion) {
       Table.dropIndex(db, TAB, BID, UID);
       SQLite.alterTablePrepare(db, TAB);
       createTableLendings(db);
 
-      createViewLendingsLoc(db);
-      createTrigger(db, Type.AFTER_INSERT, ISSUE, RETURN);
+      if (oldVersion < 2) {
+         createViewLendingsLoc(db);
+         createTrigger(db, AFTER_INSERT, ISSUE, RETURN);
+      }
+      String issueDate = oldVersion < 2 ? SQLite.datetimeToPosix(ISSUE) : ISSUE;
+      String returnDate = oldVersion < 2 ? SQLite.datetimeToPosix(RETURN) : RETURN;
+      SQLite.alterTableExecute(db, TAB, OID, BID, UID, issueDate, returnDate);
 
-      SQLite.alterTableExecute(db, TAB, OID, BID, UID,
-            SQLite.datetimeToPosix(ISSUE), "NULL", SQLite.datetimeToPosix(RETURN));
-
-      Trigger.drop(db, TAB, Type.AFTER_INSERT);
-      View.drop(db, VIEW_LOC);
+      if (oldVersion < 2) {
+         Trigger.drop(db, TAB, AFTER_INSERT);
+         View.drop(db, VIEW_LOC);
+      }
    }
 
    /* ============================================================================================================== */
@@ -220,7 +252,7 @@ public final class Lending extends Row {
    }
 
    private static ArrayList<Lending> get(String where, Object... args) {
-      Values columns = new Values(OID, BID, UID, ISSUE, DUN, RETURN);
+      Values columns = new Values(OID, BID, UID, ISSUE, RETURN);
       return SQLite.get(Lending.class, TAB, columns, null, OID, where, args);
    }
 
@@ -255,7 +287,8 @@ public final class Lending extends Row {
     * Returns the {@link Lending}s from {@code lendings_loc_delay} as specified by {@code where} and {@code args}.
     * <p>
     * <pre> {@code
-    * SELECT _id, bid, uid, issue, return, term, delay FROM lendings_loc_delay WHERE $where ORDER BY $order ;
+    * SELECT _id, bid, uid, issue, return, dun, count, term, delay
+    * FROM lendings_loc_delay WHERE $where ORDER BY $order ;
     * }
     * </pre>
     *
@@ -268,7 +301,7 @@ public final class Lending extends Row {
     * @return the {@link Lending}s
     */
    private static ArrayList<Lending> getLocalizedLendingsWithDelay(String order, String where, Object... args) {
-      Values columns = new Values(OID, BID, UID, ISSUE, DUN, RETURN, TERM, DELAY);
+      Values columns = new Values(OID, BID, UID, ISSUE, RETURN, DUN, COUNT, TERM, DELAY);
       return SQLite.get(Lending.class, VIEW_DEL, columns, null, order, where, args);
    }
 
@@ -307,23 +340,30 @@ public final class Lending extends Row {
    /**
     * <p>
     * <pre> {@code
-    * UPDATE lendings SET dun=NULL WHERE dun>=$beginOfDay ;
+    * DELETE FROM dunning_letters WHERE dun>=$beginOfDay ;
     * }
     * </pre>
     */
    public static void resetDunned() {
-      SQLite.update(TAB, new Values(DUN), DUN + ">=" + App.beginOfDay());
+      SQLite.delete(null, TAB_DUN, DUN + ">=" + App.beginOfDay());
    }
 
    /**
+    * For every {@code oid} in {@code oids} execute
     * <p>
     * <pre> {@code
-    * UPDATE lendings SET dun=$posixTime WHERE lendings_loc_delay._id IN (oid0,oid1, ... ,oidN)
+    * INSERT INTO dunning_letters (lending, dun) VALUES ($oid, $posixTime) ;
     * }
     * </pre>
     */
    public static void setDunned(List<Long> oids) {
-      SQLite.update(TAB, new Values().addLong(DUN, App.posixTime()), buildWhereClauseOidInList(TAB, oids));
+      long now = App.posixTime();
+      try (Transaction transaction = new Transaction()) {
+         for (long oid : oids) {
+            SQLite.insert(null, TAB_DUN, new Values().addLong(LENDING, oid).addLong(DUN, now));
+         }
+         transaction.setSuccessful();
+      }
    }
 
    /* ============================================================================================================== */
@@ -361,22 +401,18 @@ public final class Lending extends Row {
    }
 
    /**
-    * Returns the POSIX time when the book was issued as a formatted date string.
+    * Returns the date when the book was issued, formatted {@code DD.MM.YYYY} in the default timezone.
     *
-    * @return the POSIX time when the book was issued as a formatted date string.
-    *
-    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
-    */
+    * @return the date when the book was issued, formatted {@code DD.MM.YYYY} in the default timezone.
+    **/
    public String getIssueDate() {
       return App.formatDate(R.string.app_date, true, getIssue());
    }
 
    /**
-    * Returns the POSIX time when the book was issued as a formatted time string.
+    * Returns the time when the book was issued, formatted {@code HH:mm} in the default timezone.
     *
-    * @return the POSIX time when the book was issued as a formatted time string.
-    *
-    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    * @return the time when the book was issued, formatted {@code HH:mm} in the default timezone.
     */
    public String getIssueTime() {
       return App.formatDate(R.string.app_time, true, getIssue());
@@ -387,15 +423,23 @@ public final class Lending extends Row {
    }
 
    /**
-    * Returns the POSIX time when the book was dunned as a formatted date string.
+    * Returns the date when the book was dunned most recently, formatted {@code DD.MM.YYYY} in the default timezone.
     * <p> Precondition: {@link #isDunned()} ()} must be {@code true}. </p>
     *
-    * @return the POSIX time when the book was dunned as a formatted date string.
-    *
-    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    * @return the date when the book was dunned most recently, formatted {@code DD.MM.YYYY} in the default timezone.
     */
    private String getDunDate() {
       return App.formatDate(R.string.app_date, true, values.getLong(DUN));
+   }
+
+   /**
+    * Returns how many times the book was dunned.
+    * <p> Precondition: {@link #isDunned()} ()} must be {@code true}. </p>
+    *
+    * @return how many times the book was dunned.
+    */
+   public int getDunCount() {
+      return values.getInt(COUNT);
    }
 
    private boolean isReturned() {
@@ -403,12 +447,10 @@ public final class Lending extends Row {
    }
 
    /**
-    * Returns the POSIX time when the book was returned as a formatted date string.
+    * Returns the date when the book was returned, formatted {@code DD.MM.YYYY} in the default timezone.
     * <p> Precondition: {@link #isReturned()} must be {@code true}. </p>
     *
-    * @return the POSIX time when the book was returned as a formatted date string.
-    *
-    * @see <a href="https://en.wikipedia.org/wiki/Unix_time">POSIX time</a>
+    * @return the date when the book was returned, formatted {@code DD.MM.YYYY} in the default timezone.
     */
    private String getReturnDate() {
       return App.formatDate(R.string.app_date, true, values.getLong(RETURN));
@@ -428,7 +470,7 @@ public final class Lending extends Row {
    }
 
    /**
-    * Returns the term of the lending as a formatted date string.
+    * Returns the term of the lending, formatted {@code DD.MM.YYYY} in the default timezone.
     * <p>
     * Usually a book must be returned not later than the day of issue plus
     * the number of days the book can be lend at most (the period of the book).
@@ -436,7 +478,7 @@ public final class Lending extends Row {
     * </p>
     * <p> Precondition: {@link #hasTerm()} must be {@code true}. </p>
     *
-    * @return the term of the lending as a formatted date string.
+    * @return the term of the lending, formatted {@code DD.MM.YYYY} in the default timezone.
     */
    public String getTermDate() {
       return App.formatDate(R.string.app_date, true, values.getLong(TERM));
@@ -527,11 +569,12 @@ public final class Lending extends Row {
       StringBuilder b = new StringBuilder(App.getStr(R.string.lending_display_issue, getIssueDate()));
       if (isDelayed()) {
          b.append('\n').append(App.getStr(R.string.lending_display_delay_n, getDelay(), getTermDate()));
+         if (isDunned()) {
+            b.append('\n').append(App.getStr(R.string.lending_display_dunning_letter, getDunCount(), getDunDate()));
+         }
       } else if (isDunned()) {
          b.append('\n').append(App.getStr(R.string.lending_display_delay_0));
-      }
-      if (isDunned()) {
-         b.append('\n').append(App.getStr(R.string.lending_display_dun, 1, getDunDate()));
+         b.append('\n').append(App.getStr(R.string.lending_display_reminder, getDunCount(), getDunDate()));
       }
       return b.toString();
    }

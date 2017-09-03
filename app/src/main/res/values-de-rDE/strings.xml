@@ -18,8 +18,8 @@
     <!-- App.formatDate -->
 
     <string name="app_time">"HH':'mm"</string>
-    <string name="app_date">"dd'.'MM'.'yyyy"</string>   <!-- "dd'.'MM'.'yyyy" -->
-    <string name="app_month">"MM'/'yyyy"</string>       <!-- "MM'/'yyyy" -->
+    <string name="app_date">"dd'.'MM'.'yyyy"</string>   <!-- "dd'.'MM'.'yyyy" DEBUG: "dd'.'MM'.'HHmm" -->
+    <string name="app_month">"MM'/'yyyy"</string>       <!--      "MM'/'yyyy" DEBUG:      "MM'/'HHmm" -->
 
     <!-- CSVParser -->
 
@@ -79,8 +79,9 @@
 
     <string name="lending_display_issue">Ausgeliehen am %1$s</string>
     <string name="lending_display_delay_0">*** Noch kein Verzug ***</string>
+    <string name="lending_display_reminder">%1$d. Erinnerung am %2$s</string>
     <string name="lending_display_delay_n">%1$d Tage im Verzug seit %2$s</string>
-    <string name="lending_display_dun">%1$d. Mahnschreiben am %2$s</string>
+    <string name="lending_display_dunning_letter">%1$d. Mahnschreiben am %2$s</string>
 
     <!-- PDF documents -->
 
@@ -184,8 +185,8 @@
 
     <string name="pdf_dunning_letters_title">Mahnschreiben vom %1$s</string>
     <string name="pdf_dunning_letters_subject">Mahnschreiben zum Ausdrucken</string>
-    <string name="pdf_dunning_letters_headline_no_term">Erinnerung vom %1$s</string>
-    <string name="pdf_dunning_letters_headline_delayed">Mahnung vom %1$s</string>
+    <string name="pdf_dunning_letters_headline_no_term">%1$d. Erinnerung vom %2$s</string>
+    <string name="pdf_dunning_letters_headline_delayed">%1$d. Mahnung vom %2$s</string>
     <string name="pdf_dunning_letters_salutation_tutor">Liebe(r) %1$s,</string>
     <string name="pdf_dunning_letters_salutation_pupil">Liebe Schülerin, lieber Schüler</string>
     <string name="pdf_dunning_letters_annotation_pupil">%1$s - Name von der Lehrkraft zu ergänzen</string>

@@ -93,8 +93,7 @@ public final class User extends Row {
    static void upgrade(SQLiteDatabase db, int oldVersion) {
       Trigger.drop(db, TAB, AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE);
 
-      View.drop(db, PREV_NEW);
-      View.drop(db, PREV_OLD);
+      View.drop(db, PREV_NEW, PREV_OLD);
 
       if (oldVersion < 3) {
          upgradeTableUsers(db);

@@ -73,7 +73,7 @@ public final class DunningLetters extends TextDocument {
 
             String text = App.getStr(delayed ?
                                      R.string.pdf_dunning_letters_headline_delayed :
-                                     R.string.pdf_dunning_letters_headline_no_term, date);
+                                     R.string.pdf_dunning_letters_headline_no_term, lending.getDunCount(), date);
             add(new SingleLine(0.0, 20, 22 + 44, CENTER, text));
 
             if (isPupil) {
