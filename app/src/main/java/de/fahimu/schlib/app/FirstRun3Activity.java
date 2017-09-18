@@ -121,7 +121,7 @@ public final class FirstRun3Activity extends SchlibActivity {
       dialog.setButton0(R.string.app_no, null);
       dialog.setButton1(R.string.app_yes, new ButtonListener() {
          @Override
-         public void onClick() { gotoLogin(); }
+         public void onClick(int id) { gotoLogin(); }
       }).show();
    }
 

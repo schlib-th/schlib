@@ -157,7 +157,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
 
    private final ButtonListener noButtonListener = new ButtonListener() {
       @Override
-      public void onClick() { usersAdapter.setSelection(-1); }
+      public void onClick(int id) { usersAdapter.setSelection(-1); }
    };
 
    @Override
@@ -180,7 +180,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
                   dialog.setButton0(R.string.app_no, noButtonListener);
                   dialog.setButton1(R.string.app_yes, new ButtonListener() {
                      @Override
-                     public void onClick() {
+                     public void onClick(int id) {
                         deleteNoConfirmation = true;
                         deleteScanned(user, 0);
                      }
@@ -203,12 +203,11 @@ public final class StocktakingUsersActivity extends SchlibActivity {
    private void deleteScanned(@NonNull User user, int flags) {
       // user.hasBooks() can only be called on list items, not on scanned Users
       if (Lending.getByUser(user, true).size() > 0) {
-         Idcard idcard = user.getIdcard();
+         showInfoSnackbar(R.string.stocktaking_users_snackbar_info_stocked, user.getDisplayIdcard());
          user.setIdcard(null).update();      // set idcard to stocked
-         showInfoSnackbar(R.string.stocktaking_users_snackbar_info_stocked, idcard.getDisplayId());
       } else {
-         user.delete();
          showInfoSnackbar(R.string.stocktaking_users_snackbar_info_deleted_stocked, user.getDisplay());
+         user.delete();
       }
       usersAdapter.updateAsync(flags | RELOAD_DATA);
    }
@@ -237,7 +236,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       dialog.setButton0(R.string.app_no, noButtonListener);
       dialog.setButton1(R.string.app_yes, new ButtonListener() {
          @Override
-         public void onClick() {
+         public void onClick(int id) {
             if (setLost) {
                user.getIdcard().setLost(true).update();
             }
@@ -262,7 +261,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
       dialog.setButton0(R.string.app_no, null);
       dialog.setButton1(R.string.app_yes, new ButtonListener() {
          @Override
-         public void onClick() { printReminder(); }
+         public void onClick(int id) { printReminder(); }
       }).show();
    }
 
@@ -272,7 +271,7 @@ public final class StocktakingUsersActivity extends SchlibActivity {
          dialog.setMessage(R.string.dialog_message_stocktaking_users_printing_list);
          dialog.setButton0(R.string.app_cancel, new ButtonListener() {
             @Override
-            public void onClick() { taskRegistry.cancel(); }
+            public void onClick(int id) { taskRegistry.cancel(); }
          });
          dialog.setButton1(R.string.dialog_button1_stocktaking_users_printing_init, null);
          dialog.show().setButtonEnabled(1, false);    // show dialog and disable button 1

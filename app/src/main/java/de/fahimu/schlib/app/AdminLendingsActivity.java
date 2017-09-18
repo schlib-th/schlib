@@ -288,7 +288,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
          dialog.setButton0(R.string.dialog_button0_admin_lendings_delete, null);
          dialog.setButton1(R.string.dialog_button1_admin_lendings_delete, new ButtonListener() {
             @Override
-            public void onClick() { cancel(lending); }
+            public void onClick(int id) { cancel(lending); }
          }).show(R.raw.horn);
       }
    }
@@ -329,7 +329,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
                R.string.dialog_button1_admin_lendings_printing_list,
                new ButtonListener() {
                   @Override
-                  public void onClick() { taskRegistry.cancel(); }
+                  public void onClick(int id) { taskRegistry.cancel(); }
                });
       }
    }
@@ -345,7 +345,7 @@ public final class AdminLendingsActivity extends SchlibActivity {
                R.string.dialog_button1_admin_lendings_printing_duns,
                new ButtonListener() {
                   @Override
-                  public void onClick() {
+                  public void onClick(int id) {
                      taskRegistry.cancel();
                      Lending.resetDunned();
                      lendingsAdapter.updateAsync(Adapter.RELOAD_DATA, new LendingItemFilter());

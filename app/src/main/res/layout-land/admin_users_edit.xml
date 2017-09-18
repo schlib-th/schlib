@@ -88,6 +88,7 @@
             android:layout_marginTop="24dp"
 
             android:orientation="horizontal"
+            android:gravity="center"
 
             app:layout_constraintBottom_toTopOf="@id/admin_users_edit_reassign_idcard"
             app:layout_constraintEnd_toStartOf="@id/admin_users_edit_golden_ratio"
@@ -97,7 +98,6 @@
                 android:id="@+id/admin_users_edit_tutor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
                 android:text="@string/user_tutor"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 

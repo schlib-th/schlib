@@ -514,9 +514,19 @@ public final class Book extends Row {
     *
     * @return the {@code Label} number of this {@code Book}.
     */
+   private int getLabelId() {
+      return values.getInt(LABEL);
+   }
+
+   /**
+    * Returns the {@code Label} of this {@code Book}.
+    * <p> Precondition: {@link #hasLabel()} must be {@code true}. </p>
+    *
+    * @return the {@code Label} of this {@code Book}.
+    */
    @NonNull
    public Label getLabel() {
-      return Label.getNonNull(values.getInt(LABEL));
+      return Label.getNonNull(getLabelId());
    }
 
    @NonNull
@@ -569,7 +579,7 @@ public final class Book extends Row {
 
    @NonNull
    public String getDisplayLabel() {
-      return hasLabel() ? SerialNumber.getDisplay(values.getInt(LABEL)) : "";
+      return hasLabel() ? SerialNumber.getDisplay(getLabelId()) : "";
    }
 
    @NonNull

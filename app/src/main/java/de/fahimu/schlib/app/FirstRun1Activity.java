@@ -86,7 +86,7 @@ public final class FirstRun1Activity extends SchlibActivity {
             dialog.setMessage(R.string.dialog_message_first_run_1);
             dialog.setButton1(R.string.app_cont, new ButtonListener() {
                @Override
-               public void onClick() { prepareDatabaseAndContinue(name1Value, name2Value); }
+               public void onClick(int id) { prepareDatabaseAndContinue(name1Value, name2Value); }
             }).show();
          }
       }

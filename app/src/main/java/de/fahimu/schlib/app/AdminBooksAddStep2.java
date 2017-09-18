@@ -213,7 +213,7 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
          dialog.setButton0(R.string.app_no, null);
          dialog.setButton1(R.string.app_yes, new ButtonListener() {
             @Override
-            public void onClick() { confirmedShelf = activity.shelf; }
+            public void onClick(int id) { confirmedShelf = activity.shelf; }
          }).show();
          return false;
       }
@@ -236,7 +236,7 @@ public final class AdminBooksAddStep2 extends StepFragment<AdminBooksAddActivity
          dialog.setButton0(R.string.app_no, null);
          dialog.setButton1(R.string.app_yes, new ButtonListener() {
             @Override
-            public void onClick() { confirmedNumber = activity.number; }
+            public void onClick(int id) { confirmedNumber = activity.number; }
          }).show();
          return false;
       }

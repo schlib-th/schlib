@@ -183,7 +183,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       dialog.setButton0(R.string.dialog_button0_first_run_4_delete_book, null);
       dialog.setButton1(R.string.dialog_button1_first_run_4_delete_book, new ButtonListener() {
          @Override
-         public void onClick() {
+         public void onClick(int id) {
             book.delete();
             booksAdapter.updateAsync(Adapter.RELOAD_DATA);
          }
@@ -313,7 +313,7 @@ public final class FirstRun4Activity extends SchlibActivity {
       dialog.setButton0(R.string.dialog_button0_first_run_4_no_isbn, null);
       dialog.setButton1(R.string.dialog_button1_first_run_4_no_isbn, new ButtonListener() {
          @Override
-         public void onClick() { updateISBNLabel(book, null, label); }
+         public void onClick(int id) { updateISBNLabel(book, null, label); }
       }).show(R.raw.horn);
    }
 

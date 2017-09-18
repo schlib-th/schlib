@@ -100,7 +100,7 @@ abstract class SchlibActivity extends ScannerActivity {
             dialog.setMessage(R.string.dialog_message_schlib_no_permission);
             dialog.setButton1(R.string.app_cont, new ButtonListener() {
                @Override
-               public void onClick() {
+               public void onClick(int id) {
                   SchlibActivity.this.requestPermissions(new String[] { permission }, REQUEST_ID);
                }
             }).show();

@@ -8,19 +8,23 @@ package de.fahimu.android.app.scanner;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnKeyListener;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
 import android.support.annotation.StringRes;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 
 
 import de.fahimu.android.app.App;
+
+import static android.content.DialogInterface.BUTTON_NEGATIVE;
+import static android.content.DialogInterface.BUTTON_POSITIVE;
 
 /**
  * A convenience class for building {@link AlertDialog}s that cannot receive the focus.
@@ -34,10 +38,13 @@ public final class NoFocusDialog {
    @NonNull
    private final Builder builder;
 
+   @NonNull
+   private final ScannerActivity scannerActivity;
+
    private volatile AlertDialog alertDialog = null;
 
-   public NoFocusDialog(@NonNull Context context) {
-      builder = new Builder(context).setCancelable(true);
+   public NoFocusDialog(@NonNull ScannerActivity activity) {
+      builder = new Builder(scannerActivity = activity).setCancelable(true);
    }
 
    @NonNull
@@ -54,15 +61,26 @@ public final class NoFocusDialog {
       return this;
    }
 
+   @NonNull
+   public NoFocusDialog activateScannerListener() {
+      builder.setOnKeyListener(new OnKeyListener() {
+         @Override
+         public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+            return scannerActivity.processKeyEvent(event);
+         }
+      });
+      return this;
+   }
+
    /* -------------------------------------------------------------------------------------------------------------- */
 
    public interface ButtonListener {
-      void onClick();
+      void onClick(int id);
    }
 
    private static final ButtonListener IGNORE_BUTTON = new ButtonListener() {
       @Override
-      public void onClick() { /* ignore */ }
+      public void onClick(int id) { /* ignore */ }
    };
 
    private final class OnButtonClickListener implements OnClickListener {
@@ -76,7 +94,10 @@ public final class NoFocusDialog {
       @Override
       public void onClick(DialogInterface dialog, int which) {
          synchronized (NoFocusDialog.this) { alertDialog = null; }
-         listener.onClick();
+         switch (which) {
+         case BUTTON_NEGATIVE: listener.onClick(0); break;
+         case BUTTON_POSITIVE: listener.onClick(1); break;
+         }
       }
    }
 
@@ -133,8 +154,8 @@ public final class NoFocusDialog {
    public synchronized NoFocusDialog setButtonText(int id, @StringRes int resId, Object... formatArgs) {
       String text = App.getStr(resId, formatArgs);
       switch (id) {
-      case 0: alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setText(text); break;
-      case 1: alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(text); break;
+      case 0: alertDialog.getButton(BUTTON_NEGATIVE).setText(text); break;
+      case 1: alertDialog.getButton(BUTTON_POSITIVE).setText(text); break;
       }
       return this;
    }
@@ -147,8 +168,8 @@ public final class NoFocusDialog {
     */
    public synchronized NoFocusDialog setButtonEnabled(int id, boolean enabled) {
       switch (id) {
-      case 0: alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setEnabled(enabled); break;
-      case 1: alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(enabled); break;
+      case 0: alertDialog.getButton(BUTTON_NEGATIVE).setEnabled(enabled); break;
+      case 1: alertDialog.getButton(BUTTON_POSITIVE).setEnabled(enabled); break;
       }
       return this;
    }

@@ -51,7 +51,7 @@ import de.fahimu.schlib.share.FileType;
  * @version 1.0, 01.09.2014
  * @since SchoolLibrary 1.0
  */
-public final class LoginActivity extends SchlibActivity {
+public final class LoginActivity extends SchlibActivity implements ButtonListener {
 
    private View     scan;
    private View     card0;
@@ -115,14 +115,13 @@ public final class LoginActivity extends SchlibActivity {
    private void createAdminOrTutorDialog() {
       adminOrTutorDialog = new NoFocusDialog(this);
       adminOrTutorDialog.setMessage(R.string.dialog_message_login);
-      adminOrTutorDialog.setButton0(R.string.dialog_button0_login, new ButtonListener() {
-         @Override
-         public void onClick() { playSoundAndStartActivity(TutorActivity.class); }
-      });
-      adminOrTutorDialog.setButton1(R.string.dialog_button1_login, new ButtonListener() {
-         @Override
-         public void onClick() { playSoundAndStartActivity(AdminActivity.class); }
-      });
+      adminOrTutorDialog.setButton0(R.string.dialog_button0_login, this);
+      adminOrTutorDialog.setButton1(R.string.dialog_button1_login, this);
+   }
+
+   @Override
+   public void onClick(int id) {
+      playSoundAndStartActivity(id == 0 ? TutorActivity.class : AdminActivity.class);
    }
 
    /* ============================================================================================================== */

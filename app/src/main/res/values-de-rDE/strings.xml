@@ -412,6 +412,15 @@
         \nBitte wechseln Sie dazu in die Ansicht \"Bücherbestand verwalten\".
     </string>
 
+    <string name="dialog_message_admin_users_edit_idcard_lost">
+        Ausweis verloren oder zurückgegeben?
+        \nIst der vorherige Ausweis mit der Nummer %1$s verloren gegangen,
+        oder wurde er zurückgegeben und ist jetzt wieder im Vorrat?\n
+        \nWenn die Ausweiskarte zurückgegeben wurde, bitte jetzt scannen!
+    </string>
+    <string name="dialog_button0_admin_users_edit_idcard_lost">Verloren</string>
+    <string name="dialog_button1_admin_users_edit_idcard_lost">Zurückgegeben</string>
+
     <string name="dialog_message_admin_books_add_step_2_similar_name">
         Verwechslungsgefahr!
         \nDie von Ihnen gewählte Kategorie \"%1$s\" kann leicht mit \"%2$s\" verwechselt werden.\n
@@ -845,6 +854,7 @@
         \n• Eine neue Ausweiskarte zuweisen oder den Ausweis entziehen\n
         \n• Das Nutzerkonto löschen
     </string>
+    <string name="admin_users_edit_display">%1$s - Ausweis %2$s</string>
     <string name="admin_users_edit_empty">Keine Bücher ausgeliehen</string>
     <string name="admin_users_edit_nbooks_text_1">Der Nutzer darf höchstens</string>
     <string name="admin_users_edit_nbooks_text_2">gleichzeitig ausleihen.</string>
@@ -853,6 +863,11 @@
     <string name="admin_users_edit_reassign_idcard">Neue Ausweiskarte zuweisen</string>
     <string name="admin_users_edit_withdraw_idcard">Ausweis entziehen</string>
     <string name="admin_users_edit_delete_account">Nutzerkonto löschen</string>
+    <string name="admin_users_edit_snackbar_info_please_scan_idcard">Bitte die neue Ausweiskarte scannen.</string>
+    <string name="admin_users_edit_snackbar_info_idcard_identical">Dieser Ausweis ist schon zugewiesen.</string>
+    <string name="admin_users_edit_snackbar_undo_idcard_reassigned">Ausweis %1$s wurde zugewiesen.</string>
+    <string name="admin_users_edit_snackbar_undo_idcard_withdrawed">Ausweis wurde entzogen.</string>
+    <string name="admin_users_edit_snackbar_info_idcard_restored">Vorherigen Ausweis wieder zugewiesen.</string>
 
     <!-- AdminBooksActivity -->
 

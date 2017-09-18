@@ -247,7 +247,7 @@ public final class AdminBooksAddStep3 extends StepFragment<AdminBooksAddActivity
          NoFocusDialog dialog = new NoFocusDialog(activity);
          ButtonListener buttonListener = new ButtonListener() {
             @Override
-            public void onClick() { confirmedTitle = activity.title; }
+            public void onClick(int id) { confirmedTitle = activity.title; }
          };
          if (activity.isbn == null) {
             dialog.setMessage(R.string.dialog_message_admin_books_add_step_3_no_isbn,

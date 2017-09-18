@@ -517,9 +517,19 @@ public final class User extends Row {
     *
     * @return the {@code Idcard} number of this {@code User}.
     */
+   public int getIdcardId() {
+      return values.getInt(IDCARD);
+   }
+
+   /**
+    * Returns the {@code Idcard} of this {@code User}.
+    * <p> Precondition: {@link #hasIdcard()} must be {@code true}. </p>
+    *
+    * @return the {@code Idcard} of this {@code User}.
+    */
    @NonNull
    public Idcard getIdcard() {
-      return Idcard.getNonNull(values.getInt(IDCARD));
+      return Idcard.getNonNull(getIdcardId());
    }
 
    @NonNull
@@ -568,8 +578,7 @@ public final class User extends Row {
 
    @NonNull
    public String getDisplayIdcard() {
-      return hasIdcard() ? SerialNumber.getDisplay(values.getInt(IDCARD)) :
-             App.getStr(R.string.user_display_idcard_n_a);
+      return hasIdcard() ? SerialNumber.getDisplay(getIdcardId()) : App.getStr(R.string.user_display_idcard_n_a);
    }
 
    @NonNull
