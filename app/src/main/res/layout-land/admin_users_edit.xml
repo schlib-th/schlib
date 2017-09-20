@@ -87,8 +87,8 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="24dp"
 
-            android:orientation="horizontal"
             android:gravity="center"
+            android:orientation="horizontal"
 
             app:layout_constraintBottom_toTopOf="@id/admin_users_edit_reassign_idcard"
             app:layout_constraintEnd_toStartOf="@id/admin_users_edit_golden_ratio"
@@ -123,7 +123,11 @@
 
             android:background="@color/color_primary_light"
             android:elevation="4dp"
-            android:padding="8dp"
+
+            android:paddingBottom="12dp"
+            android:paddingEnd="0dp"
+            android:paddingStart="12dp"
+            android:paddingTop="0dp"
 
             app:layout_constraintBottom_toTopOf="@id/admin_users_edit_role"
             app:layout_constraintEnd_toStartOf="@id/admin_users_edit_golden_ratio"
@@ -136,25 +140,19 @@
 
                 android:text="@string/admin_users_edit_nbooks_text_1"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+
                 app:layout_constraintBaseline_toBaselineOf="@+id/admin_users_edit_nbooks_spinner"
                 app:layout_constraintEnd_toStartOf="@id/admin_users_edit_nbooks_spinner"
-
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <Spinner
                 android:id="@+id/admin_users_edit_nbooks_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                android:layout_marginBottom="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="0dp"
-
                 app:layout_constraintBaseline_toBaselineOf="@+id/admin_users_edit_nbooks_text_1"
-
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/admin_users_edit_nbooks_text_2"
@@ -163,8 +161,8 @@
 
                 android:text="@string/admin_users_edit_nbooks_text_2"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                app:layout_constraintEnd_toEndOf="parent"
 
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/admin_users_edit_nbooks_text_1" />
 
